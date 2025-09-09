@@ -1,39 +1,39 @@
-import { useMessageStore } from '../store/messageStore'
-import { useState } from 'react'
+import { useMessageStore } from '../store/messageStore';
+import { useState } from 'react';
 
 export default function SSEButton() {
-  const addSSEMessage = useMessageStore((state) => state.addSSEMessage)
-  const [isLoading, setIsLoading] = useState(false)
+  const addSSEMessage = useMessageStore((state) => state.addSSEMessage);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSSEClick = () => {
-    if (isLoading) return
+    if (isLoading) return;
 
-    setIsLoading(true)
+    setIsLoading(true);
     
-    const eventSource = new EventSource('/api/sse')
+    const eventSource = new EventSource('/api/sse');
     
     eventSource.onmessage = (event) => {
-      console.log('Received SSE message:', event.data, 'at', new Date().toISOString())
+      console.log('Received SSE message:', event.data, 'at', new Date().toISOString());
       
       if (event.data === '[DONE]') {
-        eventSource.close()
-        setIsLoading(false)
-        return
+        eventSource.close();
+        setIsLoading(false);
+        return;
       }
       
       try {
-        const data = JSON.parse(event.data)
-        addSSEMessage(data.message)
+        const data = JSON.parse(event.data);
+        addSSEMessage(data.message);
       } catch (error) {
-        console.error('Error parsing SSE data:', error)
+        console.error('Error parsing SSE data:', error);
       }
-    }
+    };
     
     eventSource.onerror = (error) => {
-      console.error('SSE error:', error)
-      eventSource.close()
-      setIsLoading(false)
-    }
+      console.error('SSE error:', error);
+      eventSource.close();
+      setIsLoading(false);
+    };
   }
 
   return (

@@ -1,9 +1,9 @@
-import { create } from 'zustand'
+import { create } from 'zustand';
 
 interface MessageState {
-  messages: string[]
-  addMessage: (message: string) => void
-  addSSEMessage: (message: string) => void
+  messages: string[];
+  addMessage: (message: string) => void;
+  addSSEMessage: (message: string) => void;
 }
 
 export const useMessageStore = create<MessageState>((set) => ({
@@ -16,4 +16,4 @@ export const useMessageStore = create<MessageState>((set) => ({
     set((state) => ({
       messages: [...state.messages, `[SSE] ${message}`]
     }))
-}))
+}));

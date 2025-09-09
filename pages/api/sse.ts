@@ -1,8 +1,8 @@
-import { NextApiRequest, NextApiResponse } from 'next'
+import { NextApiRequest, NextApiResponse } from 'next';
 
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'GET') {
-    return res.status(405).json({ message: 'Method not allowed' })
+    return res.status(405).json({ message: 'Method not allowed' });
   }
 
   // Set headers for SSE
@@ -13,7 +13,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Cache-Control',
     'X-Accel-Buffering': 'no' // Disable nginx buffering
-  })
+  });
 
   const messages = [
     'SSE Message 1',
@@ -26,43 +26,45 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     'SSE Message 8',
     'SSE Message 9',
     'SSE Message 10'
-  ]
+  ];
 
-  let messageIndex = 0
+  let messageIndex = 0;
 
   const sendMessage = () => {
     if (messageIndex < messages.length) {
-      const message = messages[messageIndex]
-      const data = `data: ${JSON.stringify({ message })}\n\n`
+      const message = messages[messageIndex];
+      const data = `data: ${JSON.stringify({ message })}\n\n`;
       
-      console.log(`Sending message ${messageIndex + 1}: ${message} at ${new Date().toISOString()}`)
-      res.write(data)
+      console.log(`Sending message ${messageIndex + 1}: ${message} at ${new Date().toISOString()}`);
+      res.write(data);
       
-      // Force immediate send
-      if (typeof res.flush === 'function') {
-        res.flush()
+      // Force immediate send by accessing the underlying Node.js response
+      const nodeRes = res as any;
+      if (nodeRes.flush && typeof nodeRes.flush === 'function') {
+        nodeRes.flush();
       }
       
-      messageIndex++
+      messageIndex++;
       
       if (messageIndex < messages.length) {
-        setTimeout(sendMessage, 250) // 0.25 seconds
+        setTimeout(sendMessage, 250); // 0.25 seconds
       } else {
-        console.log('Sending DONE signal')
-        res.write('data: [DONE]\n\n')
-        if (typeof res.flush === 'function') {
-          res.flush()
+        console.log('Sending DONE signal');
+        res.write('data: [DONE]\n\n');
+        const nodeRes = res as any;
+        if (nodeRes.flush && typeof nodeRes.flush === 'function') {
+          nodeRes.flush();
         }
-        res.end()
+        res.end();
       }
     }
   }
 
   // Start sending messages
-  sendMessage()
+  sendMessage();
 
   // Handle client disconnect
   req.on('close', () => {
-    res.end()
-  })
+    res.end();
+  });
 }
