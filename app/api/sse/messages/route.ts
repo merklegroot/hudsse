@@ -1,4 +1,5 @@
 import { NextRequest } from 'next/server';
+import { sseMessage } from '../../../../models/sseMessage';
 
 export async function GET(req: NextRequest) {
   // Create a ReadableStream for SSE
@@ -21,10 +22,14 @@ export async function GET(req: NextRequest) {
 
       const sendMessage = () => {
         if (messageIndex < messages.length) {
-          const message = messages[messageIndex];
-          const data = `data: ${JSON.stringify({ message })}\n\n`;
+          const messageText = messages[messageIndex];
+          const message: sseMessage = {
+            type: 'other',
+            contents: messageText
+          };
+          const data = `data: ${JSON.stringify(message)}\n\n`;
           
-          console.log(`Sending message ${messageIndex + 1}: ${message} at ${new Date().toISOString()}`);
+          console.log(`Sending message ${messageIndex + 1}: ${messageText} at ${new Date().toISOString()}`);
           controller.enqueue(new TextEncoder().encode(data));
           
           messageIndex++;

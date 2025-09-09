@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server';
 import { spawnAndGetDataWorkflow } from '../../../../workflows/spawnAndGetDataWorkflow';
 import { SpawnOptions } from '../../../../models/SpawnOptions';
 import { SpawnResult } from '../../../../models/SpawnResult';
+import { sseMessage } from '../../../../models/sseMessage';
 
 export async function GET(req: NextRequest) {
   // Create a ReadableStream for SSE
@@ -10,7 +11,11 @@ export async function GET(req: NextRequest) {
       console.log('Starting dotnet --list-sdks command...');
       
       // Send initial message to indicate the command is starting
-      const initialData = `data: ${JSON.stringify({ message: 'Starting dotnet --list-sdks command...', timestamp: new Date().toISOString() })}\n\n`;
+      const initialMessage: sseMessage = {
+        type: 'other',
+        contents: 'Starting dotnet --list-sdks command...'
+      };
+      const initialData = `data: ${JSON.stringify(initialMessage)}\n\n`;
       controller.enqueue(new TextEncoder().encode(initialData));
       
       // Configure the spawn options for dotnet --list-sdks
@@ -23,8 +28,11 @@ export async function GET(req: NextRequest) {
           const lines = data.split('\n').filter(line => line.trim().length > 0);
           
           for (const line of lines) {
-            const message = line.trim();
-            const sseData = `data: ${JSON.stringify({ message, timestamp: new Date().toISOString() })}\n\n`;
+            const message: sseMessage = {
+              type: 'other',
+              contents: line.trim()
+            };
+            const sseData = `data: ${JSON.stringify(message)}\n\n`;
             
             controller.enqueue(new TextEncoder().encode(sseData));
           }
@@ -37,10 +45,11 @@ export async function GET(req: NextRequest) {
           if (result.success) {
             controller.enqueue(new TextEncoder().encode('data: [DONE]\n\n'));
           } else {
-            const errorData = `data: ${JSON.stringify({ 
-              message: `Error: ${result.stderr}`, 
-              timestamp: new Date().toISOString() 
-            })}\n\n`;
+            const errorMessage: sseMessage = {
+              type: 'other',
+              contents: `Error: ${result.stderr}`
+            };
+            const errorData = `data: ${JSON.stringify(errorMessage)}\n\n`;
             controller.enqueue(new TextEncoder().encode(errorData));
             controller.enqueue(new TextEncoder().encode('data: [DONE]\n\n'));
           }
@@ -48,10 +57,11 @@ export async function GET(req: NextRequest) {
           controller.close();
         })
         .catch((error: Error) => {
-          const errorData = `data: ${JSON.stringify({ 
-            message: `Failed to execute dotnet command: ${error.message}`, 
-            timestamp: new Date().toISOString() 
-          })}\n\n`;
+          const errorMessage: sseMessage = {
+            type: 'other',
+            contents: `Failed to execute dotnet command: ${error.message}`
+          };
+          const errorData = `data: ${JSON.stringify(errorMessage)}\n\n`;
           controller.enqueue(new TextEncoder().encode(errorData));
           controller.enqueue(new TextEncoder().encode('data: [DONE]\n\n'));
           controller.close();

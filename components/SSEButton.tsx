@@ -1,6 +1,7 @@
 'use client'
 
 import { useMessageStore } from '../store/messageStore';
+import { sseMessage } from '../models/sseMessage';
 import { useState } from 'react';
 
 const parseSSEData = (data: string) => {
@@ -12,14 +13,14 @@ const parseSSEData = (data: string) => {
   }
 };
 
-const handleSSEMessage = (addSSEMessage: (message: string) => void) => (event: MessageEvent) => {
+const handleSSEMessage = (addSSEMessage: (message: sseMessage) => void) => (event: MessageEvent) => {
   if (event.data === '[DONE]') {
     return { shouldClose: true };
   }
 
   const data = parseSSEData(event.data);
-  if (data?.message) {
-    addSSEMessage(data.message);
+  if (data?.type && data?.contents) {
+    addSSEMessage(data as sseMessage);
   }
 
   return { shouldClose: false };
@@ -32,7 +33,7 @@ const handleSSEError = (error: Event) => {
 
 const createEventSource = () => new EventSource('/api/sse/dotnet-list-sdks');
 
-const createSSEHandlers = (addSSEMessage: (message: string) => void, setIsLoading: (loading: boolean) => void) => {
+const createSSEHandlers = (addSSEMessage: (message: sseMessage) => void, setIsLoading: (loading: boolean) => void) => {
   const eventSource = createEventSource();
 
   const messageHandler = handleSSEMessage(addSSEMessage);
