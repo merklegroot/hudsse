@@ -1,3 +1,5 @@
+'use client'
+
 import { useMessageStore } from '../store/messageStore';
 
 export default function AddMessageButton() {

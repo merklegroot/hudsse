@@ -1,6 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // App Router is stable in Next.js 13.4+ and enabled by default in 14+
+  // App Router is enabled by default in Next.js 13.4+
+  experimental: {
+    // App Router is stable and enabled by default
+  }
 }
 
 module.exports = nextConfig

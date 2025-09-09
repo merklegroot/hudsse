@@ -1,9 +1,11 @@
+'use client'
+
 import Link from 'next/link'
-import { useRouter } from 'next/router'
+import { usePathname } from 'next/navigation'
 
 function NavLink({ label, href }: { label: string, href: string }) {
-  const router = useRouter()
-  const isActive = router.pathname === href
+  const pathname = usePathname()
+  const isActive = pathname === href
 
   return (
     <li>
