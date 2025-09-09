@@ -1,4 +1,4 @@
-export type sseMessageType = 'other';
+export type sseMessageType = 'stdout' | 'other';
 
 export interface sseMessage {
     type: sseMessageType;

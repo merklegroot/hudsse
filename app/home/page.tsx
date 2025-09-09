@@ -1,9 +1,13 @@
+'use client';
+
 import Layout from '../../components/Layout'
 import AddMessageButton from '../../components/AddMessageButton'
 import SSEButton from '../../components/SSEButton'
 import MessageList from '../../components/MessageList'
+import { useMessageStore } from '@/store/messageStore'
 
 export default function Home() {
+  const messages = useMessageStore((state) => state.messages)
   return (
     <Layout title="Home" description="Home page">
       <main>
@@ -13,7 +17,7 @@ export default function Home() {
           <AddMessageButton />
           <SSEButton />
         </div>
-        <MessageList />
+        <MessageList messages={messages} />
       </main>
     </Layout>
   )

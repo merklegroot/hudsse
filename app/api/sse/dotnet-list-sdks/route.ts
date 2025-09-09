@@ -29,7 +29,7 @@ export async function GET(req: NextRequest) {
           
           for (const line of lines) {
             const message: sseMessage = {
-              type: 'other',
+              type: 'stdout',
               contents: line.trim()
             };
             const sseData = `data: ${JSON.stringify(message)}\n\n`;
