@@ -3,6 +3,7 @@ import { spawnAndGetDataWorkflow } from '../../../../workflows/spawnAndGetDataWo
 import { SpawnOptions } from '../../../../models/SpawnOptions';
 import { SpawnResult } from '../../../../models/SpawnResult';
 import { sseMessage } from '../../../../models/sseMessage';
+import { parseDotnetSdks } from '../../../../utils/parseDotnetSdks';
 
 export async function GET(req: NextRequest) {
   // Create a ReadableStream for SSE
@@ -18,12 +19,18 @@ export async function GET(req: NextRequest) {
       const initialData = `data: ${JSON.stringify(initialMessage)}\n\n`;
       controller.enqueue(new TextEncoder().encode(initialData));
       
+      // Collect all output for parsing
+      let allOutput = '';
+      
       // Configure the spawn options for dotnet --list-sdks
       const spawnOptions: SpawnOptions = {
         command: 'dotnet',
         args: ['--list-sdks'],
         timeout: 30000, // 30 seconds timeout
         dataCallback: (data: string) => {
+          // Collect all output for later parsing
+          allOutput += data;
+          
           // Stream each line of output as it comes
           const lines = data.split('\n').filter(line => line.trim().length > 0);
           
@@ -43,6 +50,24 @@ export async function GET(req: NextRequest) {
       spawnAndGetDataWorkflow.execute(spawnOptions)
         .then((result: SpawnResult) => {
           if (result.success) {
+            // Parse the SDK data and send result message
+            try {
+              const listSdksResult = parseDotnetSdks(allOutput);
+              const resultMessage: sseMessage = {
+                type: 'result',
+                contents: JSON.stringify(listSdksResult)
+              };
+              const resultData = `data: ${JSON.stringify(resultMessage)}\n\n`;
+              controller.enqueue(new TextEncoder().encode(resultData));
+            } catch (parseError) {
+              const parseErrorMessage: sseMessage = {
+                type: 'other',
+                contents: `Failed to parse SDK data: ${parseError instanceof Error ? parseError.message : 'Unknown error'}`
+              };
+              const parseErrorData = `data: ${JSON.stringify(parseErrorMessage)}\n\n`;
+              controller.enqueue(new TextEncoder().encode(parseErrorData));
+            }
+            
             controller.enqueue(new TextEncoder().encode('data: [DONE]\n\n'));
           } else {
             const errorMessage: sseMessage = {
