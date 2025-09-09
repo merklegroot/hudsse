@@ -1,0 +1,12 @@
+---
+description: TypeScript Rules
+globs:
+alwaysApply: true
+---
+
+## Semicolons
+Use semicolons.
+This isn't Python.
+
+## Function over const
+Prefer function over const for methods.

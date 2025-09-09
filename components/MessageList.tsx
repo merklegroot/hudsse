@@ -1,6 +1,5 @@
 'use client'
 
-import { useMessageStore } from '../store/messageStore'
 import { sseMessage } from '../models/sseMessage'
 
 function MessageItem({ message }: { message: sseMessage }) {

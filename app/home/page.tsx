@@ -1,24 +1,17 @@
-'use client';
+import type { Metadata } from 'next';
+import { HomeControl } from './HomeControl';
 
-import Layout from '../../components/Layout'
-import AddMessageButton from '../../components/AddMessageButton'
-import SSEButton from '../../components/SSEButton'
-import MessageList from '../../components/MessageList'
-import { useMessageStore } from '@/store/messageStore'
+export const metadata: Metadata = {
+  title: 'Home - SSE App',
+  description: 'Home page',
+}
 
 export default function Home() {
-  const messages = useMessageStore((state) => state.messages)
   return (
-    <Layout title="Home" description="Home page">
-      <main>
-        <h1>Home</h1>
-        <p>Welcome to the Home page!</p>
-        <div className="space-x-4 mb-4">
-          <AddMessageButton />
-          <SSEButton />
-        </div>
-        <MessageList messages={messages} />
-      </main>
-    </Layout>
+    <main>
+      <h1>Home</h1>
+      <p>Welcome to the Home page!</p>
+      <HomeControl />
+    </main>
   )
 }
