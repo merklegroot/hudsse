@@ -5,34 +5,44 @@ import { SpawnResult } from '../../../../models/SpawnResult';
 import { SseMessage } from '../../../../models/SseMessage';
 import { parseDotnetSdks } from '../../../../utils/parseDotnetSdks';
 
+interface commandAndArgs {
+  command: string;
+  args: string[];
+}
+
 export async function GET(req: NextRequest) {
   const stream = new ReadableStream({
     start(controller) {
-      const initialMessage: SseMessage = {
-        type: 'other',
-        contents: 'Starting dotnet --list-sdks command...'
-      };
-      const initialData = `data: ${JSON.stringify(initialMessage)}\n\n`;
-      controller.enqueue(new TextEncoder().encode(initialData));
-      
-      let allOutput = '';
-      
-      const spawnOptions: SpawnOptions = {
+      const commandAndArgs: commandAndArgs = {
         command: 'dotnet',
-        args: ['--list-sdks'],
+        args: ['--list-sdks']
+      };
+
+      const commandMessage: SseMessage = {
+        type: 'command',
+        contents: `${commandAndArgs.command} ${commandAndArgs.args.join(' ')}`
+      };
+      const commandData = `data: ${JSON.stringify(commandMessage)}\n\n`;
+      controller.enqueue(new TextEncoder().encode(commandData));
+
+      let allOutput = '';
+
+      const spawnOptions: SpawnOptions = {
+        command: commandAndArgs.command,
+        args: commandAndArgs.args,
         timeout: 30000, // 30 seconds timeout
         dataCallback: (data: string) => {
           allOutput += data;
-          
+
           const lines = data.split('\n').filter(line => line.trim().length > 0);
-          
+
           for (const line of lines) {
             const message: SseMessage = {
               type: 'stdout',
               contents: line.trim()
             };
             const sseData = `data: ${JSON.stringify(message)}\n\n`;
-            
+
             controller.enqueue(new TextEncoder().encode(sseData));
           }
         }
@@ -60,7 +70,7 @@ export async function GET(req: NextRequest) {
               const parseErrorData = `data: ${JSON.stringify(parseErrorMessage)}\n\n`;
               controller.enqueue(new TextEncoder().encode(parseErrorData));
             }
-            
+
             controller.enqueue(new TextEncoder().encode('data: [DONE]\n\n'));
           } else {
             const errorMessage: SseMessage = {
@@ -71,7 +81,7 @@ export async function GET(req: NextRequest) {
             controller.enqueue(new TextEncoder().encode(errorData));
             controller.enqueue(new TextEncoder().encode('data: [DONE]\n\n'));
           }
-          
+
           controller.close();
         })
         .catch((error: Error) => {

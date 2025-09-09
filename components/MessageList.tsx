@@ -78,6 +78,9 @@ function MessageItem({ message }: { message: SseMessage }) {
 export default function MessageList({ messages }: { messages: SseMessage[] }) {
   return (
     <div className="mt-6">
+      <div>
+        raw: {JSON.stringify(messages || [])}
+      </div>
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-2xl font-bold text-gray-900">Messages</h2>
         <span className="bg-gray-100 text-gray-600 text-sm px-3 py-1 rounded-full">
