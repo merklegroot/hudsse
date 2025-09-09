@@ -1,12 +1,12 @@
-import { listSdksResult, sdkInfo } from '../models/sseMessage';
+import { ListSdksResult, SdkInfo } from '../models/SseMessage';
 
 /**
  * Parses the output from 'dotnet --list-sdks' command
  * Expected format: "8.0.100 [/path/to/sdk]"
  */
-export function parseDotnetSdks(output: string): listSdksResult {
+export function parseDotnetSdks(output: string): ListSdksResult {
   const lines = output.split('\n').filter(line => line.trim().length > 0);
-  const sdks: sdkInfo[] = [];
+  const sdks: SdkInfo[] = [];
   
   for (const line of lines) {
     const trimmedLine = line.trim();

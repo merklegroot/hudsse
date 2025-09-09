@@ -1,15 +1,15 @@
 export type sseMessageType = 'stdout' | 'other' | 'result';
 
-export interface sdkInfo {
+export interface SdkInfo {
     version: string;
     path: string;
 }
 
-export interface listSdksResult {
-    sdks: sdkInfo[];
+export interface ListSdksResult {
+    sdks: SdkInfo[];
 }
 
-export interface sseMessage {
+export interface SseMessage {
     type: sseMessageType;
     contents: string;
     result?: string;

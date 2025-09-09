@@ -2,13 +2,13 @@ import { NextRequest } from 'next/server';
 import { spawnAndGetDataWorkflow } from '../../../../workflows/spawnAndGetDataWorkflow';
 import { SpawnOptions } from '../../../../models/SpawnOptions';
 import { SpawnResult } from '../../../../models/SpawnResult';
-import { sseMessage } from '../../../../models/sseMessage';
+import { SseMessage } from '../../../../models/SseMessage';
 import { parseDotnetSdks } from '../../../../utils/parseDotnetSdks';
 
 export async function GET(req: NextRequest) {
   const stream = new ReadableStream({
     start(controller) {
-      const initialMessage: sseMessage = {
+      const initialMessage: SseMessage = {
         type: 'other',
         contents: 'Starting dotnet --list-sdks command...'
       };
@@ -27,7 +27,7 @@ export async function GET(req: NextRequest) {
           const lines = data.split('\n').filter(line => line.trim().length > 0);
           
           for (const line of lines) {
-            const message: sseMessage = {
+            const message: SseMessage = {
               type: 'stdout',
               contents: line.trim()
             };
@@ -45,7 +45,7 @@ export async function GET(req: NextRequest) {
             // Parse the SDK data and send result message
             try {
               const listSdksResult = parseDotnetSdks(allOutput);
-              const resultMessage: sseMessage = {
+              const resultMessage: SseMessage = {
                 type: 'result',
                 contents: 'SDK list parsed successfully',
                 result: JSON.stringify(listSdksResult)
@@ -53,7 +53,7 @@ export async function GET(req: NextRequest) {
               const resultData = `data: ${JSON.stringify(resultMessage)}\n\n`;
               controller.enqueue(new TextEncoder().encode(resultData));
             } catch (parseError) {
-              const parseErrorMessage: sseMessage = {
+              const parseErrorMessage: SseMessage = {
                 type: 'other',
                 contents: `Failed to parse SDK data: ${parseError instanceof Error ? parseError.message : 'Unknown error'}`
               };
@@ -63,7 +63,7 @@ export async function GET(req: NextRequest) {
             
             controller.enqueue(new TextEncoder().encode('data: [DONE]\n\n'));
           } else {
-            const errorMessage: sseMessage = {
+            const errorMessage: SseMessage = {
               type: 'other',
               contents: `Error: ${result.stderr}`
             };
@@ -75,7 +75,7 @@ export async function GET(req: NextRequest) {
           controller.close();
         })
         .catch((error: Error) => {
-          const errorMessage: sseMessage = {
+          const errorMessage: SseMessage = {
             type: 'other',
             contents: `Failed to execute dotnet command: ${error.message}`,
           };

@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { sseMessage } from '../../../../models/sseMessage';
+import { SseMessage } from '../../../../models/SseMessage';
 
 export async function GET(req: NextRequest) {
   // Create a ReadableStream for SSE
@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
       const sendMessage = () => {
         if (messageIndex < messages.length) {
           const messageText = messages[messageIndex];
-          const message: sseMessage = {
+          const message: SseMessage = {
             type: 'other',
             contents: messageText
           };
