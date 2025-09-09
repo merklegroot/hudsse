@@ -6,12 +6,8 @@ import { sseMessage } from '../../../../models/sseMessage';
 import { parseDotnetSdks } from '../../../../utils/parseDotnetSdks';
 
 export async function GET(req: NextRequest) {
-  // Create a ReadableStream for SSE
   const stream = new ReadableStream({
     start(controller) {
-      console.log('Starting dotnet --list-sdks command...');
-      
-      // Send initial message to indicate the command is starting
       const initialMessage: sseMessage = {
         type: 'other',
         contents: 'Starting dotnet --list-sdks command...'
@@ -19,19 +15,15 @@ export async function GET(req: NextRequest) {
       const initialData = `data: ${JSON.stringify(initialMessage)}\n\n`;
       controller.enqueue(new TextEncoder().encode(initialData));
       
-      // Collect all output for parsing
       let allOutput = '';
       
-      // Configure the spawn options for dotnet --list-sdks
       const spawnOptions: SpawnOptions = {
         command: 'dotnet',
         args: ['--list-sdks'],
         timeout: 30000, // 30 seconds timeout
         dataCallback: (data: string) => {
-          // Collect all output for later parsing
           allOutput += data;
           
-          // Stream each line of output as it comes
           const lines = data.split('\n').filter(line => line.trim().length > 0);
           
           for (const line of lines) {
@@ -55,7 +47,8 @@ export async function GET(req: NextRequest) {
               const listSdksResult = parseDotnetSdks(allOutput);
               const resultMessage: sseMessage = {
                 type: 'result',
-                contents: JSON.stringify(listSdksResult)
+                contents: 'SDK list parsed successfully',
+                result: JSON.stringify(listSdksResult)
               };
               const resultData = `data: ${JSON.stringify(resultMessage)}\n\n`;
               controller.enqueue(new TextEncoder().encode(resultData));
@@ -84,7 +77,7 @@ export async function GET(req: NextRequest) {
         .catch((error: Error) => {
           const errorMessage: sseMessage = {
             type: 'other',
-            contents: `Failed to execute dotnet command: ${error.message}`
+            contents: `Failed to execute dotnet command: ${error.message}`,
           };
           const errorData = `data: ${JSON.stringify(errorMessage)}\n\n`;
           controller.enqueue(new TextEncoder().encode(errorData));

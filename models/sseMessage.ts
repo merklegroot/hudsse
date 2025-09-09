@@ -12,4 +12,5 @@ export interface listSdksResult {
 export interface sseMessage {
     type: sseMessageType;
     contents: string;
+    result?: string;
 }
