@@ -11,7 +11,8 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     'Cache-Control': 'no-cache',
     'Connection': 'keep-alive',
     'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Headers': 'Cache-Control'
+    'Access-Control-Allow-Headers': 'Cache-Control',
+    'X-Accel-Buffering': 'no' // Disable nginx buffering
   })
 
   const messages = [
@@ -32,13 +33,26 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
   const sendMessage = () => {
     if (messageIndex < messages.length) {
       const message = messages[messageIndex]
-      res.write(`data: ${JSON.stringify({ message })}\n\n`)
+      const data = `data: ${JSON.stringify({ message })}\n\n`
+      
+      console.log(`Sending message ${messageIndex + 1}: ${message} at ${new Date().toISOString()}`)
+      res.write(data)
+      
+      // Force immediate send
+      if (typeof res.flush === 'function') {
+        res.flush()
+      }
+      
       messageIndex++
       
       if (messageIndex < messages.length) {
         setTimeout(sendMessage, 250) // 0.25 seconds
       } else {
+        console.log('Sending DONE signal')
         res.write('data: [DONE]\n\n')
+        if (typeof res.flush === 'function') {
+          res.flush()
+        }
         res.end()
       }
     }
