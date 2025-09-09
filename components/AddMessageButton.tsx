@@ -2,7 +2,6 @@ import { useMessageStore } from '../store/messageStore';
 
 export default function AddMessageButton() {
   const addMessage = useMessageStore((state) => state.addMessage);
-
   const handleClick = () => {
     addMessage('testing 123');
   };
@@ -14,5 +13,5 @@ export default function AddMessageButton() {
     >
       Add Message
     </button>
-  )
+  );
 }
