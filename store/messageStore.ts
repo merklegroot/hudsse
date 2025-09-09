@@ -3,6 +3,7 @@ import { create } from 'zustand'
 interface MessageState {
   messages: string[]
   addMessage: (message: string) => void
+  addSSEMessage: (message: string) => void
 }
 
 export const useMessageStore = create<MessageState>((set) => ({
@@ -10,5 +11,9 @@ export const useMessageStore = create<MessageState>((set) => ({
   addMessage: (message: string) =>
     set((state) => ({
       messages: [...state.messages, message]
+    })),
+  addSSEMessage: (message: string) =>
+    set((state) => ({
+      messages: [...state.messages, `[SSE] ${message}`]
     }))
 }))
