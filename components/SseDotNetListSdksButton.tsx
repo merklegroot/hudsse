@@ -73,7 +73,7 @@ const createSSEHandlers = (addSSEMessage: (message: SseMessage) => void, setIsLo
   return eventSource;
 };
 
-export default function SSEButton() {
+export default function SseDotNetListSdksButton() {
   const addSSEMessage = useMessageStore((state) => state.addSSEMessage);
   const [isLoading, setIsLoading] = useState(false);
 

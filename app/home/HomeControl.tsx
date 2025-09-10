@@ -2,7 +2,7 @@
 
 import { useMessageStore } from '@/store/messageStore';
 import AddMessageButton from '@/components/AddMessageButton';
-import SSEButton from '@/components/SSEButton';
+import SseDotNetListSdksButton from '@/components/SseDotNetListSdksButton';
 import MessageList from '@/components/MessageList';
 
 export function HomeControl() {
@@ -12,7 +12,7 @@ export function HomeControl() {
         <div>
             <div className="space-x-4 mb-4">
                 <AddMessageButton />
-                <SSEButton />
+                <SseDotNetListSdksButton />
             </div>
             <div>
                 <MessageList messages={messages} />
