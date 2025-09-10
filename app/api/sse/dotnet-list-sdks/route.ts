@@ -4,16 +4,12 @@ import { SpawnOptions } from '../../../../models/SpawnOptions';
 import { SpawnResult } from '../../../../models/SpawnResult';
 import { SseMessage } from '../../../../models/SseMessage';
 import { parseDotnetSdks } from '../../../../utils/parseDotnetSdks';
-
-interface commandAndArgs {
-  command: string;
-  args: string[];
-}
+import { CommandAndArgs } from '@/models/CommandAndArgs';
 
 export async function GET(req: NextRequest) {
   const stream = new ReadableStream({
     start(controller) {
-      const commandAndArgs: commandAndArgs = {
+      const commandAndArgs: CommandAndArgs = {
         command: 'dotnet',
         args: ['--list-sdks']
       };
