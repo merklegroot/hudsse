@@ -6,7 +6,10 @@ import { SseMessage } from '../../../../models/SseMessage';
 import { parseDotnetSdks } from '../../../../utils/parseDotnetSdks';
 import { CommandAndArgs } from '@/models/CommandAndArgs';
 
-function createSseCommandHandler(commandAndArgs: CommandAndArgs) {
+function createSseCommandHandler(
+  commandAndArgs: CommandAndArgs,
+  onSuccess: (allOutput: string, controller: ReadableStreamDefaultController) => void
+) {
   return async function GET(req: NextRequest) {
     const stream = new ReadableStream({
       async start(controller) {
@@ -46,25 +49,7 @@ function createSseCommandHandler(commandAndArgs: CommandAndArgs) {
         const result: SpawnResult = await spawnAndGetDataWorkflow.execute(spawnOptions);
         
         if (result.success) {
-          // Parse the SDK data and send result message
-          try {
-            const listSdksResult = parseDotnetSdks(allOutput);
-            const resultMessage: SseMessage = {
-              type: 'result',
-              contents: 'SDK list parsed successfully',
-              result: JSON.stringify(listSdksResult)
-            };
-            const resultData = `data: ${JSON.stringify(resultMessage)}\n\n`;
-            controller.enqueue(new TextEncoder().encode(resultData));
-          } catch (parseError) {
-            const parseErrorMessage: SseMessage = {
-              type: 'other',
-              contents: `Failed to parse SDK data: ${parseError instanceof Error ? parseError.message : 'Unknown error'}`
-            };
-            const parseErrorData = `data: ${JSON.stringify(parseErrorMessage)}\n\n`;
-            controller.enqueue(new TextEncoder().encode(parseErrorData));
-          }
-
+          onSuccess(allOutput, controller);
           controller.enqueue(new TextEncoder().encode('data: [DONE]\n\n'));
         } else {
           const errorMessage: SseMessage = {
@@ -102,8 +87,32 @@ function createSseCommandHandler(commandAndArgs: CommandAndArgs) {
   };
 }
 
-export const GET = createSseCommandHandler({
-  command: 'dotnet',
-  args: ['--list-sdks']
-});
+function handleDotnetSdksSuccess(allOutput: string, controller: ReadableStreamDefaultController) {
+  // Parse the SDK data and send result message
+  try {
+    const listSdksResult = parseDotnetSdks(allOutput);
+    const resultMessage: SseMessage = {
+      type: 'result',
+      contents: 'SDK list parsed successfully',
+      result: JSON.stringify(listSdksResult)
+    };
+    const resultData = `data: ${JSON.stringify(resultMessage)}\n\n`;
+    controller.enqueue(new TextEncoder().encode(resultData));
+  } catch (parseError) {
+    const parseErrorMessage: SseMessage = {
+      type: 'other',
+      contents: `Failed to parse SDK data: ${parseError instanceof Error ? parseError.message : 'Unknown error'}`
+    };
+    const parseErrorData = `data: ${JSON.stringify(parseErrorMessage)}\n\n`;
+    controller.enqueue(new TextEncoder().encode(parseErrorData));
+  }
+}
+
+export const GET = createSseCommandHandler(
+  {
+    command: 'dotnet',
+    args: ['--list-sdks']
+  },
+  handleDotnetSdksSuccess
+);
 
