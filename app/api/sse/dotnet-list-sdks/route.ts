@@ -8,7 +8,7 @@ import { CommandAndArgs } from '@/models/CommandAndArgs';
 
 export async function GET(req: NextRequest) {
   const stream = new ReadableStream({
-    start(controller) {
+    async start(controller) {
       const commandAndArgs: CommandAndArgs = {
         command: 'dotnet',
         args: ['--list-sdks']
@@ -45,51 +45,50 @@ export async function GET(req: NextRequest) {
       };
 
       // Execute the dotnet command and handle completion
-      spawnAndGetDataWorkflow.execute(spawnOptions)
-        .then((result: SpawnResult) => {
-          if (result.success) {
-            // Parse the SDK data and send result message
-            try {
-              const listSdksResult = parseDotnetSdks(allOutput);
-              const resultMessage: SseMessage = {
-                type: 'result',
-                contents: 'SDK list parsed successfully',
-                result: JSON.stringify(listSdksResult)
-              };
-              const resultData = `data: ${JSON.stringify(resultMessage)}\n\n`;
-              controller.enqueue(new TextEncoder().encode(resultData));
-            } catch (parseError) {
-              const parseErrorMessage: SseMessage = {
-                type: 'other',
-                contents: `Failed to parse SDK data: ${parseError instanceof Error ? parseError.message : 'Unknown error'}`
-              };
-              const parseErrorData = `data: ${JSON.stringify(parseErrorMessage)}\n\n`;
-              controller.enqueue(new TextEncoder().encode(parseErrorData));
-            }
-
-            controller.enqueue(new TextEncoder().encode('data: [DONE]\n\n'));
-          } else {
-            const errorMessage: SseMessage = {
-              type: 'other',
-              contents: `Error: ${result.stderr}`
+      try {
+        const result: SpawnResult = await spawnAndGetDataWorkflow.execute(spawnOptions);
+        
+        if (result.success) {
+          // Parse the SDK data and send result message
+          try {
+            const listSdksResult = parseDotnetSdks(allOutput);
+            const resultMessage: SseMessage = {
+              type: 'result',
+              contents: 'SDK list parsed successfully',
+              result: JSON.stringify(listSdksResult)
             };
-            const errorData = `data: ${JSON.stringify(errorMessage)}\n\n`;
-            controller.enqueue(new TextEncoder().encode(errorData));
-            controller.enqueue(new TextEncoder().encode('data: [DONE]\n\n'));
+            const resultData = `data: ${JSON.stringify(resultMessage)}\n\n`;
+            controller.enqueue(new TextEncoder().encode(resultData));
+          } catch (parseError) {
+            const parseErrorMessage: SseMessage = {
+              type: 'other',
+              contents: `Failed to parse SDK data: ${parseError instanceof Error ? parseError.message : 'Unknown error'}`
+            };
+            const parseErrorData = `data: ${JSON.stringify(parseErrorMessage)}\n\n`;
+            controller.enqueue(new TextEncoder().encode(parseErrorData));
           }
 
-          controller.close();
-        })
-        .catch((error: Error) => {
+          controller.enqueue(new TextEncoder().encode('data: [DONE]\n\n'));
+        } else {
           const errorMessage: SseMessage = {
             type: 'other',
-            contents: `Failed to execute dotnet command: ${error.message}`,
+            contents: `Error: ${result.stderr}`
           };
           const errorData = `data: ${JSON.stringify(errorMessage)}\n\n`;
           controller.enqueue(new TextEncoder().encode(errorData));
           controller.enqueue(new TextEncoder().encode('data: [DONE]\n\n'));
-          controller.close();
-        });
+        }
+      } catch (error: Error) {
+        const errorMessage: SseMessage = {
+          type: 'other',
+          contents: `Failed to execute dotnet command: ${error.message}`,
+        };
+        const errorData = `data: ${JSON.stringify(errorMessage)}\n\n`;
+        controller.enqueue(new TextEncoder().encode(errorData));
+        controller.enqueue(new TextEncoder().encode('data: [DONE]\n\n'));
+      }
+
+      controller.close();
     }
   });
 
