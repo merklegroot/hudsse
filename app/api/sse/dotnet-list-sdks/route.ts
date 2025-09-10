@@ -6,13 +6,10 @@ import { SseMessage } from '../../../../models/SseMessage';
 import { parseDotnetSdks } from '../../../../utils/parseDotnetSdks';
 import { CommandAndArgs } from '@/models/CommandAndArgs';
 
-export async function GET(req: NextRequest) {
-  const stream = new ReadableStream({
-    async start(controller) {
-      const commandAndArgs: CommandAndArgs = {
-        command: 'dotnet',
-        args: ['--list-sdks']
-      };
+function createSseCommandHandler(commandAndArgs: CommandAndArgs) {
+  return async function GET(req: NextRequest) {
+    const stream = new ReadableStream({
+      async start(controller) {
 
       const commandMessage: SseMessage = {
         type: 'command',
@@ -88,19 +85,25 @@ export async function GET(req: NextRequest) {
         controller.enqueue(new TextEncoder().encode('data: [DONE]\n\n'));
       }
 
-      controller.close();
-    }
-  });
+        controller.close();
+      }
+    });
 
-  return new Response(stream, {
-    headers: {
-      'Content-Type': 'text/event-stream',
-      'Cache-Control': 'no-cache',
-      'Connection': 'keep-alive',
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Headers': 'Cache-Control',
-      'X-Accel-Buffering': 'no' // Disable nginx buffering
-    }
-  });
+    return new Response(stream, {
+      headers: {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'Cache-Control',
+        'X-Accel-Buffering': 'no' // Disable nginx buffering
+      }
+    });
+  };
 }
+
+export const GET = createSseCommandHandler({
+  command: 'dotnet',
+  args: ['--list-sdks']
+});
 
