@@ -75,10 +75,10 @@ function createSseCommandHandler(commandAndArgs: CommandAndArgs) {
           controller.enqueue(new TextEncoder().encode(errorData));
           controller.enqueue(new TextEncoder().encode('data: [DONE]\n\n'));
         }
-      } catch (error: Error) {
+      } catch (error) {
         const errorMessage: SseMessage = {
           type: 'other',
-          contents: `Failed to execute dotnet command: ${error.message}`,
+          contents: `Failed to execute dotnet command: ${error instanceof Error ? error.message : 'Unknown error'}`,
         };
         const errorData = `data: ${JSON.stringify(errorMessage)}\n\n`;
         controller.enqueue(new TextEncoder().encode(errorData));
