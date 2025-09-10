@@ -87,32 +87,38 @@ function createSseCommandHandler(
   };
 }
 
-function handleDotnetSdksSuccess(allOutput: string, controller: ReadableStreamDefaultController) {
-  // Parse the SDK data and send result message
-  try {
-    const listSdksResult = parseDotnetSdks(allOutput);
-    const resultMessage: SseMessage = {
-      type: 'result',
-      contents: 'SDK list parsed successfully',
-      result: JSON.stringify(listSdksResult)
-    };
-    const resultData = `data: ${JSON.stringify(resultMessage)}\n\n`;
-    controller.enqueue(new TextEncoder().encode(resultData));
-  } catch (parseError) {
-    const parseErrorMessage: SseMessage = {
-      type: 'other',
-      contents: `Failed to parse SDK data: ${parseError instanceof Error ? parseError.message : 'Unknown error'}`
-    };
-    const parseErrorData = `data: ${JSON.stringify(parseErrorMessage)}\n\n`;
-    controller.enqueue(new TextEncoder().encode(parseErrorData));
-  }
+function createSseCommandHandlerWithParser<T>(
+  commandAndArgs: CommandAndArgs,
+  parser: (output: string) => T,
+  successMessage: string = 'Command executed successfully'
+) {
+  return createSseCommandHandler(commandAndArgs, (allOutput, controller) => {
+    try {
+      const parsedResult = parser(allOutput);
+      const resultMessage: SseMessage = {
+        type: 'result',
+        contents: successMessage,
+        result: JSON.stringify(parsedResult)
+      };
+      const resultData = `data: ${JSON.stringify(resultMessage)}\n\n`;
+      controller.enqueue(new TextEncoder().encode(resultData));
+    } catch (parseError) {
+      const parseErrorMessage: SseMessage = {
+        type: 'other',
+        contents: `Failed to parse command output: ${parseError instanceof Error ? parseError.message : 'Unknown error'}`
+      };
+      const parseErrorData = `data: ${JSON.stringify(parseErrorMessage)}\n\n`;
+      controller.enqueue(new TextEncoder().encode(parseErrorData));
+    }
+  });
 }
 
-export const GET = createSseCommandHandler(
+export const GET = createSseCommandHandlerWithParser(
   {
     command: 'dotnet',
     args: ['--list-sdks']
   },
-  handleDotnetSdksSuccess
+  parseDotnetSdks,
+  'SDK list parsed successfully'
 );
 
