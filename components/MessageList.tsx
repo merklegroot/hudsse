@@ -87,7 +87,7 @@ function MessageResultsView({ messages }: { messages: SseMessage[] }) {
   return (
     <ul className="space-y-4">
       {messages.filter(message => message.result).map((message: SseMessage, index) => (
-        <MessageItem key={index} message={message} />
+        <SdkResult key={index} message={message} />
       ))}
     </ul>
   )
@@ -113,8 +113,8 @@ export default function MessageList({ messages }: { messages: SseMessage[] }) {
         </div>
       ) : (
         <div>
-        <SimpleMessageView messages={messages} />
-        <MessageResultsView messages={messages} />
+          <SimpleMessageView messages={messages} />
+          <MessageResultsView messages={messages} />
         </div>
       )}
     </div>
