@@ -54,18 +54,16 @@ function SdkResult({ message }: { message: SseMessage }) {
 function MessageItem({ message }: { message: SseMessage }) {
   const getPromptSymbol = (type: string) => {
     switch (type) {
-      case 'stdout': return '$';
+      case 'command': return '$';
       case 'result': return '>';
-      case 'command': return '#';
       default: return '?';
     }
   };
 
   const getTypeColor = (type: string) => {
     switch (type) {
-      case 'stdout': return 'text-green-400';
+      case 'command': return 'text-green-400';
       case 'result': return 'text-cyan-400';
-      case 'command': return 'text-yellow-400';
       default: return 'text-gray-400';
     }
   };
@@ -73,9 +71,11 @@ function MessageItem({ message }: { message: SseMessage }) {
   return (
     <div className="font-mono text-sm">
       <div className="flex items-start">
-        <span className={`${getTypeColor(message.type)} mr-2 select-none`}>
-          {getPromptSymbol(message.type)}
-        </span>
+        {message.type !== 'stdout' && (
+          <span className={`${getTypeColor(message.type)} mr-2 select-none`}>
+            {getPromptSymbol(message.type)}
+          </span>
+        )}
         <div className="flex-1 text-gray-300 whitespace-pre-wrap break-words">
           {message.contents}
         </div>
