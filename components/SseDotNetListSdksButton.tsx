@@ -39,7 +39,7 @@ const handleSSEError = (error: Event) => {
   return { shouldClose: true };
 };
 
-const createEventSource = () => new EventSource('/api/sse/dotnet-list-sdks');
+const createEventSource = () => new EventSource('/api/sse/dotnet/list-sdks');
 
 const createSSEHandlers = (addSSEMessage: (message: SseMessage) => void, setIsLoading: (loading: boolean) => void) => {
   const eventSource = createEventSource();
