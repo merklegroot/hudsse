@@ -71,10 +71,12 @@ function MessageItem({ message }: { message: SseMessage }) {
   return (
     <div className="font-mono text-sm">
       <div className="flex items-start">
-        {message.type !== 'stdout' && (
+        {message.type !== 'stdout' ? (
           <span className={`${getTypeColor(message.type)} mr-2 select-none`}>
             {getPromptSymbol(message.type)}
           </span>
+        ) : (
+          <span className="mr-2 select-none text-transparent">$</span>
         )}
         <div className="flex-1 text-gray-300 whitespace-pre-wrap break-words">
           {message.contents}
@@ -86,15 +88,7 @@ function MessageItem({ message }: { message: SseMessage }) {
 
 function SimpleMessageView({ messages }: { messages: SseMessage[] }) {
   return (
-    <div className="bg-black border border-gray-600 rounded-lg p-4 font-mono text-sm">
-      <div className="flex items-center mb-3 pb-2 border-b border-gray-700">
-        <div className="flex space-x-2">
-          <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-          <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-          <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-        </div>
-        <span className="ml-3 text-gray-400 text-xs">Terminal</span>
-      </div>
+    <div className="bg-black border border-gray-600 rounded-lg p-4 text-sm" style={{ fontFamily: 'Monaco, Menlo, "Ubuntu Mono", "Roboto Mono", Consolas, "Liberation Mono", "Courier New", monospace' }}>
       <div className="space-y-1">
         {messages.map((message: SseMessage, index) => (
           <MessageItem key={index} message={message} />
