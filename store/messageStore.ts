@@ -12,7 +12,7 @@ const createInitialState = (): Pick<MessageState, 'messages'> => ({
 });
 
 const addMessageToState = (state: MessageState) => (message: string) => ({
-  messages: [...state.messages, { type: 'other', contents: message }]
+  messages: [...state.messages, { type: 'other' as const, contents: message }]
 });
 
 const addSSEMessageToState = (state: MessageState) => (message: SseMessage) => ({
