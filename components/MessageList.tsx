@@ -56,7 +56,7 @@ function MessageItem({ message }: { message: SseMessage }) {
     switch (type) {
       case 'command': return '$';
       case 'result': return '>';
-      default: return '?';
+      default: return '·';
     }
   };
 
