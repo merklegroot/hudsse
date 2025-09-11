@@ -1,5 +1,6 @@
 'use client'
 
+import React from 'react';
 import { ListSdksResult, SdkInfo, SseMessage } from '../models/SseMessage'
 
 function SdkItem({ sdk }: { sdk: SdkInfo }) {
@@ -87,9 +88,35 @@ function MessageItem({ message }: { message: SseMessage }) {
 }
 
 function SimpleMessageView({ messages }: { messages: SseMessage[] }) {
+  const scrollRef = React.useRef<HTMLDivElement>(null);
+  const [isUserScrolled, setIsUserScrolled] = React.useState(false);
+
+  React.useEffect(() => {
+    const scrollContainer = scrollRef.current;
+    if (!scrollContainer) return;
+
+    const handleScroll = () => {
+      const { scrollTop, scrollHeight, clientHeight } = scrollContainer;
+      const isAtBottom = scrollTop + clientHeight >= scrollHeight - 10; // 10px tolerance
+      setIsUserScrolled(!isAtBottom);
+    };
+
+    scrollContainer.addEventListener('scroll', handleScroll);
+    return () => scrollContainer.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  React.useEffect(() => {
+    if (!isUserScrolled && scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [messages, isUserScrolled]);
+
   return (
-    <div className="bg-black border border-gray-600 rounded-lg p-4 text-sm" style={{ fontFamily: 'Monaco, Menlo, "Ubuntu Mono", "Roboto Mono", Consolas, "Liberation Mono", "Courier New", monospace' }}>
-      <div className="space-y-1">
+    <div className="bg-black border border-gray-600 rounded-lg p-4 text-sm h-96 flex flex-col" style={{ fontFamily: 'Monaco, Menlo, "Ubuntu Mono", "Roboto Mono", Consolas, "Liberation Mono", "Courier New", monospace' }}>
+      <div 
+        ref={scrollRef}
+        className="flex-1 overflow-y-auto space-y-1 pr-2 scrollbar-thin scrollbar-track-gray-800 scrollbar-thumb-gray-600"
+      >
         {messages.map((message: SseMessage, index) => (
           <MessageItem key={index} message={message} />
         ))}
