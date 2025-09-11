@@ -1,7 +1,4 @@
 import { SseMessage } from "@/models/SseMessage";
-import { useMessageStore } from "@/store/messageStore";
-
-const addSSEMessage = useMessageStore((state) => state.addSSEMessage);
 
 function handleSseError(error: Event) {
     console.error('SSE error:', error);
@@ -17,7 +14,7 @@ function parseSseData(data: string): SseMessage | undefined {
     }
 }
 
-function handleSseMessage(addSSEMessage: (message: SseMessage) => void) {
+function handleSseMessage(addSseMessage: (message: SseMessage) => void) {
     return function (event: MessageEvent) {
         console.log('SSE Raw data received:', event.data);
 
@@ -31,7 +28,7 @@ function handleSseMessage(addSSEMessage: (message: SseMessage) => void) {
 
         if (data?.type && data?.contents) {
             console.log('Adding message to store:', data);
-            addSSEMessage(data as SseMessage);
+            addSseMessage(data as SseMessage);
         } else {
             console.warn('Invalid message format:', data);
         }
@@ -42,12 +39,13 @@ function handleSseMessage(addSSEMessage: (message: SseMessage) => void) {
 
 export function sseClientHandlerFactory(
     setIsLoading: (loading: boolean) => void,
-    createEventSource: () => EventSource) {
+    createEventSource: () => EventSource,
+    addSseMessage: (message: SseMessage) => void) {
     const eventSource = createEventSource();
 
     console.log('SSE EventSource created, readyState:', eventSource.readyState);
 
-    const messageHandler = handleSseMessage(addSSEMessage);
+    const messageHandler = handleSseMessage(addSseMessage);
     const errorHandler = handleSseError;
 
     eventSource.onopen = () => {

@@ -3,6 +3,7 @@
 import { useMessageStore } from '../store/messageStore';
 import { SseMessage } from '../models/SseMessage';
 import { useState } from 'react';
+import { sseClientHandlerFactory } from '@/workflows/sseClientHandlerFactory';
 
 const parseSSEData = (data: string): SseMessage | undefined => {
   try {
@@ -77,15 +78,15 @@ export default function SseMessagesButton() {
   const addSSEMessage = useMessageStore((state) => state.addSSEMessage);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSSEClick = () => {
+  const onClick = () => {
     if (isLoading) return;
 
     setIsLoading(true);
-    createSSEHandlers(addSSEMessage, setIsLoading);
+    sseClientHandlerFactory(setIsLoading, () => new EventSource('/api/sse/messages'), addSSEMessage);
   };
 
   return (<button
-    onClick={handleSSEClick}
+    onClick={onClick}
     disabled={isLoading}
     className={`font-bold py-2 px-4 rounded ${isLoading
         ? 'bg-gray-400 cursor-not-allowed'
