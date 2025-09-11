@@ -52,34 +52,55 @@ function SdkResult({ message }: { message: SseMessage }) {
 }
 
 function MessageItem({ message }: { message: SseMessage }) {
+  const getPromptSymbol = (type: string) => {
+    switch (type) {
+      case 'stdout': return '$';
+      case 'result': return '>';
+      case 'command': return '#';
+      default: return '?';
+    }
+  };
+
+  const getTypeColor = (type: string) => {
+    switch (type) {
+      case 'stdout': return 'text-green-400';
+      case 'result': return 'text-cyan-400';
+      case 'command': return 'text-yellow-400';
+      default: return 'text-gray-400';
+    }
+  };
+
   return (
-    <li className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow">
-      <div className="flex items-start gap-3">
-        <span className={`text-xs px-3 py-1 rounded-full font-medium ${message.type === 'stdout'
-            ? 'bg-green-100 text-green-800 border border-green-200'
-            : message.type === 'result'
-              ? 'bg-purple-100 text-purple-800 border border-purple-200'
-              : 'bg-blue-100 text-blue-800 border border-blue-200'
-          }`}>
-          {message.type.toUpperCase()}
+    <div className="font-mono text-sm">
+      <div className="flex items-start">
+        <span className={`${getTypeColor(message.type)} mr-2 select-none`}>
+          {getPromptSymbol(message.type)}
         </span>
-        <div className="flex-1">
-          <div className="text-gray-800 text-sm font-medium mb-2">
-            {message.contents}
-          </div>
+        <div className="flex-1 text-gray-300 whitespace-pre-wrap break-words">
+          {message.contents}
         </div>
       </div>
-    </li>
+    </div>
   );
 }
 
 function SimpleMessageView({ messages }: { messages: SseMessage[] }) {
   return (
-    <ul className="space-y-4">
-      {messages.map((message: SseMessage, index) => (
-        <MessageItem key={index} message={message} />
-      ))}
-    </ul>
+    <div className="bg-black border border-gray-600 rounded-lg p-4 font-mono text-sm">
+      <div className="flex items-center mb-3 pb-2 border-b border-gray-700">
+        <div className="flex space-x-2">
+          <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+          <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+          <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+        </div>
+        <span className="ml-3 text-gray-400 text-xs">Terminal</span>
+      </div>
+      <div className="space-y-1">
+        {messages.map((message: SseMessage, index) => (
+          <MessageItem key={index} message={message} />
+        ))}
+      </div>
+    </div>
   )
 }
 
