@@ -1,5 +1,7 @@
 import { AppVersions } from "@/models/SseMessage";
 import { useMessageStore } from "@/store/messageStore";
+import { useState } from "react";
+import ConfirmationDialog from "../ConfirmationDialog";
 
 const getPillColor = (appName: string) => {
     const lowerAppName = appName.toLowerCase();
@@ -16,6 +18,7 @@ const getPillColor = (appName: string) => {
 };
 
 export function DotNetVersionView({ majorVersion, appVersions }: { majorVersion: number, appVersions: AppVersions }) {
+    const [showInstallDialog, setShowInstallDialog] = useState(false);
     const hasSDK = appVersions['SDK'] && appVersions['SDK'].length > 0;
     const hasAspNetCore = Object.keys(appVersions).some(key =>
         key.toLowerCase() === 'microsoft.aspnetcore.app' && appVersions[key].length > 0
@@ -62,6 +65,20 @@ export function DotNetVersionView({ majorVersion, appVersions }: { majorVersion:
 
     const status = getStatusMessage();
 
+    const handleInstallClick = () => {
+        setShowInstallDialog(true);
+    };
+
+    const handleInstallConfirm = () => {
+        // TODO: Implement SDK installation functionality
+        console.log(`Installing .NET ${majorVersion} SDK`);
+        setShowInstallDialog(false);
+    };
+
+    const handleInstallCancel = () => {
+        setShowInstallDialog(false);
+    };
+
     return (
         <div className={`border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow flex flex-col h-full ${isFullyInstalled
                 ? 'bg-green-50 border-green-200'
@@ -96,14 +113,21 @@ export function DotNetVersionView({ majorVersion, appVersions }: { majorVersion:
             <div className="mt-4 pt-3 border-t border-gray-200">
                 <button
                     className="px-3 py-1 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition-colors"
-                    onClick={() => {
-                        // TODO: Implement SDK installation functionality
-                        console.log(`Install SDK for .NET ${majorVersion}`);
-                    }}
+                    onClick={handleInstallClick}
                 >
                     Install SDK
                 </button>
             </div>
+            
+            <ConfirmationDialog
+                isOpen={showInstallDialog}
+                onClose={handleInstallCancel}
+                onConfirm={handleInstallConfirm}
+                title="Install .NET SDK"
+                message={`Are you sure you want to install the .NET ${majorVersion} SDK? This will download and install the latest .NET ${majorVersion} SDK and runtime components on your system.`}
+                confirmText={`Install .NET ${majorVersion} SDK`}
+                confirmButtonClass="bg-green-600 hover:bg-green-700"
+            />
         </div>
     )
 }
