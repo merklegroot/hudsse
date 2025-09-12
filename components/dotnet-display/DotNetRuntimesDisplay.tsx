@@ -1,8 +1,8 @@
 'use client';
 
 import React from 'react';
-import { useMessageStore } from '../store/messageStore';
-import { RuntimeInfo } from '../models/SseMessage';
+import { useMessageStore } from '../../store/messageStore';
+import { RuntimeInfo } from '../../models/SseMessage';
 
 function RuntimeItem({ runtime }: { runtime: RuntimeInfo }) {
   return (

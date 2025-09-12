@@ -1,8 +1,8 @@
 'use client';
 
 import React from 'react';
-import { useMessageStore } from '../store/messageStore';
-import { SdkInfo } from '../models/SseMessage';
+import { useMessageStore } from '../../store/messageStore';
+import { SdkInfo } from '../../models/SseMessage';
 
 function SdkItem({ sdk }: { sdk: SdkInfo }) {
   return (

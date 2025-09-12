@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { useMessageStore } from '../store/messageStore';
+import { useMessageStore } from '../../store/messageStore';
 
 export default function WhichDotNetDisplay() {
   const whichDotNetPath = useMessageStore((state) => state.whichDotNetPath);

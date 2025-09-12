@@ -1,8 +1,7 @@
 'use client';
 
 import React from 'react';
-import { useMessageStore } from '../store/messageStore';
-import { DotNetInfoResult } from '../models/SseMessage';
+import { useMessageStore } from '../../store/messageStore';
 
 function InfoCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -20,31 +19,6 @@ function InfoRow({ label, value }: { label: string; value: string }) {
       <span className="text-sm text-gray-900 font-mono bg-gray-50 px-2 py-1 rounded">
         {value}
       </span>
-    </div>
-  );
-}
-
-function SdkItem({ sdk }: { sdk: { version: string; path: string } }) {
-  return (
-    <div className="flex justify-between items-center py-2 border-b border-gray-100 last:border-b-0">
-      <span className="text-sm font-medium text-gray-600">{sdk.version}</span>
-      <span className="text-xs text-gray-500 font-mono bg-gray-50 px-2 py-1 rounded">
-        {sdk.path}
-      </span>
-    </div>
-  );
-}
-
-function RuntimeItem({ runtime }: { runtime: { name: string; version: string; path: string } }) {
-  return (
-    <div className="flex justify-between items-center py-2 border-b border-gray-100 last:border-b-0">
-      <span className="text-sm font-medium text-gray-600">{runtime.name}</span>
-      <div className="text-right">
-        <div className="text-xs text-gray-500">{runtime.version}</div>
-        <div className="text-xs text-gray-400 font-mono bg-gray-50 px-2 py-1 rounded">
-          {runtime.path}
-        </div>
-      </div>
     </div>
   );
 }
