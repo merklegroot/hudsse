@@ -111,7 +111,7 @@ export default function DotNetVersionListView() {
 
     return (
         <div>
-            <h1 className="text-2xl font-bold mb-4">DotNet Versions</h1>
+            <h2 className="text-2xl font-bold text-gray-900">Versions</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {majorVersions.map((majorVersion) => {
                     const versionAppVersions = getAppVersionsForMajorVersion(majorVersion);
