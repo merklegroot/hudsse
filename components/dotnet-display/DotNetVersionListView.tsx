@@ -2,6 +2,7 @@ import { AppVersions } from "@/models/SseMessage";
 import { useMessageStore } from "@/store/messageStore";
 import { useState } from "react";
 import ConfirmationDialog from "../ConfirmationDialog";
+import SseInstallDotNetButton from "../SseInstallDotNetButton";
 
 const getPillColor = (appName: string) => {
     const lowerAppName = appName.toLowerCase();
@@ -19,6 +20,7 @@ const getPillColor = (appName: string) => {
 
 export function DotNetVersionView({ majorVersion, appVersions }: { majorVersion: number, appVersions: AppVersions }) {
     const [showInstallDialog, setShowInstallDialog] = useState(false);
+    const [isInstalling, setIsInstalling] = useState(false);
     const hasSDK = appVersions['SDK'] && appVersions['SDK'].length > 0;
     const hasAspNetCore = Object.keys(appVersions).some(key =>
         key.toLowerCase() === 'microsoft.aspnetcore.app' && appVersions[key].length > 0
@@ -70,13 +72,18 @@ export function DotNetVersionView({ majorVersion, appVersions }: { majorVersion:
     };
 
     const handleInstallConfirm = () => {
-        // TODO: Implement SDK installation functionality
-        console.log(`Installing .NET ${majorVersion} SDK`);
+        setIsInstalling(true);
         setShowInstallDialog(false);
     };
 
     const handleInstallCancel = () => {
         setShowInstallDialog(false);
+    };
+
+    const handleInstallComplete = () => {
+        setIsInstalling(false);
+        // Optionally refresh the dotnet state here
+        console.log(`Installation completed for .NET ${majorVersion}`);
     };
 
     return (
@@ -111,12 +118,19 @@ export function DotNetVersionView({ majorVersion, appVersions }: { majorVersion:
                 ))}
             </div>
             <div className="mt-4 pt-3 border-t border-gray-200">
-                <button
-                    className="px-3 py-1 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition-colors"
-                    onClick={handleInstallClick}
-                >
-                    Install SDK
-                </button>
+                {isInstalling ? (
+                    <SseInstallDotNetButton 
+                        majorVersion={majorVersion} 
+                        onInstallComplete={handleInstallComplete}
+                    />
+                ) : (
+                    <button
+                        className="px-3 py-1 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition-colors"
+                        onClick={handleInstallClick}
+                    >
+                        Install SDK
+                    </button>
+                )}
             </div>
             
             <ConfirmationDialog
