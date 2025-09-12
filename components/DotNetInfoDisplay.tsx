@@ -50,9 +50,9 @@ function RuntimeItem({ runtime }: { runtime: { name: string; version: string; pa
 }
 
 export default function DotNetInfoDisplay() {
-  const dotnetInfo = useMessageStore((state) => state.dotnetInfo);
+  const dotnetState = useMessageStore((state) => state.dotnetState);
 
-  if (!dotnetInfo) {
+  if (!dotnetState) {
     return (
       <div className="mt-6">
         <div className="flex items-center justify-between mb-4">
@@ -83,63 +83,33 @@ export default function DotNetInfoDisplay() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* SDK Information */}
           <InfoCard title=".NET SDK">
-            <InfoRow label="Version" value={dotnetInfo.sdk.version} />
-            <InfoRow label="Commit" value={dotnetInfo.sdk.commit} />
-            <InfoRow label="Workload Version" value={dotnetInfo.sdk.workloadVersion} />
-            <InfoRow label="MSBuild Version" value={dotnetInfo.sdk.msbuildVersion} />
+            <InfoRow label="Version" value={dotnetState.host.version} />
+            <InfoRow label="Commit" value={dotnetState.host.commit} />
+            <InfoRow label="Workload Version" value="N/A" />
+            <InfoRow label="MSBuild Version" value="N/A" />
           </InfoCard>
 
           {/* Runtime Environment */}
           <InfoCard title="Runtime Environment">
-            <InfoRow label="OS Name" value={dotnetInfo.runtimeEnvironment.osName} />
-            <InfoRow label="OS Version" value={dotnetInfo.runtimeEnvironment.osVersion} />
-            <InfoRow label="OS Platform" value={dotnetInfo.runtimeEnvironment.osPlatform} />
-            <InfoRow label="RID" value={dotnetInfo.runtimeEnvironment.rid} />
-            <InfoRow label="Base Path" value={dotnetInfo.runtimeEnvironment.basePath} />
+            <InfoRow label="OS Name" value={dotnetState.runtimeEnvironment.osName} />
+            <InfoRow label="OS Version" value={dotnetState.runtimeEnvironment.osVersion} />
+            <InfoRow label="OS Platform" value={dotnetState.runtimeEnvironment.osPlatform} />
+            <InfoRow label="RID" value={dotnetState.runtimeEnvironment.rid} />
+            <InfoRow label="Base Path" value={dotnetState.runtimeEnvironment.basePath} />
           </InfoCard>
 
           {/* Host Information */}
           <InfoCard title="Host">
-            <InfoRow label="Version" value={dotnetInfo.host.version} />
-            <InfoRow label="Architecture" value={dotnetInfo.host.architecture} />
-            <InfoRow label="Commit" value={dotnetInfo.host.commit} />
+            <InfoRow label="Version" value={dotnetState.host.version} />
+            <InfoRow label="Architecture" value={dotnetState.host.architecture} />
+            <InfoRow label="Commit" value={dotnetState.host.commit} />
           </InfoCard>
 
           {/* Workloads */}
           <InfoCard title="Workloads">
             <div className="text-sm text-gray-600">
-              {dotnetInfo.workloadsInstalled}
+              {dotnetState.workloadsInstalled}
             </div>
-          </InfoCard>
-        </div>
-
-        {/* Installed SDKs */}
-        <div className="mt-6">
-          <InfoCard title={`Installed SDKs (${dotnetInfo.installedSdks.length})`}>
-            {dotnetInfo.installedSdks.length === 0 ? (
-              <div className="text-sm text-gray-500 italic">No SDKs installed</div>
-            ) : (
-              <div className="space-y-1">
-                {dotnetInfo.installedSdks.map((sdk, index) => (
-                  <SdkItem key={`${sdk.version}-${index}`} sdk={sdk} />
-                ))}
-              </div>
-            )}
-          </InfoCard>
-        </div>
-
-        {/* Installed Runtimes */}
-        <div className="mt-6">
-          <InfoCard title={`Installed Runtimes (${dotnetInfo.installedRuntimes.length})`}>
-            {dotnetInfo.installedRuntimes.length === 0 ? (
-              <div className="text-sm text-gray-500 italic">No runtimes installed</div>
-            ) : (
-              <div className="space-y-1">
-                {dotnetInfo.installedRuntimes.map((runtime, index) => (
-                  <RuntimeItem key={`${runtime.name}-${index}`} runtime={runtime} />
-                ))}
-              </div>
-            )}
           </InfoCard>
         </div>
 
@@ -147,11 +117,11 @@ export default function DotNetInfoDisplay() {
         <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Other Architectures */}
           <InfoCard title="Other Architectures">
-            {dotnetInfo.otherArchitectures.length === 0 ? (
+            {dotnetState.otherArchitectures.length === 0 ? (
               <div className="text-sm text-gray-500 italic">None</div>
             ) : (
               <div className="space-y-1">
-                {dotnetInfo.otherArchitectures.map((arch, index) => (
+                {dotnetState.otherArchitectures.map((arch, index) => (
                   <div key={index} className="text-sm text-gray-600 font-mono bg-gray-50 px-2 py-1 rounded">
                     {arch}
                   </div>
@@ -162,11 +132,11 @@ export default function DotNetInfoDisplay() {
 
           {/* Environment Variables */}
           <InfoCard title="Environment Variables">
-            {Object.keys(dotnetInfo.environmentVariables).length === 0 ? (
+            {Object.keys(dotnetState.environmentVariables).length === 0 ? (
               <div className="text-sm text-gray-500 italic">None set</div>
             ) : (
               <div className="space-y-1">
-                {Object.entries(dotnetInfo.environmentVariables).map(([key, value]) => (
+                {Object.entries(dotnetState.environmentVariables).map(([key, value]) => (
                   <div key={key} className="flex justify-between items-center py-1">
                     <span className="text-sm font-medium text-gray-600">{key}</span>
                     <span className="text-xs text-gray-500 font-mono bg-gray-50 px-2 py-1 rounded">
@@ -183,7 +153,7 @@ export default function DotNetInfoDisplay() {
         <div className="mt-6">
           <InfoCard title="Global JSON">
             <div className="text-sm text-gray-600 font-mono bg-gray-50 px-2 py-1 rounded">
-              {dotnetInfo.globalJsonFile}
+              {dotnetState.globalJsonFile}
             </div>
           </InfoCard>
         </div>

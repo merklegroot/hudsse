@@ -19,7 +19,6 @@ interface MessageState {
   dotnetState: dotnetState | null;
   
   whichDotNetPath: string | null;
-  dotnetInfo: DotNetInfoResult | null;
   addMessage: (message: string) => void;
   addSSEMessage: (message: SseMessage) => void;
   setDotnetSdks: (sdks: SdkInfo[]) => void;
@@ -29,11 +28,10 @@ interface MessageState {
   setDotnetState: (state: dotnetState | null) => void;
 }
 
-const createInitialState = (): Pick<MessageState, 'messages' | 'whichDotNetPath' | 'dotnetInfo' | 'dotnetState'> => ({
+const createInitialState = (): Pick<MessageState, 'messages' | 'whichDotNetPath' | 'dotnetState'> => ({
   messages: [],
   dotnetState: null,
-  whichDotNetPath: null,
-  dotnetInfo: null
+  whichDotNetPath: null
 });
 
 const addMessageToState = (state: MessageState) => (message: string) => ({
@@ -63,7 +61,6 @@ const setWhichDotNetPathToState = (path: string | null) => ({
 });
 
 const setDotnetInfoToState = (info: DotNetInfoResult | null) => (state: MessageState) => ({
-  dotnetInfo: info,
   dotnetState: info ? {
     ...state.dotnetState,
     dotnetSdks: info.installedSdks.map(sdk => ({ version: sdk.version, path: sdk.path })),
