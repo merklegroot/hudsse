@@ -17,9 +17,13 @@ export function HomeControl() {
                 <SseDotNetListSdksButton />
                 <SseDelayedMessagesButton />
             </div>
-            <div>
-                <MessageList messages={messages} />
-                <DotNetSdksDisplay />
+            <div className="flex gap-6">
+                <div className="flex-3">
+                    <DotNetSdksDisplay />
+                </div>
+                <div className="flex-2">
+                    <MessageList messages={messages} />
+                </div>
             </div>
         </div>
     )
