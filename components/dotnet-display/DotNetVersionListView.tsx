@@ -24,6 +24,8 @@ export function DotNetVersionView({ majorVersion, appVersions }: { majorVersion:
         key.toLowerCase() === 'microsoft.netcore.app' && appVersions[key].length > 0
     );
     
+    const isFullyInstalled = hasSDK && hasAspNetCore && hasNetCore;
+    
     const getStatusMessage = () => {
         if (hasSDK && hasAspNetCore && hasNetCore) {
             return {
@@ -61,7 +63,11 @@ export function DotNetVersionView({ majorVersion, appVersions }: { majorVersion:
     const status = getStatusMessage();
 
     return (
-        <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow">
+        <div className={`border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow ${
+            isFullyInstalled 
+                ? 'bg-green-50 border-green-200' 
+                : 'bg-white'
+        }`}>
             <div className="flex items-center justify-between mb-3">
                 <span className="text-lg font-semibold">.NET {majorVersion}</span>
                 <div className={`flex items-center gap-1 text-sm font-medium ${status.color}`}>
@@ -93,6 +99,8 @@ export function DotNetVersionView({ majorVersion, appVersions }: { majorVersion:
 export default function DotNetVersionListView() {
     const majorVersions = [ 5, 6, 7, 8, 9 ];
     const appVersions = useMessageStore((state) => state.dotnetState?.appVersions) || {};
+    const hasTriedDetectingSdks = useMessageStore((state) => state.dotnetState?.hasTriedDetectingSdks) || false;
+    const hasTriedDetectingRuntimes = useMessageStore((state) => state.dotnetState?.hasTriedDetectingRuntimes) || false;
 
     function getAppVersionsForMajorVersion(majorVersion: number): AppVersions {
         const filtered: AppVersions = {};
@@ -112,19 +120,34 @@ export default function DotNetVersionListView() {
     return (
         <div>
             <h2 className="text-2xl font-bold text-gray-900">Versions</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {majorVersions.map((majorVersion) => {
-                    const versionAppVersions = getAppVersionsForMajorVersion(majorVersion);
-                    
-                    return (
-                        <DotNetVersionView 
-                            key={majorVersion} 
-                            majorVersion={majorVersion} 
-                            appVersions={versionAppVersions} 
-                        />
-                    );
-                })}
-            </div>
+            {!hasTriedDetectingSdks || !hasTriedDetectingRuntimes ? (
+                <div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+                    <div className="text-gray-400 text-lg mb-2">🔍</div>
+                    <p className="text-gray-500 text-lg">Detection not yet run...</p>
+                    <p className="text-gray-400 text-sm mt-1">
+                        {!hasTriedDetectingSdks && !hasTriedDetectingRuntimes 
+                            ? "SDKs and runtimes not yet detected..."
+                            : !hasTriedDetectingSdks 
+                            ? "SDKs not yet detected..."
+                            : "Runtimes not yet detected..."
+                        }
+                    </p>
+                </div>
+            ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {majorVersions.map((majorVersion) => {
+                        const versionAppVersions = getAppVersionsForMajorVersion(majorVersion);
+                        
+                        return (
+                            <DotNetVersionView 
+                                key={majorVersion} 
+                                majorVersion={majorVersion} 
+                                appVersions={versionAppVersions} 
+                            />
+                        );
+                    })}
+                </div>
+            )}
         </div>
     );
 }

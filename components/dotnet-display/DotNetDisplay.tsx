@@ -9,8 +9,6 @@ export default function DotNetDisplay() {
         <>
             <DotNetLocationDisplay />
             <DotNetVersionListView />
-            <DotNetSdksDisplay />
-            <DotNetRuntimesDisplay />
             <DotNetInfoDisplay />
         </>
     )

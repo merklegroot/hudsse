@@ -13,6 +13,10 @@ interface dotnetState {
     otherArchitectures: string[];
     environmentVariables: Record<string, string>;
     globalJsonFile: string;
+    
+    // Detection status flags
+    hasTriedDetectingSdks: boolean;
+    hasTriedDetectingRuntimes: boolean;
 }
 
 interface MessageState {
@@ -26,6 +30,8 @@ interface MessageState {
   setWhichDotNetPath: (path: string | null) => void;
   setDotnetInfo: (info: DotNetInfoResult | null) => void;
   setDotnetState: (state: dotnetState | null) => void;
+  setHasTriedDetectingSdks: (hasTried: boolean) => void;
+  setHasTriedDetectingRuntimes: (hasTried: boolean) => void;
 }
 
 const createInitialState = (): Pick<MessageState, 'messages' | 'dotnetState'> => ({
@@ -67,7 +73,8 @@ const addSSEMessageToState = (state: MessageState) => (message: SseMessage) => (
 const setDotnetSdksToState = (sdks: SdkInfo[]) => (state: MessageState) => ({
   dotnetState: state.dotnetState ? {
     ...state.dotnetState,
-    dotnetSdks: sdks
+    dotnetSdks: sdks,
+    hasTriedDetectingSdks: true
   } : null
 });
 
@@ -75,7 +82,8 @@ const setDotnetRuntimesToState = (runtimes: RuntimeInfo[]) => (state: MessageSta
   dotnetState: state.dotnetState ? {
     ...state.dotnetState,
     dotnetRuntimes: runtimes,
-    appVersions: createAppVersions(state.dotnetState.dotnetSdks, runtimes)
+    appVersions: createAppVersions(state.dotnetState.dotnetSdks, runtimes),
+    hasTriedDetectingRuntimes: true
   } : null
 });
 
@@ -111,7 +119,9 @@ const setWhichDotNetPathToState = (path: string | null) => (state: MessageState)
       workloadsInstalled: state.dotnetState?.workloadsInstalled || '',
       otherArchitectures: state.dotnetState?.otherArchitectures || [],
       environmentVariables: state.dotnetState?.environmentVariables || {},
-      globalJsonFile: state.dotnetState?.globalJsonFile || ''
+      globalJsonFile: state.dotnetState?.globalJsonFile || '',
+      hasTriedDetectingSdks: state.dotnetState?.hasTriedDetectingSdks || false,
+      hasTriedDetectingRuntimes: state.dotnetState?.hasTriedDetectingRuntimes || false
     }
   };
 };
@@ -139,13 +149,29 @@ const setDotnetInfoToState = (info: DotNetInfoResult | null) => (state: MessageS
       workloadsInstalled: info.workloadsInstalled,
       otherArchitectures: info.otherArchitectures,
       environmentVariables: info.environmentVariables,
-      globalJsonFile: info.globalJsonFile
+      globalJsonFile: info.globalJsonFile,
+      hasTriedDetectingSdks: true,
+      hasTriedDetectingRuntimes: true
     } : state.dotnetState
   };
 };
 
 const setDotnetStateToState = (state: dotnetState | null) => ({
   dotnetState: state
+});
+
+const setHasTriedDetectingSdksToState = (hasTried: boolean) => (state: MessageState) => ({
+  dotnetState: state.dotnetState ? {
+    ...state.dotnetState,
+    hasTriedDetectingSdks: hasTried
+  } : null
+});
+
+const setHasTriedDetectingRuntimesToState = (hasTried: boolean) => (state: MessageState) => ({
+  dotnetState: state.dotnetState ? {
+    ...state.dotnetState,
+    hasTriedDetectingRuntimes: hasTried
+  } : null
 });
 
 const createMessageActions = (set: (fn: (state: MessageState) => Partial<MessageState>) => void) => ({
@@ -155,7 +181,9 @@ const createMessageActions = (set: (fn: (state: MessageState) => Partial<Message
   setDotnetRuntimes: (runtimes: RuntimeInfo[]) => set((state) => setDotnetRuntimesToState(runtimes)(state)),
   setWhichDotNetPath: (path: string | null) => set((state) => setWhichDotNetPathToState(path)(state)),
   setDotnetInfo: (info: DotNetInfoResult | null) => set((state) => setDotnetInfoToState(info)(state)),
-  setDotnetState: (state: dotnetState | null) => set(() => setDotnetStateToState(state))
+  setDotnetState: (state: dotnetState | null) => set(() => setDotnetStateToState(state)),
+  setHasTriedDetectingSdks: (hasTried: boolean) => set((state) => setHasTriedDetectingSdksToState(hasTried)(state)),
+  setHasTriedDetectingRuntimes: (hasTried: boolean) => set((state) => setHasTriedDetectingRuntimesToState(hasTried)(state))
 });
 
 export const useMessageStore = create<MessageState>((set) => ({
