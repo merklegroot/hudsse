@@ -118,12 +118,13 @@ export function parseDotnetInfo(output: string): DotNetInfoResult {
 
       case 'runtimes':
         if (line.includes('[') && line.includes(']')) {
-          const match = line.match(/^(.+?)\s+\[(.+?)\]$/);
+          // Parse format: "Microsoft.AspNetCore.App 7.0.20 [/path/to/runtime]"
+          const match = line.match(/^(.+?)\s+(\S+)\s+\[(.+?)\]$/);
           if (match) {
             result.installedRuntimes!.push({
               name: match[1].trim(),
-              version: match[1].trim().split(' ')[0], // Extract just the name part
-              path: match[2].trim()
+              version: match[2].trim(), // Extract the version number
+              path: match[3].trim()
             });
           }
         }

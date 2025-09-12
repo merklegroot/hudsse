@@ -1,9 +1,10 @@
 import { create } from 'zustand';
-import { SseMessage, SdkInfo, RuntimeInfo, DotNetInfoResult, DotNetHost, RuntimeEnvironment } from '../models/SseMessage';
+import { SseMessage, SdkInfo, RuntimeInfo, GroupedRuntimes, DotNetInfoResult, DotNetHost, RuntimeEnvironment } from '../models/SseMessage';
 
 interface dotnetState {
   dotnetSdks: SdkInfo[];
   dotnetRuntimes: RuntimeInfo[];
+  groupedRuntimes: GroupedRuntimes;
 
   dotnetPath: string | null;
   runtimeEnvironment: RuntimeEnvironment;
@@ -32,6 +33,20 @@ const createInitialState = (): Pick<MessageState, 'messages' | 'dotnetState'> =>
   dotnetState: null
 });
 
+const groupRuntimesByApp = (runtimes: RuntimeInfo[]): GroupedRuntimes => {
+  const grouped: GroupedRuntimes = {};
+  
+  runtimes.forEach(runtime => {
+    const appType = runtime.name; // e.g., "Microsoft.AspNetCore.App"
+    if (!grouped[appType]) {
+      grouped[appType] = [];
+    }
+    grouped[appType].push(runtime);
+  });
+  
+  return grouped;
+};
+
 const addMessageToState = (state: MessageState) => (message: string) => ({
   messages: [...state.messages, { type: 'other' as const, contents: message }]
 });
@@ -50,7 +65,8 @@ const setDotnetSdksToState = (sdks: SdkInfo[]) => (state: MessageState) => ({
 const setDotnetRuntimesToState = (runtimes: RuntimeInfo[]) => (state: MessageState) => ({
   dotnetState: state.dotnetState ? {
     ...state.dotnetState,
-    dotnetRuntimes: runtimes
+    dotnetRuntimes: runtimes,
+    groupedRuntimes: groupRuntimesByApp(runtimes)
   } : null
 });
 
@@ -61,11 +77,14 @@ const setWhichDotNetPathToState = (path: string | null) => (state: MessageState)
     return fullPath.replace(/\/dotnet$/, '');
   };
 
+  const runtimes = state.dotnetState?.dotnetRuntimes || [];
+  
   return {
     dotnetState: {
       ...state.dotnetState,
       dotnetSdks: state.dotnetState?.dotnetSdks || [],
-      dotnetRuntimes: state.dotnetState?.dotnetRuntimes || [],
+      dotnetRuntimes: runtimes,
+      groupedRuntimes: groupRuntimesByApp(runtimes),
       dotnetPath: path ? extractDotnetPath(path) : null,
       runtimeEnvironment: state.dotnetState?.runtimeEnvironment || {
         osName: '',
@@ -95,11 +114,14 @@ const setDotnetInfoToState = (info: DotNetInfoResult | null) => (state: MessageS
     return basePath.replace(sdkPattern, '');
   };
 
+  const runtimes = info ? info.installedRuntimes.map(runtime => ({ name: runtime.name, version: runtime.version, path: runtime.path })) : [];
+  
   return {
     dotnetState: info ? {
       ...state.dotnetState,
       dotnetSdks: info.installedSdks.map(sdk => ({ version: sdk.version, path: sdk.path })),
-      dotnetRuntimes: info.installedRuntimes.map(runtime => ({ name: runtime.name, version: runtime.version, path: runtime.path })),
+      dotnetRuntimes: runtimes,
+      groupedRuntimes: groupRuntimesByApp(runtimes),
       dotnetPath: extractDotnetPath(info.runtimeEnvironment.basePath),
       runtimeEnvironment: info.runtimeEnvironment,
       host: info.host,
