@@ -4,6 +4,7 @@ import { useMessageStore } from '@/store/messageStore';
 import AddMessageButton from '@/components/AddMessageButton';
 import SseDotNetListSdksButton from '@/components/SseDotNetListSdksButton';
 import SseDotNetListRuntimesButton from '@/components/SseDotNetListRuntimesButton';
+import DetectDotNetButton from '@/components/DetectDotNetButton';
 import SseDelayedMessagesButton from '@/components/SseDelayedMessagesButton';
 import MessageList from '@/components/MessageList';
 import DotNetSdksDisplay from '@/components/DotNetSdksDisplay';
@@ -16,9 +17,11 @@ export function HomeControl() {
         <div>
             <div className="space-x-4 mb-4">
                 <AddMessageButton />
-                <SseDotNetListSdksButton />
-                <SseDotNetListRuntimesButton />
                 <SseDelayedMessagesButton />
+                {/* <SseDotNetListSdksButton />
+                <SseDotNetListRuntimesButton /> */}
+                <DetectDotNetButton />
+                
             </div>
             <div className="flex gap-6">
                 <div className="flex-3">
