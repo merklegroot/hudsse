@@ -24,34 +24,6 @@ function SdkItem({ sdk }: { sdk: SdkInfo }) {
   );
 }
 
-function SdkResult({ message }: { message: SseMessage }) {
-  const parsed = JSON.parse(message.result || '') as ListSdksResult;
-  const sdks = parsed.sdks || [];
-
-  return (
-    <div className="mt-3 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4">
-      <div className="flex items-center space-x-2 mb-3">
-        <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-        <h3 className="font-semibold text-gray-800 text-sm">SDK Results</h3>
-        <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
-          {sdks.length} found
-        </span>
-      </div>
-      {sdks.length > 0 ? (
-        <div className="space-y-2">
-          {sdks.map((sdk, index) => (
-            <SdkItem key={`${sdk.version}-${index}`} sdk={sdk} />
-          ))}
-        </div>
-      ) : (
-        <div className="text-center py-4 text-gray-500 text-sm">
-          No SDKs found
-        </div>
-      )}
-    </div>
-  );
-}
-
 function MessageItem({ message }: { message: SseMessage }) {
   const getPromptSymbol = (type: string) => {
     switch (type) {
@@ -125,22 +97,9 @@ function SimpleMessageView({ messages }: { messages: SseMessage[] }) {
   )
 }
 
-function MessageResultsView({ messages }: { messages: SseMessage[] }) {
-  return (
-    <ul className="space-y-4">
-      {messages.filter(message => message.result).map((message: SseMessage, index) => (
-        <SdkResult key={index} message={message} />
-      ))}
-    </ul>
-  )
-}
-
 export default function MessageList({ messages }: { messages: SseMessage[] }) {
   return (
     <div className="mt-6">
-      <div>
-        raw: {JSON.stringify(messages || [])}
-      </div>
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-2xl font-bold text-gray-900">Messages</h2>
         <span className="bg-gray-100 text-gray-600 text-sm px-3 py-1 rounded-full">
@@ -156,7 +115,6 @@ export default function MessageList({ messages }: { messages: SseMessage[] }) {
       ) : (
         <div>
           <SimpleMessageView messages={messages} />
-          <MessageResultsView messages={messages} />
         </div>
       )}
     </div>

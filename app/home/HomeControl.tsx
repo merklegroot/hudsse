@@ -5,6 +5,7 @@ import AddMessageButton from '@/components/AddMessageButton';
 import SseDotNetListSdksButton from '@/components/SseDotNetListSdksButton';
 import SseDelayedMessagesButton from '@/components/SseDelayedMessagesButton';
 import MessageList from '@/components/MessageList';
+import DotNetSdksDisplay from '@/components/DotNetSdksDisplay';
 
 export function HomeControl() {
     const messages = useMessageStore((state) => state.messages);
@@ -18,6 +19,7 @@ export function HomeControl() {
             </div>
             <div>
                 <MessageList messages={messages} />
+                <DotNetSdksDisplay />
             </div>
         </div>
     )
