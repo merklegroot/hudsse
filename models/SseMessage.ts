@@ -19,6 +19,10 @@ export interface ListRuntimesResult {
     runtimes: RuntimeInfo[];
 }
 
+export interface WhichDotNetResult {
+    path: string;
+}
+
 export interface SseMessage {
     type: SseMessageType;
     contents: string;

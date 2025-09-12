@@ -3,7 +3,7 @@
 import React, { createContext, useContext, ReactNode, useState, useCallback } from 'react';
 import { sseClientHandlerFactory } from '../workflows/sseClientHandlerFactory';
 import { useMessageStore } from '../store/messageStore';
-import { SseMessage, ListSdksResult, ListRuntimesResult } from '../models/SseMessage';
+import { SseMessage, ListSdksResult, ListRuntimesResult, WhichDotNetResult } from '../models/SseMessage';
 
 interface SseContextType {
   startSseStream: (createEventSource: () => EventSource) => EventSource;
@@ -20,6 +20,7 @@ export function SseProvider({ children }: SseProviderProps) {
   const addSseMessage = useMessageStore((state) => state.addSSEMessage);
   const setDotnetSdks = useMessageStore((state) => state.setDotnetSdks);
   const setDotnetRuntimes = useMessageStore((state) => state.setDotnetRuntimes);
+  const setWhichDotNetPath = useMessageStore((state) => state.setWhichDotNetPath);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSseMessage = useCallback((message: SseMessage) => {
@@ -39,11 +40,16 @@ export function SseProvider({ children }: SseProviderProps) {
         if (parsedResult.runtimes && Array.isArray(parsedResult.runtimes)) {
           setDotnetRuntimes(parsedResult.runtimes);
         }
+        
+        // Handle WhichDotNet result
+        if (parsedResult.path && typeof parsedResult.path === 'string') {
+          setWhichDotNetPath(parsedResult.path);
+        }
       } catch (error) {
         console.warn('Failed to parse result:', error);
       }
     }
-  }, [addSseMessage, setDotnetSdks, setDotnetRuntimes]);
+  }, [addSseMessage, setDotnetSdks, setDotnetRuntimes, setWhichDotNetPath]);
 
   const startSseStream = useCallback((createEventSource: () => EventSource) => {
     if (isLoading) {
