@@ -3,6 +3,7 @@ import { useMessageStore } from "@/store/messageStore";
 import { useState } from "react";
 import ConfirmationDialog from "../ConfirmationDialog";
 import SseInstallDotNetButton from "../SseInstallDotNetButton";
+import SseUninstallDotNetButton from "../SseUninstallDotNetButton";
 
 const getPillColor = (appName: string) => {
     const lowerAppName = appName.toLowerCase();
@@ -24,6 +25,7 @@ export function DotNetVersionView({ majorVersion, appVersions }: { majorVersion:
     const [showUninstallDialog, setShowUninstallDialog] = useState(false);
     const [uninstallVersion, setUninstallVersion] = useState<string>('');
     const [uninstallAppName, setUninstallAppName] = useState<string>('');
+    const [isUninstalling, setIsUninstalling] = useState(false);
     const hasSDK = appVersions['SDK'] && appVersions['SDK'].length > 0;
     const hasAspNetCore = Object.keys(appVersions).some(key =>
         key.toLowerCase() === 'microsoft.aspnetcore.app' && appVersions[key].length > 0
@@ -95,14 +97,15 @@ export function DotNetVersionView({ majorVersion, appVersions }: { majorVersion:
         setShowUninstallDialog(true);
     };
 
-    const handleUninstallConfirm = () => {
-        // TODO: Implement uninstall functionality
-        console.log(`Uninstalling ${uninstallAppName} version ${uninstallVersion}`);
-        setShowUninstallDialog(false);
-    };
 
     const handleUninstallCancel = () => {
         setShowUninstallDialog(false);
+    };
+
+    const handleUninstallComplete = () => {
+        setIsUninstalling(false);
+        // Optionally refresh the dotnet state here
+        console.log(`Uninstall completed for ${uninstallAppName} ${uninstallVersion}`);
     };
 
     return (
@@ -174,15 +177,41 @@ export function DotNetVersionView({ majorVersion, appVersions }: { majorVersion:
                 confirmButtonClass="bg-green-600 hover:bg-green-700"
             />
             
-            <ConfirmationDialog
-                isOpen={showUninstallDialog}
-                onClose={handleUninstallCancel}
-                onConfirm={handleUninstallConfirm}
-                title="Uninstall .NET Component"
-                message={`Are you sure you want to uninstall ${uninstallAppName} version ${uninstallVersion}? This will remove the specified component from your system.`}
-                confirmText={`Uninstall ${uninstallAppName} ${uninstallVersion}`}
-                confirmButtonClass="bg-red-600 hover:bg-red-700"
-            />
+            {showUninstallDialog && (
+                <div className="fixed inset-0 bg-gray-500 bg-opacity-20 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 p-6">
+                        <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                            Uninstall .NET Component
+                        </h3>
+                        <p className="text-gray-600 mb-6">
+                            Are you sure you want to uninstall {uninstallAppName} version {uninstallVersion}? This will remove the specified component from your system.
+                        </p>
+                        <div className="flex justify-end space-x-3">
+                            <button
+                                onClick={handleUninstallCancel}
+                                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                            >
+                                Cancel
+                            </button>
+                            <SseUninstallDotNetButton
+                                appName={uninstallAppName}
+                                version={uninstallVersion}
+                                onUninstallComplete={() => {
+                                    handleUninstallComplete();
+                                    setShowUninstallDialog(false);
+                                }}
+                            />
+                        </div>
+                    </div>
+                </div>
+            )}
+            
+            {isInstalling && (
+                <SseInstallDotNetButton 
+                    majorVersion={majorVersion} 
+                    onInstallComplete={handleInstallComplete}
+                />
+            )}
         </div>
     )
 }
