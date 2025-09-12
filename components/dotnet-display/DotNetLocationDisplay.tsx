@@ -3,7 +3,7 @@
 import React from 'react';
 import { useMessageStore } from '../../store/messageStore';
 
-export default function WhichDotNetDisplay() {
+export default function DotNetLocationDisplay() {
   const whichDotNetPath = useMessageStore((state) => state.whichDotNetPath);
 
   return (

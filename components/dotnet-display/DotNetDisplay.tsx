@@ -1,12 +1,12 @@
 import DotNetInfoDisplay from "./DotNetInfoDisplay";
 import DotNetSdksDisplay from "./DotNetSdksDisplay";
 import DotNetRuntimesDisplay from "./DotNetRuntimesDisplay";
-import WhichDotNetDisplay from "./WhichDotNetDisplay";
+import DotNetLocationDisplay from "./DotNetLocationDisplay";
 
 export default function DotNetDisplay() {
     return (
         <>
-            <WhichDotNetDisplay />            
+            <DotNetLocationDisplay />            
             <DotNetSdksDisplay />
             <DotNetRuntimesDisplay />
             <DotNetInfoDisplay />
