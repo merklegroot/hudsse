@@ -18,8 +18,6 @@ interface MessageState {
   messages: SseMessage[];
   dotnetState: dotnetState | null;
   
-  dotnetSdks: SdkInfo[];
-  dotnetRuntimes: RuntimeInfo[];
   whichDotNetPath: string | null;
   dotnetInfo: DotNetInfoResult | null;
   addMessage: (message: string) => void;
@@ -31,11 +29,9 @@ interface MessageState {
   setDotnetState: (state: dotnetState | null) => void;
 }
 
-const createInitialState = (): Pick<MessageState, 'messages' | 'dotnetSdks' | 'dotnetRuntimes' | 'whichDotNetPath' | 'dotnetInfo' | 'dotnetState'> => ({
+const createInitialState = (): Pick<MessageState, 'messages' | 'whichDotNetPath' | 'dotnetInfo' | 'dotnetState'> => ({
   messages: [],
   dotnetState: null,
-  dotnetSdks: [],
-  dotnetRuntimes: [],
   whichDotNetPath: null,
   dotnetInfo: null
 });
@@ -48,20 +44,38 @@ const addSSEMessageToState = (state: MessageState) => (message: SseMessage) => (
   messages: [...state.messages, message]
 });
 
-const setDotnetSdksToState = (sdks: SdkInfo[]) => ({
-  dotnetSdks: sdks
+const setDotnetSdksToState = (sdks: SdkInfo[]) => (state: MessageState) => ({
+  dotnetState: state.dotnetState ? {
+    ...state.dotnetState,
+    dotnetSdks: sdks
+  } : null
 });
 
-const setDotnetRuntimesToState = (runtimes: RuntimeInfo[]) => ({
-  dotnetRuntimes: runtimes
+const setDotnetRuntimesToState = (runtimes: RuntimeInfo[]) => (state: MessageState) => ({
+  dotnetState: state.dotnetState ? {
+    ...state.dotnetState,
+    dotnetRuntimes: runtimes
+  } : null
 });
 
 const setWhichDotNetPathToState = (path: string | null) => ({
   whichDotNetPath: path
 });
 
-const setDotnetInfoToState = (info: DotNetInfoResult | null) => ({
-  dotnetInfo: info
+const setDotnetInfoToState = (info: DotNetInfoResult | null) => (state: MessageState) => ({
+  dotnetInfo: info,
+  dotnetState: info ? {
+    ...state.dotnetState,
+    dotnetSdks: info.installedSdks.map(sdk => ({ version: sdk.version, path: sdk.path })),
+    dotnetRuntimes: info.installedRuntimes.map(runtime => ({ name: runtime.name, version: runtime.version, path: runtime.path })),
+    dotnetPath: state.dotnetState?.dotnetPath || null,
+    runtimeEnvironment: info.runtimeEnvironment,
+    host: info.host,
+    workloadsInstalled: info.workloadsInstalled,
+    otherArchitectures: info.otherArchitectures,
+    environmentVariables: info.environmentVariables,
+    globalJsonFile: info.globalJsonFile
+  } : state.dotnetState
 });
 
 const setDotnetStateToState = (state: dotnetState | null) => ({
@@ -71,10 +85,10 @@ const setDotnetStateToState = (state: dotnetState | null) => ({
 const createMessageActions = (set: (fn: (state: MessageState) => Partial<MessageState>) => void) => ({
   addMessage: (message: string) => set((state) => addMessageToState(state)(message)),
   addSSEMessage: (message: SseMessage) => set((state) => addSSEMessageToState(state)(message)),
-  setDotnetSdks: (sdks: SdkInfo[]) => set(() => setDotnetSdksToState(sdks)),
-  setDotnetRuntimes: (runtimes: RuntimeInfo[]) => set(() => setDotnetRuntimesToState(runtimes)),
+  setDotnetSdks: (sdks: SdkInfo[]) => set((state) => setDotnetSdksToState(sdks)(state)),
+  setDotnetRuntimes: (runtimes: RuntimeInfo[]) => set((state) => setDotnetRuntimesToState(runtimes)(state)),
   setWhichDotNetPath: (path: string | null) => set(() => setWhichDotNetPathToState(path)),
-  setDotnetInfo: (info: DotNetInfoResult | null) => set(() => setDotnetInfoToState(info)),
+  setDotnetInfo: (info: DotNetInfoResult | null) => set((state) => setDotnetInfoToState(info)(state)),
   setDotnetState: (state: dotnetState | null) => set(() => setDotnetStateToState(state))
 });
 

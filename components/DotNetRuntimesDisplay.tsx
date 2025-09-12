@@ -26,7 +26,7 @@ function RuntimeItem({ runtime }: { runtime: RuntimeInfo }) {
 }
 
 export default function DotNetRuntimesDisplay() {
-  const dotnetRuntimes = useMessageStore((state) => state.dotnetRuntimes);
+  const dotnetRuntimes = useMessageStore((state) => state.dotnetState?.dotnetRuntimes) || [];
 
   return (
     <div className="mt-6">

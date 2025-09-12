@@ -26,7 +26,7 @@ function SdkItem({ sdk }: { sdk: SdkInfo }) {
 }
 
 export default function DotNetSdksDisplay() {
-  const dotnetSdks = useMessageStore((state) => state.dotnetSdks);
+  const dotnetSdks = useMessageStore((state) => state.dotnetState?.dotnetSdks) || [];
 
   return (
     <div className="mt-6">
