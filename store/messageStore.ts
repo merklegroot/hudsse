@@ -18,7 +18,6 @@ interface MessageState {
   messages: SseMessage[];
   dotnetState: dotnetState | null;
   
-  whichDotNetPath: string | null;
   addMessage: (message: string) => void;
   addSSEMessage: (message: SseMessage) => void;
   setDotnetSdks: (sdks: SdkInfo[]) => void;
@@ -28,10 +27,9 @@ interface MessageState {
   setDotnetState: (state: dotnetState | null) => void;
 }
 
-const createInitialState = (): Pick<MessageState, 'messages' | 'whichDotNetPath' | 'dotnetState'> => ({
+const createInitialState = (): Pick<MessageState, 'messages' | 'dotnetState'> => ({
   messages: [],
-  dotnetState: null,
-  whichDotNetPath: null
+  dotnetState: null
 });
 
 const addMessageToState = (state: MessageState) => (message: string) => ({
@@ -56,8 +54,11 @@ const setDotnetRuntimesToState = (runtimes: RuntimeInfo[]) => (state: MessageSta
   } : null
 });
 
-const setWhichDotNetPathToState = (path: string | null) => ({
-  whichDotNetPath: path
+const setWhichDotNetPathToState = (path: string | null) => (state: MessageState) => ({
+  dotnetState: state.dotnetState ? {
+    ...state.dotnetState,
+    dotnetPath: path
+  } : null
 });
 
 const setDotnetInfoToState = (info: DotNetInfoResult | null) => (state: MessageState) => ({
@@ -84,7 +85,7 @@ const createMessageActions = (set: (fn: (state: MessageState) => Partial<Message
   addSSEMessage: (message: SseMessage) => set((state) => addSSEMessageToState(state)(message)),
   setDotnetSdks: (sdks: SdkInfo[]) => set((state) => setDotnetSdksToState(sdks)(state)),
   setDotnetRuntimes: (runtimes: RuntimeInfo[]) => set((state) => setDotnetRuntimesToState(runtimes)(state)),
-  setWhichDotNetPath: (path: string | null) => set(() => setWhichDotNetPathToState(path)),
+  setWhichDotNetPath: (path: string | null) => set((state) => setWhichDotNetPathToState(path)(state)),
   setDotnetInfo: (info: DotNetInfoResult | null) => set((state) => setDotnetInfoToState(info)(state)),
   setDotnetState: (state: dotnetState | null) => set(() => setDotnetStateToState(state))
 });
