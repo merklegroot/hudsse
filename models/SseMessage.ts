@@ -15,8 +15,8 @@ export interface RuntimeInfo {
     path: string;
 }
 
-export interface GroupedRuntimes {
-    [appType: string]: RuntimeInfo[];
+export interface AppVersions {
+    [appName: string]: string[];
 }
 
 export interface ListRuntimesResult {

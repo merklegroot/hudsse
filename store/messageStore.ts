@@ -1,10 +1,10 @@
 import { create } from 'zustand';
-import { SseMessage, SdkInfo, RuntimeInfo, GroupedRuntimes, DotNetInfoResult, DotNetHost, RuntimeEnvironment } from '../models/SseMessage';
+import { SseMessage, SdkInfo, RuntimeInfo, AppVersions, DotNetInfoResult, DotNetHost, RuntimeEnvironment } from '../models/SseMessage';
 
 interface dotnetState {
   dotnetSdks: SdkInfo[];
   dotnetRuntimes: RuntimeInfo[];
-  groupedRuntimes: GroupedRuntimes;
+  appVersions: AppVersions;
 
   dotnetPath: string | null;
   runtimeEnvironment: RuntimeEnvironment;
@@ -33,18 +33,27 @@ const createInitialState = (): Pick<MessageState, 'messages' | 'dotnetState'> =>
   dotnetState: null
 });
 
-const groupRuntimesByApp = (runtimes: RuntimeInfo[]): GroupedRuntimes => {
-  const grouped: GroupedRuntimes = {};
+const createAppVersions = (sdks: SdkInfo[], runtimes: RuntimeInfo[]): AppVersions => {
+  const appVersions: AppVersions = {};
   
+  // Add SDKs first
+  const sdkVersions = sdks.map(sdk => sdk.version);
+  if (sdkVersions.length > 0) {
+    appVersions['SDK'] = sdkVersions;
+  }
+  
+  // Add runtimes grouped by app name
   runtimes.forEach(runtime => {
-    const appType = runtime.name; // e.g., "Microsoft.AspNetCore.App"
-    if (!grouped[appType]) {
-      grouped[appType] = [];
+    const appName = runtime.name; // e.g., "Microsoft.AspNetCore.App"
+    if (!appVersions[appName]) {
+      appVersions[appName] = [];
     }
-    grouped[appType].push(runtime);
+    if (!appVersions[appName].includes(runtime.version)) {
+      appVersions[appName].push(runtime.version);
+    }
   });
   
-  return grouped;
+  return appVersions;
 };
 
 const addMessageToState = (state: MessageState) => (message: string) => ({
@@ -66,7 +75,7 @@ const setDotnetRuntimesToState = (runtimes: RuntimeInfo[]) => (state: MessageSta
   dotnetState: state.dotnetState ? {
     ...state.dotnetState,
     dotnetRuntimes: runtimes,
-    groupedRuntimes: groupRuntimesByApp(runtimes)
+    appVersions: createAppVersions(state.dotnetState.dotnetSdks, runtimes)
   } : null
 });
 
@@ -77,14 +86,15 @@ const setWhichDotNetPathToState = (path: string | null) => (state: MessageState)
     return fullPath.replace(/\/dotnet$/, '');
   };
 
+  const sdks = state.dotnetState?.dotnetSdks || [];
   const runtimes = state.dotnetState?.dotnetRuntimes || [];
   
   return {
     dotnetState: {
       ...state.dotnetState,
-      dotnetSdks: state.dotnetState?.dotnetSdks || [],
+      dotnetSdks: sdks,
       dotnetRuntimes: runtimes,
-      groupedRuntimes: groupRuntimesByApp(runtimes),
+      appVersions: createAppVersions(sdks, runtimes),
       dotnetPath: path ? extractDotnetPath(path) : null,
       runtimeEnvironment: state.dotnetState?.runtimeEnvironment || {
         osName: '',
@@ -114,14 +124,15 @@ const setDotnetInfoToState = (info: DotNetInfoResult | null) => (state: MessageS
     return basePath.replace(sdkPattern, '');
   };
 
+  const sdks = info ? info.installedSdks.map(sdk => ({ version: sdk.version, path: sdk.path })) : [];
   const runtimes = info ? info.installedRuntimes.map(runtime => ({ name: runtime.name, version: runtime.version, path: runtime.path })) : [];
   
   return {
     dotnetState: info ? {
       ...state.dotnetState,
-      dotnetSdks: info.installedSdks.map(sdk => ({ version: sdk.version, path: sdk.path })),
+      dotnetSdks: sdks,
       dotnetRuntimes: runtimes,
-      groupedRuntimes: groupRuntimesByApp(runtimes),
+      appVersions: createAppVersions(sdks, runtimes),
       dotnetPath: extractDotnetPath(info.runtimeEnvironment.basePath),
       runtimeEnvironment: info.runtimeEnvironment,
       host: info.host,
