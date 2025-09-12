@@ -3,7 +3,7 @@
 import React, { createContext, useContext, ReactNode, useState, useCallback } from 'react';
 import { sseClientHandlerFactory } from '../workflows/sseClientHandlerFactory';
 import { useMessageStore } from '../store/messageStore';
-import { SseMessage, ListSdksResult } from '../models/SseMessage';
+import { SseMessage, ListSdksResult, ListRuntimesResult } from '../models/SseMessage';
 
 interface SseContextType {
   startSseStream: (createEventSource: () => EventSource) => EventSource;
@@ -19,6 +19,7 @@ interface SseProviderProps {
 export function SseProvider({ children }: SseProviderProps) {
   const addSseMessage = useMessageStore((state) => state.addSSEMessage);
   const setDotnetSdks = useMessageStore((state) => state.setDotnetSdks);
+  const setDotnetRuntimes = useMessageStore((state) => state.setDotnetRuntimes);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSseMessage = useCallback((message: SseMessage) => {
@@ -27,15 +28,22 @@ export function SseProvider({ children }: SseProviderProps) {
     // Check if this is a .NET SDKs result message
     if (message.type === 'result' && message.result) {
       try {
-        const parsedResult = JSON.parse(message.result) as ListSdksResult;
+        const parsedResult = JSON.parse(message.result);
+        
+        // Handle SDKs result
         if (parsedResult.sdks && Array.isArray(parsedResult.sdks)) {
           setDotnetSdks(parsedResult.sdks);
         }
+        
+        // Handle Runtimes result
+        if (parsedResult.runtimes && Array.isArray(parsedResult.runtimes)) {
+          setDotnetRuntimes(parsedResult.runtimes);
+        }
       } catch (error) {
-        console.warn('Failed to parse SDK result:', error);
+        console.warn('Failed to parse result:', error);
       }
     }
-  }, [addSseMessage, setDotnetSdks]);
+  }, [addSseMessage, setDotnetSdks, setDotnetRuntimes]);
 
   const startSseStream = useCallback((createEventSource: () => EventSource) => {
     if (isLoading) {
