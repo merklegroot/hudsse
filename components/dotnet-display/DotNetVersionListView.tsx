@@ -21,6 +21,9 @@ const getPillColor = (appName: string) => {
 export function DotNetVersionView({ majorVersion, appVersions }: { majorVersion: number, appVersions: AppVersions }) {
     const [showInstallDialog, setShowInstallDialog] = useState(false);
     const [isInstalling, setIsInstalling] = useState(false);
+    const [showUninstallDialog, setShowUninstallDialog] = useState(false);
+    const [uninstallVersion, setUninstallVersion] = useState<string>('');
+    const [uninstallAppName, setUninstallAppName] = useState<string>('');
     const hasSDK = appVersions['SDK'] && appVersions['SDK'].length > 0;
     const hasAspNetCore = Object.keys(appVersions).some(key =>
         key.toLowerCase() === 'microsoft.aspnetcore.app' && appVersions[key].length > 0
@@ -86,6 +89,22 @@ export function DotNetVersionView({ majorVersion, appVersions }: { majorVersion:
         console.log(`Installation completed for .NET ${majorVersion}`);
     };
 
+    const handleUninstallClick = (appName: string, version: string) => {
+        setUninstallAppName(appName);
+        setUninstallVersion(version);
+        setShowUninstallDialog(true);
+    };
+
+    const handleUninstallConfirm = () => {
+        // TODO: Implement uninstall functionality
+        console.log(`Uninstalling ${uninstallAppName} version ${uninstallVersion}`);
+        setShowUninstallDialog(false);
+    };
+
+    const handleUninstallCancel = () => {
+        setShowUninstallDialog(false);
+    };
+
     return (
         <div className={`border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow flex flex-col h-full ${isFullyInstalled
                 ? 'bg-green-50 border-green-200'
@@ -108,9 +127,21 @@ export function DotNetVersionView({ majorVersion, appVersions }: { majorVersion:
                             {versions.map((version) => (
                                 <span
                                     key={`${appName}-${version}`}
-                                    className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium transition-colors ${getPillColor(appName)}`}
+                                    className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium transition-colors ${getPillColor(appName)}`}
                                 >
                                     {version}
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleUninstallClick(appName, version);
+                                        }}
+                                        className="ml-1 hover:bg-black hover:bg-opacity-20 rounded-full p-0.5 transition-colors"
+                                        title={`Uninstall ${appName} ${version}`}
+                                    >
+                                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                    </button>
                                 </span>
                             ))}
                         </div>
@@ -141,6 +172,16 @@ export function DotNetVersionView({ majorVersion, appVersions }: { majorVersion:
                 message={`Are you sure you want to install the .NET ${majorVersion} SDK? This will download and install the latest .NET ${majorVersion} SDK and runtime components on your system.`}
                 confirmText={`Install .NET ${majorVersion} SDK`}
                 confirmButtonClass="bg-green-600 hover:bg-green-700"
+            />
+            
+            <ConfirmationDialog
+                isOpen={showUninstallDialog}
+                onClose={handleUninstallCancel}
+                onConfirm={handleUninstallConfirm}
+                title="Uninstall .NET Component"
+                message={`Are you sure you want to uninstall ${uninstallAppName} version ${uninstallVersion}? This will remove the specified component from your system.`}
+                confirmText={`Uninstall ${uninstallAppName} ${uninstallVersion}`}
+                confirmButtonClass="bg-red-600 hover:bg-red-700"
             />
         </div>
     )
