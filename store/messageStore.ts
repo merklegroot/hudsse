@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { SseMessage, SdkInfo, RuntimeInfo, WhichDotNetResult, DotNetInfoResult, DotNetHost, RuntimeEnvironment } from '../models/SseMessage';
+import { SseMessage, SdkInfo, RuntimeInfo, DotNetInfoResult, DotNetHost, RuntimeEnvironment } from '../models/SseMessage';
 
 interface dotnetState {
   dotnetSdks: SdkInfo[];
@@ -54,27 +54,62 @@ const setDotnetRuntimesToState = (runtimes: RuntimeInfo[]) => (state: MessageSta
   } : null
 });
 
-const setWhichDotNetPathToState = (path: string | null) => (state: MessageState) => ({
-  dotnetState: state.dotnetState ? {
-    ...state.dotnetState,
-    dotnetPath: path
-  } : null
-});
+const setWhichDotNetPathToState = (path: string | null) => (state: MessageState) => {
+  // Remove "dotnet" suffix from the path to show just the folder
+  const extractDotnetPath = (fullPath: string): string => {
+    // Remove "/dotnet" from the end of the path
+    return fullPath.replace(/\/dotnet$/, '');
+  };
 
-const setDotnetInfoToState = (info: DotNetInfoResult | null) => (state: MessageState) => ({
-  dotnetState: info ? {
-    ...state.dotnetState,
-    dotnetSdks: info.installedSdks.map(sdk => ({ version: sdk.version, path: sdk.path })),
-    dotnetRuntimes: info.installedRuntimes.map(runtime => ({ name: runtime.name, version: runtime.version, path: runtime.path })),
-    dotnetPath: state.dotnetState?.dotnetPath || null,
-    runtimeEnvironment: info.runtimeEnvironment,
-    host: info.host,
-    workloadsInstalled: info.workloadsInstalled,
-    otherArchitectures: info.otherArchitectures,
-    environmentVariables: info.environmentVariables,
-    globalJsonFile: info.globalJsonFile
-  } : state.dotnetState
-});
+  return {
+    dotnetState: {
+      ...state.dotnetState,
+      dotnetSdks: state.dotnetState?.dotnetSdks || [],
+      dotnetRuntimes: state.dotnetState?.dotnetRuntimes || [],
+      dotnetPath: path ? extractDotnetPath(path) : null,
+      runtimeEnvironment: state.dotnetState?.runtimeEnvironment || {
+        osName: '',
+        osVersion: '',
+        osPlatform: '',
+        rid: '',
+        basePath: ''
+      },
+      host: state.dotnetState?.host || {
+        version: '',
+        architecture: '',
+        commit: ''
+      },
+      workloadsInstalled: state.dotnetState?.workloadsInstalled || '',
+      otherArchitectures: state.dotnetState?.otherArchitectures || [],
+      environmentVariables: state.dotnetState?.environmentVariables || {},
+      globalJsonFile: state.dotnetState?.globalJsonFile || ''
+    }
+  };
+};
+
+const setDotnetInfoToState = (info: DotNetInfoResult | null) => (state: MessageState) => {
+  // Extract dotnetPath from basePath by removing the SDK version suffix
+  const extractDotnetPath = (basePath: string): string => {
+    // Remove pattern like "/sdk/9.0.304/" from the end
+    const sdkPattern = /\/sdk\/[^\/]+\/?$/;
+    return basePath.replace(sdkPattern, '');
+  };
+
+  return {
+    dotnetState: info ? {
+      ...state.dotnetState,
+      dotnetSdks: info.installedSdks.map(sdk => ({ version: sdk.version, path: sdk.path })),
+      dotnetRuntimes: info.installedRuntimes.map(runtime => ({ name: runtime.name, version: runtime.version, path: runtime.path })),
+      dotnetPath: extractDotnetPath(info.runtimeEnvironment.basePath),
+      runtimeEnvironment: info.runtimeEnvironment,
+      host: info.host,
+      workloadsInstalled: info.workloadsInstalled,
+      otherArchitectures: info.otherArchitectures,
+      environmentVariables: info.environmentVariables,
+      globalJsonFile: info.globalJsonFile
+    } : state.dotnetState
+  };
+};
 
 const setDotnetStateToState = (state: dotnetState | null) => ({
   dotnetState: state
