@@ -21,7 +21,6 @@ const getPillColor = (appName: string) => {
 
 export function DotNetVersionView({ majorVersion, appVersions }: { majorVersion: number, appVersions: AppVersions }) {
     const [showInstallDialog, setShowInstallDialog] = useState(false);
-    const [isInstalling, setIsInstalling] = useState(false);
     const [showUninstallDialog, setShowUninstallDialog] = useState(false);
     const [uninstallVersion, setUninstallVersion] = useState<string>('');
     const [uninstallAppName, setUninstallAppName] = useState<string>('');
@@ -76,17 +75,11 @@ export function DotNetVersionView({ majorVersion, appVersions }: { majorVersion:
         setShowInstallDialog(true);
     };
 
-    const handleInstallConfirm = () => {
-        setIsInstalling(true);
-        setShowInstallDialog(false);
-    };
-
     const handleInstallCancel = () => {
         setShowInstallDialog(false);
     };
 
     const handleInstallComplete = () => {
-        setIsInstalling(false);
         // Optionally refresh the dotnet state here
         console.log(`Installation completed for .NET ${majorVersion}`);
     };
@@ -152,33 +145,50 @@ export function DotNetVersionView({ majorVersion, appVersions }: { majorVersion:
                 ))}
             </div>
             <div className="mt-4 pt-3 border-t border-gray-200">
-                {isInstalling ? (
-                    <SseInstallDotNetButton 
-                        majorVersion={majorVersion} 
-                        onInstallComplete={handleInstallComplete}
-                    />
-                ) : (
-                    <button
-                        className="px-3 py-1 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition-colors"
-                        onClick={handleInstallClick}
-                    >
-                        Install SDK
-                    </button>
-                )}
+                <button
+                    className="px-3 py-1 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition-colors"
+                    onClick={handleInstallClick}
+                >
+                    Install SDK
+                </button>
             </div>
             
-            <ConfirmationDialog
-                isOpen={showInstallDialog}
-                onClose={handleInstallCancel}
-                onConfirm={handleInstallConfirm}
-                title="Install .NET SDK"
-                message={`Are you sure you want to install the .NET ${majorVersion} SDK? This will download and install the latest .NET ${majorVersion} SDK and runtime components on your system.`}
-                confirmText={`Install .NET ${majorVersion} SDK`}
-                confirmButtonClass="bg-green-600 hover:bg-green-700"
-            />
+            {showInstallDialog && (
+                <div 
+                    className="fixed inset-0 flex items-center justify-center z-50"
+                    style={{ backgroundColor: 'rgba(0, 0, 0, 0.3)' }}
+                >
+                    <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 p-6">
+                        <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                            Install .NET SDK
+                        </h3>
+                        <p className="text-gray-600 mb-6">
+                            Are you sure you want to install the .NET {majorVersion} SDK? This will download and install the latest .NET {majorVersion} SDK and runtime components on your system.
+                        </p>
+                        <div className="flex justify-end space-x-3">
+                            <button
+                                onClick={handleInstallCancel}
+                                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                            >
+                                Cancel
+                            </button>
+                            <SseInstallDotNetButton
+                                majorVersion={majorVersion}
+                                onInstallComplete={() => {
+                                    handleInstallComplete();
+                                    setShowInstallDialog(false);
+                                }}
+                            />
+                        </div>
+                    </div>
+                </div>
+            )}
             
             {showUninstallDialog && (
-                <div className="fixed inset-0 bg-gray-500 bg-opacity-20 flex items-center justify-center z-50">
+                <div 
+                    className="fixed inset-0 flex items-center justify-center z-50"
+                    style={{ backgroundColor: 'rgba(0, 0, 0, 0.3)' }}
+                >
                     <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 p-6">
                         <h3 className="text-lg font-semibold text-gray-900 mb-4">
                             Uninstall .NET Component
@@ -206,12 +216,6 @@ export function DotNetVersionView({ majorVersion, appVersions }: { majorVersion:
                 </div>
             )}
             
-            {isInstalling && (
-                <SseInstallDotNetButton 
-                    majorVersion={majorVersion} 
-                    onInstallComplete={handleInstallComplete}
-                />
-            )}
         </div>
     )
 }
