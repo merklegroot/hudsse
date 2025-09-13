@@ -63,8 +63,14 @@ async function executeManualSdkRemoval(version: string, controller: ReadableStre
                     // Extract the base path
                     const match = basePathLine.match(/Base Path:\s*(.+)/);
                     if (match && match[1]) {
-                        const basePath = match[1].trim();
+                        let basePath = match[1].trim();
                         sendSseMessage(controller, 'stdout', `Found .NET base path: ${basePath}`);
+                        
+                        // If the base path ends with a specific SDK version, go up to the parent directory
+                        if (basePath.includes('/sdk/')) {
+                            basePath = basePath.replace(/\/sdk\/.*$/, '');
+                            sendSseMessage(controller, 'stdout', `Adjusted base path to: ${basePath}`);
+                        }
                         
                         // Look for SDKs in the base path
                         const sdkPath = `${basePath}/sdk/${version}`;

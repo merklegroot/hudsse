@@ -1,7 +1,6 @@
 import { AppVersions } from "@/models/SseMessage";
 import { useMessageStore } from "@/store/messageStore";
 import { useState } from "react";
-import ConfirmationDialog from "../ConfirmationDialog";
 import SseInstallDotNetButton from "../SseInstallDotNetButton";
 import SseUninstallDotNetButton from "../SseUninstallDotNetButton";
 
@@ -221,7 +220,7 @@ export function DotNetVersionView({ majorVersion, appVersions }: { majorVersion:
 }
 
 export default function DotNetVersionListView() {
-    const majorVersions = [5, 6, 7, 8, 9];
+    const majorVersions = [5, 6, 7, 8, 9, 10];
     const appVersions = useMessageStore((state) => state.dotnetState?.appVersions) || {};
     const hasTriedDetectingSdks = useMessageStore((state) => state.dotnetState?.hasTriedDetectingSdks) || false;
     const hasTriedDetectingRuntimes = useMessageStore((state) => state.dotnetState?.hasTriedDetectingRuntimes) || false;

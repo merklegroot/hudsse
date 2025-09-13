@@ -124,8 +124,18 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const majorVersion = parseInt(searchParams.get('version') || '8');
     
-    if (isNaN(majorVersion) || majorVersion < 5 || majorVersion > 9) {
-        return new Response(JSON.stringify({ error: 'Invalid version. Must be between 5 and 9.' }), {
+    if (isNaN(majorVersion) || majorVersion < 6 || majorVersion > 10) {
+        return new Response(JSON.stringify({ error: 'Invalid version. Must be between 6 and 10.' }), {
+            status: 400,
+            headers: { 'Content-Type': 'application/json' }
+        });
+    }
+    
+    // Block .NET 5 and 7 specifically for now
+    if (majorVersion === 5 || majorVersion === 7) {
+        return new Response(JSON.stringify({ 
+            error: `.NET 7 installation is temporarily blocked. Please use .NET 6, 8, or 9 instead.` 
+        }), {
             status: 400,
             headers: { 'Content-Type': 'application/json' }
         });
