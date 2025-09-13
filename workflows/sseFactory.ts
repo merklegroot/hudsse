@@ -2,6 +2,11 @@ import { CommandAndArgs, SpawnOptions, SpawnResult, SseMessage } from "@/models"
 import { NextRequest } from "next/server";
 import { spawnAndGetDataWorkflow } from "./spawnAndGetDataWorkflow";
 
+export type onSuccess = ((allOutput: string, controller: ReadableStreamDefaultController) => void)
+    | string
+    | undefined
+    | null;
+
 // Common SSE response headers
 const SSE_HEADERS = {
     'Content-Type': 'text/event-stream',
@@ -24,6 +29,7 @@ function sendCommandMessage(controller: ReadableStreamDefaultController, command
         type: 'command',
         contents: `${commandAndArgs.command} ${commandAndArgs.args.join(' ')}`
     };
+
     sendSseMessage(controller, commandMessage);
 }
 
@@ -50,7 +56,7 @@ function sendResultMessage(controller: ReadableStreamDefaultController, contents
 async function executeCommand(
     commandAndArgs: CommandAndArgs,
     controller: ReadableStreamDefaultController,
-    onSuccess: (allOutput: string, controller: ReadableStreamDefaultController) => void
+    onSuccess: onSuccess
 ): Promise<boolean> {
     let allOutput = '';
 
@@ -76,67 +82,85 @@ async function executeCommand(
     try {
         const result: SpawnResult = await spawnAndGetDataWorkflow.execute(spawnOptions);
 
-        if (result.success) {
-            onSuccess(allOutput, controller);
-            return true;
-        } else {
+        if (!result.success) {
             sendErrorMessage(controller, `Error: ${result.stderr}`);
             return false;
         }
+
+        if (typeof onSuccess === 'function') {
+            onSuccess(allOutput, controller);
+            return true;
+        }
+
+        // Handle string, null, or undefined cases
+        let successMessage: string;
+        if (typeof onSuccess === 'string') {
+            const trimmed = onSuccess.trim();
+            successMessage = trimmed.length > 0 ? trimmed : 'Command executed successfully';
+        } else {
+            // null or undefined case
+            successMessage = 'Command executed successfully';
+        }
+
+        sendResultMessage(controller, successMessage, allOutput);
+        return true;
+
     } catch (error) {
         sendErrorMessage(controller, `Failed to execute command: ${error instanceof Error ? error.message : 'Unknown error'}`);
         return false;
     }
 }
 
-function createSseCommandHandler(
-    commandAndArgs: CommandAndArgs,
-    onSuccess: (allOutput: string, controller: ReadableStreamDefaultController) => void
-) {
-    return async function GET(req: NextRequest) {
-        const stream = new ReadableStream({
-            async start(controller) {
-                sendCommandMessage(controller, commandAndArgs);
-                
-                const success = await executeCommand(commandAndArgs, controller, onSuccess);
-                
-                controller.enqueue(new TextEncoder().encode('data: [DONE]\n\n'));
-                controller.close();
-            }
-        });
-
-        return new Response(stream, { headers: SSE_HEADERS });
-    };
-}
-
 export interface chainProp {
     commandAndArgs: CommandAndArgs;
-    parser: (output: string) => any;
-    successMessage?: string;
+    parser?: (output: string) => any;
+    onSuccess: onSuccess;
 }
 
-function createChainedSseCommandsHandlerWithParsers(chains: chainProp[]) {
+function createSseCommandHandler(props: chainProp) {
+    return createChainedSseCommandsHandler([props]);
+}
+
+function createChainedSseCommandsHandler(chains: chainProp[]) {
     return async function GET(req: NextRequest) {
         const stream = new ReadableStream({
             async start(controller) {
                 const results: any[] = [];
-                
+
                 for (const chain of chains) {
                     sendCommandMessage(controller, chain.commandAndArgs);
-                    
-                    const success = await executeCommand(chain.commandAndArgs, controller, (allOutput, controller) => {
+
+                    const wasSuccessful = await executeCommand(chain.commandAndArgs, controller, (allOutput, controller) => {
                         try {
-                            const parsedResult = chain.parser(allOutput);
+                            const parsedResult = chain.parser ? chain.parser(allOutput) : allOutput;
                             results.push(parsedResult);
-                            sendResultMessage(controller, chain.successMessage || 'Command executed successfully', parsedResult);
+                            
+                            // Handle different types of onSuccess
+                            let successMessage: string;
+                            if (typeof chain.onSuccess === 'function') {
+                                // If it's a function, call it and get the result
+                                const functionResult = chain.onSuccess(allOutput, controller);
+                                successMessage = typeof functionResult === 'string' ? functionResult : 'Command executed successfully';
+                            } else {
+                                if (typeof chain.onSuccess === 'string') {
+                                    // If it's a string, use it directly
+                                    const trimmed = chain.onSuccess.trim();
+                                    successMessage = trimmed.length > 0 ? trimmed : 'Command executed successfully';
+                                } else {
+                                    // If it's null/undefined, use default
+                                    successMessage = 'Command executed successfully';
+                                }
+                            }
+                            
+                            sendResultMessage(controller, successMessage, parsedResult);
                         } catch (parseError) {
                             sendErrorMessage(controller, `Failed to parse command output: ${parseError instanceof Error ? parseError.message : 'Unknown error'}`);
                         }
                     });
-                    
+
                     // If command failed, we could choose to continue or break
                     // For now, we'll continue with the next command
-                    if (!success) {
+                    if (!wasSuccessful) {
                         // Error message was already sent by executeCommand
                         continue;
                     }
@@ -151,23 +175,8 @@ function createChainedSseCommandsHandlerWithParsers(chains: chainProp[]) {
     };
 }
 
-function createSseCommandHandlerWithParser<T>(
-    commandAndArgs: CommandAndArgs,
-    parser: (output: string) => T,
-    successMessage: string = 'Command executed successfully'
-) {
-    return createSseCommandHandler(commandAndArgs, (allOutput, controller) => {
-        try {
-            const parsedResult = parser(allOutput);
-            sendResultMessage(controller, successMessage, parsedResult);
-        } catch (parseError) {
-            sendErrorMessage(controller, `Failed to parse command output: ${parseError instanceof Error ? parseError.message : 'Unknown error'}`);
-        }
-    });
-}
 
 export const sseFactory = {
     createSseCommandHandler,
-    createSseCommandHandlerWithParser,
-    createChainedSseCommandsHandlerWithParsers
+    createChainedSseCommandsHandler
 };

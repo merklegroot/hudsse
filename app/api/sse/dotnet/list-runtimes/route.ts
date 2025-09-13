@@ -1,11 +1,10 @@
 import { parseDotnetRuntimes } from '../../../../../workflows/parseDotnetRuntimes';
 import { sseFactory } from '@/workflows/sseFactory';
 
-export const GET = sseFactory.createSseCommandHandlerWithParser(
+export const GET = sseFactory.createSseCommandHandler(
   {
-    command: 'dotnet',
-    args: ['--list-runtimes']
-  },
-  parseDotnetRuntimes,
-  'Runtime list parsed successfully'
+    commandAndArgs: { command: 'dotnet', args: ['--list-runtimes'] },
+    parser: parseDotnetRuntimes,
+    onSuccess: 'Runtime list parsed successfully'
+  }
 );

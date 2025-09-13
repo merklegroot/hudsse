@@ -5,8 +5,31 @@ alwaysApply: true
 ---
 
 ## Semicolons
-Use semicolons.
-This isn't Python.
+Use semicolons to terminate statements.
 
-## Function over const
-Prefer function over const for methods.
+## Function Declarations
+Prefer function declarations over const arrow functions for methods *especially* with exports.
+This makes jest unit test mocking more flexible.
+
+Exceptions to this include when it there's a concern about behavior with `this`.
+
+## Boolean Naming
+Boolean variable names should be phrased as questions using verbs.
+This makes the code more readable and self-documenting.
+
+Examples:
+``` text
+wasSuccessful
+isCompleted
+hasPermission
+canExecute
+```
+
+## Control Flow
+Avoid `else if` chains when possible.
+Prefer early returns, guard clauses, or switch statements for better readability.
+Exception: Use `else if` only when it eliminates code duplication.
+
+## Code Nesting
+Minimize nesting levels to improve readability.
+Use early returns, extract functions, or refactor conditions to reduce complexity.

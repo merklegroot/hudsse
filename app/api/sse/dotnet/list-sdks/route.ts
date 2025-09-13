@@ -2,12 +2,10 @@
 import { parseDotnetSdks } from '../../../../../workflows/parseDotnetSdks';
 import { sseFactory } from '@/workflows/sseFactory';
 
-export const GET = sseFactory.createSseCommandHandlerWithParser(
+export const GET = sseFactory.createSseCommandHandler(
   {
-    command: 'dotnet',
-    args: ['--list-sdks']
-  },
-  parseDotnetSdks,
-  'SDK list parsed successfully'
+    commandAndArgs: { command: 'dotnet', args: ['--list-sdks'] },
+    parser: parseDotnetSdks,
+    onSuccess: 'SDK list parsed successfully'
+  }
 );
-
