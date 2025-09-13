@@ -220,7 +220,7 @@ export function DotNetVersionView({ majorVersion, appVersions }: { majorVersion:
 }
 
 export default function DotNetVersionListView() {
-    const majorVersions = [5, 6, 7, 8, 9, 10];
+    const majorVersions = [5, 6, 7, 8, 9, 10].reverse();
     const appVersions = useMessageStore((state) => state.dotnetState?.appVersions) || {};
     const hasTriedDetectingSdks = useMessageStore((state) => state.dotnetState?.hasTriedDetectingSdks) || false;
     const hasTriedDetectingRuntimes = useMessageStore((state) => state.dotnetState?.hasTriedDetectingRuntimes) || false;
