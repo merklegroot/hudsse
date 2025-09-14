@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server';
 import { flexibleSseHandlerProps, sseFactory } from '@/workflows/sseFactory';
 import { spawnAndGetDataWorkflow } from '@/workflows/spawnAndGetDataWorkflow';
+import * as fs from 'fs';
 
 // Execute dotnet uninstall command
 async function executeDotnetUninstall(props: flexibleSseHandlerProps, appName: string, version: string): Promise<boolean> {
@@ -29,7 +30,7 @@ async function executeManualSdkRemoval(props: flexibleSseHandlerProps, version: 
         });
 
         if (!result.wasSuccessful) {
-            props.sendMessage({ type: 'result', contents: '❌ Failed to get dotnet info for SDK removal' });
+            props.sendMessage({ type: 'result', contents: `❌ Failed to get dotnet info for SDK removal. Exit code: ${result.exitCode}, stderr: "${result.stderr}"` });
             return false;
         }
 
@@ -63,7 +64,6 @@ async function executeManualSdkRemoval(props: flexibleSseHandlerProps, version: 
         props.sendMessage({ type: 'stdout', contents: `Looking for SDK at: ${sdkPath}` });
 
         // Check if the SDK directory exists and remove it
-        const fs = require('fs');
         if (!fs.existsSync(sdkPath)) {
             props.sendMessage({ type: 'result', contents: `❌ SDK version ${version} not found at expected path: ${sdkPath}` });
             return false;
@@ -81,13 +81,20 @@ async function executeManualSdkRemoval(props: flexibleSseHandlerProps, version: 
             }
         });
 
-        if (rmResult.wasSuccessful) {
-            props.sendMessage({ type: 'result', contents: `✅ Successfully removed SDK directory: ${sdkPath}` });
-            return true;
+        // Log the rm command result for debugging
+        props.sendMessage({ type: 'stdout', contents: `RM command exit code: ${rmResult.exitCode}, stdout: "${rmResult.stdout}", stderr: "${rmResult.stderr}"` });
+
+        // Verify that the directory was actually removed
+        const stillExists = fs.existsSync(sdkPath);
+        
+        if (stillExists) {
+            props.sendMessage({ type: 'result', contents: `❌ SDK directory still exists after removal attempt: ${sdkPath}` });
+            return false;
         }
 
-        props.sendMessage({ type: 'result', contents: `❌ Failed to remove SDK directory: ${sdkPath}` });
-        return false;
+        // Directory was successfully removed
+        props.sendMessage({ type: 'result', contents: `✅ Successfully removed SDK directory: ${sdkPath}` });
+        return true;
     } catch (error) {
         props.sendMessage({ type: 'result', contents: `❌ Error during SDK removal: ${error instanceof Error ? error.message : 'Unknown error'}` });
         return false;
