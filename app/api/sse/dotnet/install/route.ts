@@ -72,7 +72,6 @@ export const GET = sseFactory.createFlexibleSseHandler(async (props: flexibleSse
     }
 
     props.sendMessage({ type: 'other', contents: `Starting .NET ${majorVersion} SDK installation...` });
-    props.sendMessage({ type: 'other', contents: 'Downloading dotnet-install.sh script...' });
     const scriptPath = await downloadDotnetInstallScript(props);
 
     props.sendMessage({ type: 'other', contents: 'Script downloaded successfully' });
