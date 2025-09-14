@@ -134,6 +134,10 @@ function createFlexibleSseHandler(workflow: (props: flexibleSseHandlerProps) => 
                 } catch (error) {
                     // return onError(error instanceof Error ? error.message : 'Unknown error');
                     sendErrorMessage(controller, error instanceof Error ? error.message : 'Unknown error');
+                } finally {
+                    // Send [DONE] message to signal completion
+                    controller.enqueue(new TextEncoder().encode('data: [DONE]\n\n'));
+                    controller.close();
                 }
             }
         });
