@@ -133,8 +133,8 @@ const setDotnetInfoToState = (info: DotNetInfoResult | null) => (state: MessageS
     return basePath.replace(sdkPattern, '');
   };
 
-  const sdks = info ? info.installedSdks.map(sdk => ({ version: sdk.version, path: sdk.path })) : [];
-  const runtimes = info ? info.installedRuntimes.map(runtime => ({ name: runtime.name, version: runtime.version, path: runtime.path })) : [];
+  const sdks =  (info?.installedSdks || []).map(sdk => ({ version: sdk.version, path: sdk.path }));
+  const runtimes =  (info?.installedRuntimes || []).map(runtime => ({ name: runtime.name, version: runtime.version, path: runtime.path }));
 
   return {
     dotnetState: info ? {
@@ -142,13 +142,13 @@ const setDotnetInfoToState = (info: DotNetInfoResult | null) => (state: MessageS
       dotnetSdks: sdks,
       dotnetRuntimes: runtimes,
       appVersions: createAppVersions(sdks, runtimes),
-      dotnetPath: extractDotnetPath(info.runtimeEnvironment.basePath),
-      runtimeEnvironment: info.runtimeEnvironment,
-      host: info.host,
-      workloadsInstalled: info.workloadsInstalled,
-      otherArchitectures: info.otherArchitectures,
-      environmentVariables: info.environmentVariables,
-      globalJsonFile: info.globalJsonFile,
+      dotnetPath: extractDotnetPath(info?.runtimeEnvironment?.basePath || ''),
+      runtimeEnvironment: info?.runtimeEnvironment,
+      host: info?.host,
+      workloadsInstalled: info?.workloadsInstalled || '',
+      otherArchitectures: info?.otherArchitectures || [],
+      environmentVariables: info?.environmentVariables || {},
+      globalJsonFile: info?.globalJsonFile || '',
       hasTriedDetectingSdks: true,
       hasTriedDetectingRuntimes: true
     } : state.dotnetState
