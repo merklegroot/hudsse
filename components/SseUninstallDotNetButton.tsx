@@ -6,9 +6,10 @@ interface SseUninstallDotNetButtonProps {
     appName: string;
     version: string;
     onUninstallComplete?: () => void;
+    onUninstallStart?: () => void;
 }
 
-export default function SseUninstallDotNetButton({ appName, version, onUninstallComplete }: SseUninstallDotNetButtonProps) {
+export default function SseUninstallDotNetButton({ appName, version, onUninstallComplete, onUninstallStart }: SseUninstallDotNetButtonProps) {
     const { startSseStream, isLoading } = useSse();
 
     const createEventSource = () => {
@@ -17,6 +18,9 @@ export default function SseUninstallDotNetButton({ appName, version, onUninstall
 
     const onClick = () => {
         if (isLoading) return;
+        
+        // Notify that uninstall is starting
+        onUninstallStart?.();
         
         const eventSource = startSseStream(createEventSource);
         
