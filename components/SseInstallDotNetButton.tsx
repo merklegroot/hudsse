@@ -1,13 +1,14 @@
 'use client';
 
 import { useSse } from '../contexts/SseContext';
+import { forwardRef } from 'react';
 
 interface SseInstallDotNetButtonProps {
     majorVersion: number;
     onInstallComplete?: () => void;
 }
 
-export default function SseInstallDotNetButton({ majorVersion, onInstallComplete }: SseInstallDotNetButtonProps) {
+const SseInstallDotNetButton = forwardRef<HTMLButtonElement, SseInstallDotNetButtonProps>(({ majorVersion, onInstallComplete }, ref) => {
     const { startSseStream, isLoading } = useSse();
 
     const createEventSource = () => {
@@ -32,6 +33,7 @@ export default function SseInstallDotNetButton({ majorVersion, onInstallComplete
 
     return (
         <button
+            ref={ref}
             onClick={onClick}
             disabled={isLoading}
             className={`px-3 py-1 text-sm font-medium rounded-md transition-colors ${
@@ -43,4 +45,8 @@ export default function SseInstallDotNetButton({ majorVersion, onInstallComplete
             {isLoading ? 'Installing...' : 'Install SDK'}
         </button>
     );
-}
+});
+
+SseInstallDotNetButton.displayName = 'SseInstallDotNetButton';
+
+export default SseInstallDotNetButton;

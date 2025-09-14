@@ -1,6 +1,7 @@
 'use client';
 
 import { useSse } from '../contexts/SseContext';
+import { forwardRef } from 'react';
 
 interface SseUninstallDotNetButtonProps {
     appName: string;
@@ -9,7 +10,7 @@ interface SseUninstallDotNetButtonProps {
     onUninstallStart?: () => void;
 }
 
-export default function SseUninstallDotNetButton({ appName, version, onUninstallComplete, onUninstallStart }: SseUninstallDotNetButtonProps) {
+const SseUninstallDotNetButton = forwardRef<HTMLButtonElement, SseUninstallDotNetButtonProps>(({ appName, version, onUninstallComplete, onUninstallStart }, ref) => {
     const { startSseStream, isLoading } = useSse();
 
     const createEventSource = () => {
@@ -37,6 +38,7 @@ export default function SseUninstallDotNetButton({ appName, version, onUninstall
 
     return (
         <button
+            ref={ref}
             onClick={onClick}
             disabled={isLoading}
             className={`px-3 py-1 text-sm font-medium rounded-md transition-colors ${
@@ -48,4 +50,8 @@ export default function SseUninstallDotNetButton({ appName, version, onUninstall
             {isLoading ? 'Uninstalling...' : 'Uninstall'}
         </button>
     );
-}
+});
+
+SseUninstallDotNetButton.displayName = 'SseUninstallDotNetButton';
+
+export default SseUninstallDotNetButton;

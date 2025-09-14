@@ -1,8 +1,9 @@
 import { AppVersions } from "@/models/SseMessage";
 import { useMessageStore } from "@/store/messageStore";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import SseInstallDotNetButton from "../SseInstallDotNetButton";
 import SseUninstallDotNetButton from "../SseUninstallDotNetButton";
+import ConfirmationDialog from "../ConfirmationDialog";
 
 const getPillColor = (appName: string) => {
     const lowerAppName = appName.toLowerCase();
@@ -23,6 +24,8 @@ export function DotNetVersionView({ majorVersion, appVersions }: { majorVersion:
     const [showUninstallDialog, setShowUninstallDialog] = useState(false);
     const [uninstallVersion, setUninstallVersion] = useState<string>('');
     const [uninstallAppName, setUninstallAppName] = useState<string>('');
+    const installButtonRef = useRef<HTMLButtonElement>(null);
+    const uninstallButtonRef = useRef<HTMLButtonElement>(null);
     
     const startProcessing = useMessageStore((state) => state.startProcessing);
     const completeProcessing = useMessageStore((state) => state.completeProcessing);
@@ -162,66 +165,53 @@ export function DotNetVersionView({ majorVersion, appVersions }: { majorVersion:
                 </button>
             </div>
             
-            {showInstallDialog && (
-                <div 
-                    className="fixed inset-0 flex items-center justify-center z-50"
-                    style={{ backgroundColor: 'rgba(0, 0, 0, 0.3)' }}
-                >
-                    <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 p-6">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                            Install .NET SDK
-                        </h3>
-                        <p className="text-gray-600 mb-6">
-                            Are you sure you want to install the .NET {majorVersion} SDK? This will download and install the latest .NET {majorVersion} SDK and runtime components on your system.
-                        </p>
-                        <div className="flex justify-end space-x-3">
-                            <button
-                                onClick={handleInstallCancel}
-                                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                            >
-                                Cancel
-                            </button>
-                            <SseInstallDotNetButton
-                                majorVersion={majorVersion}
-                                onInstallComplete={() => {
-                                    handleInstallComplete();
-                                    setShowInstallDialog(false);
-                                }}
-                            />
-                        </div>
-                    </div>
-                </div>
-            )}
+            <ConfirmationDialog
+                isOpen={showInstallDialog}
+                onClose={handleInstallCancel}
+                onConfirm={() => {
+                    setShowInstallDialog(false);
+                    // Trigger the install button click
+                    installButtonRef.current?.click();
+                }}
+                title="Install .NET SDK"
+                message={`Are you sure you want to install the .NET ${majorVersion} SDK? This will download and install the latest .NET ${majorVersion} SDK and runtime components on your system.`}
+                confirmText="Install"
+                confirmButtonClass="bg-blue-600 hover:bg-blue-700"
+            />
             
-            {showUninstallDialog && (
-                <div 
-                    className="fixed inset-0 flex items-center justify-center z-50"
-                    style={{ backgroundColor: 'rgba(0, 0, 0, 0.3)' }}
-                >
-                    <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 p-6">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                            Uninstall .NET Component
-                        </h3>
-                        <p className="text-gray-600 mb-6">
-                            Are you sure you want to uninstall {uninstallAppName} version {uninstallVersion}? This will remove the specified component from your system.
-                        </p>
-                        <div className="flex justify-end space-x-3">
-                            <button
-                                onClick={handleUninstallCancel}
-                                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                            >
-                                Cancel
-                            </button>
-                            <SseUninstallDotNetButton
-                                appName={uninstallAppName}
-                                version={uninstallVersion}
-                                onUninstallStart={handleUninstallStart}
-                                onUninstallComplete={handleUninstallComplete}
-                            />
-                        </div>
-                    </div>
-                </div>
-            )}
+            {/* Hidden install button for programmatic triggering */}
+            <div style={{ display: 'none' }}>
+                <SseInstallDotNetButton
+                    ref={installButtonRef}
+                    majorVersion={majorVersion}
+                    onInstallComplete={handleInstallComplete}
+                />
+            </div>
+            
+            <ConfirmationDialog
+                isOpen={showUninstallDialog}
+                onClose={handleUninstallCancel}
+                onConfirm={() => {
+                    setShowUninstallDialog(false);
+                    // Trigger the uninstall button click
+                    uninstallButtonRef.current?.click();
+                }}
+                title="Uninstall .NET Component"
+                message={`Are you sure you want to uninstall ${uninstallAppName} version ${uninstallVersion}? This will remove the specified component from your system.`}
+                confirmText="Uninstall"
+                confirmButtonClass="bg-red-600 hover:bg-red-700"
+            />
+            
+            {/* Hidden uninstall button for programmatic triggering */}
+            <div style={{ display: 'none' }}>
+                <SseUninstallDotNetButton
+                    ref={uninstallButtonRef}
+                    appName={uninstallAppName}
+                    version={uninstallVersion}
+                    onUninstallStart={handleUninstallStart}
+                    onUninstallComplete={handleUninstallComplete}
+                />
+            </div>
             
         </div>
     )
