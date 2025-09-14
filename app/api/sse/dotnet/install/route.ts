@@ -44,15 +44,6 @@ async function executeDotnetInstall(props: flexibleSseHandlerProps, scriptPath: 
         ];
 
         props.sendMessage({ type: 'command', contents: `Executing: bash ${scriptPath} ${args.join(' ')}` });
-        await spawnAndGetDataWorkflow.executeWithFallback({
-            command: 'bash',
-            args: [scriptPath, ...args],
-            timeout: 10 * 60 * 1000,
-            dataCallback: (data: string) => {
-                props.sendMessage({ type: 'stdout', contents: data });
-            }
-        });
-
         const result = await spawnAndGetDataWorkflow.executeWithFallback({
             command: 'bash',
             args: [scriptPath, ...args],
@@ -61,7 +52,6 @@ async function executeDotnetInstall(props: flexibleSseHandlerProps, scriptPath: 
                 props.sendMessage({ type: 'stdout', contents: data });
             }
         });
-
 
         if (result.wasSuccessful) {
             props.sendMessage({ type: 'result', contents: `✅ .NET ${majorVersion} SDK installation completed successfully!` });

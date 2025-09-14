@@ -32,6 +32,7 @@ async function execute(options: SpawnOptions): Promise<SpawnResult> {
     // Collect stderr data
     child.stderr?.on('data', (data: Buffer) => {
       stderr += data.toString();
+      dataCallback?.(data.toString());
     });
     
     // Handle process completion

@@ -4,7 +4,6 @@ import { useMessageStore } from '@/store/messageStore';
 import AddMessageButton from '@/components/AddMessageButton';
 import SseWhichDotNetButton from '@/components/SseWhichDotNetButton';
 import SseDotNetInfoButton from '@/components/SseDotNetInfoButton';
-import DetectDotNetButton from '@/components/DetectDotNetButton';
 import SseDelayedMessagesButton from '@/components/SseDelayedMessagesButton';
 import MessageList from '@/components/MessageList';
 import { StateViewer } from '@/components/StateViewer';
@@ -23,10 +22,9 @@ export function HomeControl() {
             
             <div className="space-x-4 mb-4">    
                 <AddMessageButton />
-                <SseDelayedMessagesButton />
-                <SseWhichDotNetButton />
+                {/* <SseDelayedMessagesButton />
+                <SseWhichDotNetButton /> */}
                 <SseDotNetInfoButton />
-                <DetectDotNetButton />
                 <button
                     onClick={() => {
                         startProcessing('Processing Test', 'This is a test of the generic processing dialog. Auto-closing in 3 seconds...');
@@ -39,12 +37,6 @@ export function HomeControl() {
                 >
                     Test In-Progress Dialog (Auto-close)
                 </button>
-                <button
-                    onClick={() => completeProcessing()}
-                    className="px-4 py-2 bg-gray-600 text-white text-sm font-medium rounded-md hover:bg-gray-700 transition-colors"
-                >
-                    Close Dialog
-                </button>
             </div>
             <div className="space-x-4 mb-4">
                 <StateViewer />
@@ -52,7 +44,7 @@ export function HomeControl() {
                     <strong>Debug - Processing State:</strong> isProcessing: {isProcessing.toString()}, 
                     Title: {processingTitle}, Message: {processingMessage}
                 </div>
-            </div>            
+            </div>
             <div className="flex gap-6">
                 <div className="flex-3">
                     <DotNetDisplay />
