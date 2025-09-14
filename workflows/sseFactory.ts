@@ -82,7 +82,7 @@ async function executeCommand(
     try {
         const result: SpawnResult = await spawnAndGetDataWorkflow.execute(spawnOptions);
 
-        if (!result.success) {
+        if (!result.wasSuccessful) {
             sendErrorMessage(controller, `Error: ${result.stderr}`);
             return false;
         }
@@ -117,6 +117,31 @@ export interface chainProp {
     onSuccess: onSuccess;
 }
 
+export interface flexibleSseHandlerProps {
+    req: NextRequest;
+    controller: ReadableStreamDefaultController;
+    sendMessage: (message: SseMessage) => void;
+
+    onError: (error: string) => void;
+}
+
+function createFlexibleSseHandler(workflow: (props: flexibleSseHandlerProps) => Promise<void>) {
+    return async function GET(req: NextRequest) {
+        const stream = new ReadableStream({
+            async start(controller: ReadableStreamDefaultController) {
+                try {
+                    await workflow({ req, controller, sendMessage: (message: SseMessage) => sendSseMessage(controller, message), onError: (error: string) => sendErrorMessage(controller, error) });
+                } catch (error) {
+                    // return onError(error instanceof Error ? error.message : 'Unknown error');
+                    sendErrorMessage(controller, error instanceof Error ? error.message : 'Unknown error');
+                }
+            }
+        });
+
+        return new Response(stream, { headers: SSE_HEADERS });
+    }
+}
+
 function createSseCommandHandler(props: chainProp) {
     return createChainedSseCommandsHandler([props]);
 }
@@ -134,7 +159,7 @@ function createChainedSseCommandsHandler(chains: chainProp[]) {
                         try {
                             const parsedResult = chain.parser ? chain.parser(allOutput) : allOutput;
                             results.push(parsedResult);
-                            
+
                             // Handle different types of onSuccess
                             let successMessage: string;
                             if (typeof chain.onSuccess === 'function') {
@@ -151,7 +176,7 @@ function createChainedSseCommandsHandler(chains: chainProp[]) {
                                     successMessage = 'Command executed successfully';
                                 }
                             }
-                            
+
                             sendResultMessage(controller, successMessage, parsedResult);
                         } catch (parseError) {
                             sendErrorMessage(controller, `Failed to parse command output: ${parseError instanceof Error ? parseError.message : 'Unknown error'}`);
@@ -178,5 +203,9 @@ function createChainedSseCommandsHandler(chains: chainProp[]) {
 
 export const sseFactory = {
     createSseCommandHandler,
-    createChainedSseCommandsHandler
+    createChainedSseCommandsHandler,
+    createFlexibleSseHandler,
+
+    sendSseMessage,
+    SSE_HEADERS
 };

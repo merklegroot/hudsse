@@ -1,5 +1,5 @@
 export interface SpawnResult {
-    success: boolean;
+    wasSuccessful: boolean;
     stdout: string;
     stderr: string;
     exitCode: number | null;

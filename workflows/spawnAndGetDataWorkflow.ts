@@ -38,7 +38,7 @@ async function execute(options: SpawnOptions): Promise<SpawnResult> {
     child.on('close', (code: number | null) => {
       console.log(`Command completed with code: ${code}`);
       resolve({
-        success: code === 0,
+        wasSuccessful: code === 0,
         stdout: stdout.trim(),
         stderr: stderr.trim(),
         exitCode: code
@@ -49,7 +49,7 @@ async function execute(options: SpawnOptions): Promise<SpawnResult> {
     child.on('error', (error: Error) => {
       console.error('Failed to spawn process:', error);
       resolve({
-        success: false,
+        wasSuccessful: false,
         stdout: '',
         stderr: error.message,
         exitCode: null
@@ -61,7 +61,7 @@ async function execute(options: SpawnOptions): Promise<SpawnResult> {
       console.log('Process timeout, killing...');
       child.kill('SIGKILL');
       resolve({
-        success: false,
+        wasSuccessful: false,
         stdout: stdout.trim(),
         stderr: 'Process timed out',
         exitCode: null
@@ -103,7 +103,7 @@ async function executeWithFallback(options: SpawnOptions): Promise<SpawnResult> 
     try {
       console.log(`Trying spawn method ${i + 1}...`);
       const result = await methods[i]();
-      if (result.success && result.stdout.length > 0) {
+      if (result.wasSuccessful && result.stdout.length > 0) {
         console.log(`Spawn method ${i + 1} succeeded`);
         return result;
       } else {
@@ -116,7 +116,7 @@ async function executeWithFallback(options: SpawnOptions): Promise<SpawnResult> 
   
   // All methods failed
   return {
-    success: false,
+    wasSuccessful: false,
     stdout: '',
     stderr: 'All spawn methods failed',
     exitCode: null

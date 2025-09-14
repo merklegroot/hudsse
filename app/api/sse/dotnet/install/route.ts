@@ -3,38 +3,29 @@ import { spawn } from 'child_process';
 import { promises as fs } from 'fs';
 import path from 'path';
 import os from 'os';
-
-// Common SSE response headers
-const SSE_HEADERS = {
-    'Content-Type': 'text/event-stream',
-    'Cache-Control': 'no-cache',
-    'Connection': 'keep-alive',
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Headers': 'Cache-Control',
-    'X-Accel-Buffering': 'no' // Disable nginx buffering
-};
-
-// Utility function to send SSE messages
-function sendSseMessage(controller: ReadableStreamDefaultController, type: string, contents: string) {
-    const message = { type, contents };
-    const data = `data: ${JSON.stringify(message)}\n\n`;
-    controller.enqueue(new TextEncoder().encode(data));
-}
+import { flexibleSseHandlerProps, sseFactory } from '@/workflows/sseFactory';
+import { SseMessage } from '@/models/SseMessage';
+import { spawnAndGetDataWorkflow } from '@/workflows/spawnAndGetDataWorkflow';
 
 // Download the dotnet-install.sh script
-async function downloadDotnetInstallScript(): Promise<string> {
+async function downloadDotnetInstallScript(props: flexibleSsehandlerProps): Promise<string> {
     const scriptUrl = 'https://dot.net/v1/dotnet-install.sh';
     const tempDir = os.tmpdir();
     const scriptPath = path.join(tempDir, 'dotnet-install.sh');
 
     try {
+        props.sendMessage({ type: 'other', contents: 'Downloading dotnet-install.sh script...' });
         const response = await fetch(scriptUrl);
         if (!response.ok) {
             throw new Error(`Failed to download script: ${response.statusText}`);
         }
 
         const scriptContent = await response.text();
+        props.sendMessage({ type: 'other', contents: 'Script downloaded successfully' });
+        props.sendMessage({ type: 'other', contents: 'Writing script to file...' });
         await fs.writeFile(scriptPath, scriptContent, { mode: 0o755 });
+
+        props.sendMessage({ type: 'other', contents: 'Script written to file successfully' });
 
         return scriptPath;
     } catch (error) {
@@ -43,8 +34,8 @@ async function downloadDotnetInstallScript(): Promise<string> {
 }
 
 // Execute the dotnet-install.sh script
-async function executeDotnetInstall(scriptPath: string, majorVersion: number, controller: ReadableStreamDefaultController): Promise<boolean> {
-    return new Promise((resolve) => {
+async function executeDotnetInstall(props: flexibleSsehandlerProps, scriptPath: string, majorVersion: number) {
+    return new Promise<void>(async (resolve) => {
         const channel = majorVersion === 8 ? 'LTS'
             // : majorVersion === 9 ? 'STS'
             : majorVersion.toString();
@@ -55,131 +46,49 @@ async function executeDotnetInstall(scriptPath: string, majorVersion: number, co
             '--verbose'
         ];
 
-        sendSseMessage(controller, 'command', `Executing: bash ${scriptPath} ${args.join(' ')}`);
-
-        const child = spawn('bash', [scriptPath, ...args], {
-            stdio: ['pipe', 'pipe', 'pipe'],
-            env: {
-                ...process.env,
-                NODE_ENV: 'development'
-            },
-            shell: false,
-            detached: false
-        });
-
-        let stdout = '';
-        let stderr = '';
-
-        // Collect stdout data
-        child.stdout?.on('data', (data: Buffer) => {
-            const output = data.toString();
-            stdout += output;
-            sendSseMessage(controller, 'stdout', output);
-        });
-
-        // Collect stderr data
-        child.stderr?.on('data', (data: Buffer) => {
-            const output = data.toString();
-            stderr += output;
-            sendSseMessage(controller, 'stdout', output); // Show stderr as stdout for user visibility
-        });
-
-        // Handle process completion
-        child.on('close', (code: number | null) => {
-            if (code === 0) {
-                sendSseMessage(controller, 'result', `Successfully installed .NET ${majorVersion} SDK`);
-                resolve(true);
-            } else {
-                sendSseMessage(controller, 'result', `Installation failed with exit code ${code}. Error: ${stderr}`);
-                resolve(false);
+        props.sendMessage({ type: 'command', contents: `Executing: bash ${scriptPath} ${args.join(' ')}` });
+        await spawnAndGetDataWorkflow.executeWithFallback({
+            command: 'bash',
+            args: [scriptPath, ...args],
+            timeout: 10 * 60 * 1000,
+            dataCallback: (data: string) => {
+                props.sendMessage({ type: 'stdout', contents: data });
             }
         });
 
-        // Handle process errors
-        child.on('error', (error: Error) => {
-            sendSseMessage(controller, 'result', `Failed to execute installation: ${error.message}`);
-            resolve(false);
+        const result = await spawnAndGetDataWorkflow.executeWithFallback({
+            command: 'bash',
+            args: [scriptPath, ...args],
+            timeout: 10 * 60 * 1000,
+            dataCallback: (data: string) => {
+                props.sendMessage({ type: 'stdout', contents: data });
+            }
         });
 
-        // Set a timeout (10 minutes for installation)
-        const timeoutHandle = setTimeout(() => {
-            child.kill('SIGKILL');
-            sendSseMessage(controller, 'result', 'Installation timed out after 10 minutes');
-            resolve(false);
-        }, 10 * 60 * 1000);
 
-        // Clear timeout when process completes
-        child.on('close', () => {
-            clearTimeout(timeoutHandle);
-        });
+        if (result.wasSuccessful) {
+            props.sendMessage({ type: 'result', contents: `✅ .NET ${majorVersion} SDK installation completed successfully!` });
+        } else {
+            props.sendMessage({ type: 'result', contents: `❌ .NET ${majorVersion} SDK installation failed. Check the output above for details.` });
+        }
+
+        resolve();
     });
 }
 
-// Clean up temporary files
-async function cleanup(scriptPath: string) {
-    try {
-        await fs.unlink(scriptPath);
-    } catch (error) {
-        console.warn('Failed to clean up temporary script file:', error);
-    }
-}
-
-export async function GET(req: NextRequest) {
-    const { searchParams } = new URL(req.url);
+export const GET = sseFactory.createFlexibleSseHandler(async (props: flexibleSseHandlerProps) => {
+    const { searchParams } = new URL(props.req.url);
     const majorVersion = parseInt(searchParams.get('version') || '8');
 
     if (isNaN(majorVersion) || majorVersion < 6 || majorVersion > 10) {
-        return new Response(JSON.stringify({ error: 'Invalid version. Must be between 6 and 10.' }), {
-            status: 400,
-            headers: { 'Content-Type': 'application/json' }
-        });
+        return props.onError(`Not implemented for version ${majorVersion}. Must be between 6 and 10.`);
     }
 
-    // Block .NET 5 and 7 specifically for now
-    if (majorVersion === 5 || majorVersion === 7) {
-        return new Response(JSON.stringify({
-            error: `Installation of.NET ${majorVersion} is not yet supported in this app.`
-        }), {
-            status: 400,
-            headers: { 'Content-Type': 'application/json' }
-        });
-    }
+    props.sendMessage({ type: 'other', contents: `Starting .NET ${majorVersion} SDK installation...` });
+    props.sendMessage({ type: 'other', contents: 'Downloading dotnet-install.sh script...' });
+    const scriptPath = await downloadDotnetInstallScript(props);
 
-    const stream = new ReadableStream({
-        async start(controller) {
-            let scriptPath = '';
-
-            try {
-                sendSseMessage(controller, 'other', `Starting .NET ${majorVersion} SDK installation...`);
-
-                // Download the installation script
-                sendSseMessage(controller, 'other', 'Downloading dotnet-install.sh script...');
-                scriptPath = await downloadDotnetInstallScript();
-                sendSseMessage(controller, 'other', 'Script downloaded successfully');
-
-                // Execute the installation
-                sendSseMessage(controller, 'other', `Installing .NET ${majorVersion} SDK...`);
-                const success = await executeDotnetInstall(scriptPath, majorVersion, controller);
-
-                if (success) {
-                    sendSseMessage(controller, 'result', `✅ .NET ${majorVersion} SDK installation completed successfully!`);
-                } else {
-                    sendSseMessage(controller, 'result', `❌ .NET ${majorVersion} SDK installation failed. Check the output above for details.`);
-                }
-
-            } catch (error) {
-                sendSseMessage(controller, 'result', `❌ Installation error: ${error instanceof Error ? error.message : 'Unknown error'}`);
-            } finally {
-                // Clean up
-                if (scriptPath) {
-                    await cleanup(scriptPath);
-                }
-
-                controller.enqueue(new TextEncoder().encode('data: [DONE]\n\n'));
-                controller.close();
-            }
-        }
-    });
-
-    return new Response(stream, { headers: SSE_HEADERS });
-}
+    props.sendMessage({ type: 'other', contents: 'Script downloaded successfully' });
+    props.sendMessage({ type: 'other', contents: `Installing .NET ${majorVersion} SDK...` });
+    await executeDotnetInstall(props, scriptPath, majorVersion);
+});
