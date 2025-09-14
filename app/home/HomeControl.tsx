@@ -12,6 +12,11 @@ import DotNetDisplay from '@/components/dotnet-display/DotNetDisplay';
 
 export function HomeControl() {
     const messages = useMessageStore((state) => state.messages);
+    const startProcessing = useMessageStore((state) => state.startProcessing);
+    const completeProcessing = useMessageStore((state) => state.completeProcessing);
+    const isProcessing = useMessageStore((state) => state.processingState.isProcessing);
+    const processingTitle = useMessageStore((state) => state.processingState.title);
+    const processingMessage = useMessageStore((state) => state.processingState.message);
 
     return (
         <div>
@@ -21,10 +26,32 @@ export function HomeControl() {
                 <SseDelayedMessagesButton />
                 <SseWhichDotNetButton />
                 <SseDotNetInfoButton />
-                <DetectDotNetButton />                
+                <DetectDotNetButton />
+                <button
+                    onClick={() => {
+                        startProcessing('Processing Test', 'This is a test of the generic processing dialog. Auto-closing in 3 seconds...');
+                        // Auto-close after 3 seconds
+                        setTimeout(() => {
+                            completeProcessing();
+                        }, 3000);
+                    }}
+                    className="px-4 py-2 bg-orange-600 text-white text-sm font-medium rounded-md hover:bg-orange-700 transition-colors"
+                >
+                    Test In-Progress Dialog (Auto-close)
+                </button>
+                <button
+                    onClick={() => completeProcessing()}
+                    className="px-4 py-2 bg-gray-600 text-white text-sm font-medium rounded-md hover:bg-gray-700 transition-colors"
+                >
+                    Close Dialog
+                </button>
             </div>
             <div className="space-x-4 mb-4">
-                <StateViewer />           
+                <StateViewer />
+                <div className="mt-2 p-2 bg-gray-100 rounded text-sm">
+                    <strong>Debug - Processing State:</strong> isProcessing: {isProcessing.toString()}, 
+                    Title: {processingTitle}, Message: {processingMessage}
+                </div>
             </div>            
             <div className="flex gap-6">
                 <div className="flex-3">

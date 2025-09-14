@@ -1,6 +1,32 @@
 import { create } from 'zustand';
 import { SseMessage, SdkInfo, RuntimeInfo, AppVersions, DotNetInfoResult, DotNetHost, RuntimeEnvironment } from '../models/SseMessage';
 
+interface MessageState {
+  messages: SseMessage[];
+  dotnetState: dotnetState | null;
+  processingState: ProcessingState;
+
+  addMessage: (message: string) => void;
+  addSSEMessage: (message: SseMessage) => void;
+  setDotnetSdks: (sdks: SdkInfo[]) => void;
+  setDotnetRuntimes: (runtimes: RuntimeInfo[]) => void;
+  setWhichDotNetPath: (path: string | null) => void;
+  setDotnetInfo: (info: DotNetInfoResult | null) => void;
+  setDotnetState: (state: dotnetState | null) => void;
+  setHasTriedDetectingSdks: (hasTried: boolean) => void;
+  setHasTriedDetectingRuntimes: (hasTried: boolean) => void;
+  
+  // Processing actions
+  startProcessing: (title: string, message: string) => void;
+  completeProcessing: () => void;
+}
+
+interface ProcessingState {
+  isProcessing: boolean;
+  title: string;
+  message: string;
+}
+
 interface dotnetState {
   dotnetSdks: SdkInfo[];
   dotnetRuntimes: RuntimeInfo[];
@@ -18,24 +44,15 @@ interface dotnetState {
   hasTriedDetectingRuntimes: boolean;
 }
 
-interface MessageState {
-  messages: SseMessage[];
-  dotnetState: dotnetState | null;
 
-  addMessage: (message: string) => void;
-  addSSEMessage: (message: SseMessage) => void;
-  setDotnetSdks: (sdks: SdkInfo[]) => void;
-  setDotnetRuntimes: (runtimes: RuntimeInfo[]) => void;
-  setWhichDotNetPath: (path: string | null) => void;
-  setDotnetInfo: (info: DotNetInfoResult | null) => void;
-  setDotnetState: (state: dotnetState | null) => void;
-  setHasTriedDetectingSdks: (hasTried: boolean) => void;
-  setHasTriedDetectingRuntimes: (hasTried: boolean) => void;
-}
-
-const createInitialState = (): Pick<MessageState, 'messages' | 'dotnetState'> => ({
+const createInitialState = (): Pick<MessageState, 'messages' | 'dotnetState' | 'processingState'> => ({
   messages: [],
-  dotnetState: null
+  dotnetState: null,
+  processingState: {
+    isProcessing: false,
+    title: '',
+    message: ''
+  }
 });
 
 const createAppVersions = (sdks: SdkInfo[], runtimes: RuntimeInfo[]): AppVersions => {
@@ -173,6 +190,22 @@ const setHasTriedDetectingRuntimesToState = (hasTried: boolean) => (state: Messa
   } : null
 });
 
+const startProcessingToState = (title: string, message: string) => (state: MessageState) => ({
+  processingState: {
+    isProcessing: true,
+    title,
+    message
+  }
+});
+
+const completeProcessingToState = (state: MessageState) => ({
+  processingState: {
+    isProcessing: false,
+    title: '',
+    message: ''
+  }
+});
+
 const createMessageActions = (set: (fn: (state: MessageState) => Partial<MessageState>) => void) => ({
   addMessage: (message: string) => set((state) => addMessageToState(state)(message)),
   addSSEMessage: (message: SseMessage) => set((state) => addSSEMessageToState(state)(message)),
@@ -182,7 +215,9 @@ const createMessageActions = (set: (fn: (state: MessageState) => Partial<Message
   setDotnetInfo: (info: DotNetInfoResult | null) => set((state) => setDotnetInfoToState(info)(state)),
   setDotnetState: (state: dotnetState | null) => set(() => setDotnetStateToState(state)),
   setHasTriedDetectingSdks: (hasTried: boolean) => set((state) => setHasTriedDetectingSdksToState(hasTried)(state)),
-  setHasTriedDetectingRuntimes: (hasTried: boolean) => set((state) => setHasTriedDetectingRuntimesToState(hasTried)(state))
+  setHasTriedDetectingRuntimes: (hasTried: boolean) => set((state) => setHasTriedDetectingRuntimesToState(hasTried)(state)),
+  startProcessing: (title: string, message: string) => set((state) => startProcessingToState(title, message)(state)),
+  completeProcessing: () => set((state) => completeProcessingToState(state))
 });
 
 export const useMessageStore = create<MessageState>((set) => ({

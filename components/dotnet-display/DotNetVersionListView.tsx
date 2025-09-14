@@ -3,7 +3,6 @@ import { useMessageStore } from "@/store/messageStore";
 import { useState } from "react";
 import SseInstallDotNetButton from "../SseInstallDotNetButton";
 import SseUninstallDotNetButton from "../SseUninstallDotNetButton";
-import InProgressDialog from "../InProgressDialog";
 
 const getPillColor = (appName: string) => {
     const lowerAppName = appName.toLowerCase();
@@ -22,10 +21,11 @@ const getPillColor = (appName: string) => {
 export function DotNetVersionView({ majorVersion, appVersions }: { majorVersion: number, appVersions: AppVersions }) {
     const [showInstallDialog, setShowInstallDialog] = useState(false);
     const [showUninstallDialog, setShowUninstallDialog] = useState(false);
-    const [showUninstallProgressDialog, setShowUninstallProgressDialog] = useState(false);
     const [uninstallVersion, setUninstallVersion] = useState<string>('');
     const [uninstallAppName, setUninstallAppName] = useState<string>('');
-    const [isUninstalling, setIsUninstalling] = useState(false);
+    
+    const startProcessing = useMessageStore((state) => state.startProcessing);
+    const completeProcessing = useMessageStore((state) => state.completeProcessing);
     const hasSDK = appVersions['SDK'] && appVersions['SDK'].length > 0;
     const hasAspNetCore = Object.keys(appVersions).some(key =>
         key.toLowerCase() === 'microsoft.aspnetcore.app' && appVersions[key].length > 0
@@ -98,13 +98,14 @@ export function DotNetVersionView({ majorVersion, appVersions }: { majorVersion:
 
     const handleUninstallStart = () => {
         setShowUninstallDialog(false);
-        setShowUninstallProgressDialog(true);
-        setIsUninstalling(true);
+        startProcessing(
+            'Uninstalling .NET Component',
+            `Uninstalling ${uninstallAppName} version ${uninstallVersion}... Please wait while the component is removed from your system.`
+        );
     };
 
     const handleUninstallComplete = () => {
-        setIsUninstalling(false);
-        setShowUninstallProgressDialog(false);
+        completeProcessing();
         // Optionally refresh the dotnet state here
         console.log(`Uninstall completed for ${uninstallAppName} ${uninstallVersion}`);
     };
@@ -221,12 +222,6 @@ export function DotNetVersionView({ majorVersion, appVersions }: { majorVersion:
                     </div>
                 </div>
             )}
-            
-            <InProgressDialog
-                isOpen={showUninstallProgressDialog}
-                title="Uninstalling .NET Component"
-                message={`Uninstalling ${uninstallAppName} version ${uninstallVersion}... Please wait while the component is removed from your system.`}
-            />
             
         </div>
     )

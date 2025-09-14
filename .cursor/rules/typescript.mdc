@@ -30,6 +30,10 @@ Avoid `else if` chains when possible.
 Prefer early returns, guard clauses, or switch statements for better readability.
 Exception: Use `else if` only when it eliminates code duplication.
 
+## Switch Statements
+Don't use switch statements in TypeScript/JavaScript.
+In other languages that support pattern matching, the pattern matching switch statment can be ok.
+
 ## Code Nesting
 Minimize nesting levels to improve readability.
 Use early returns, extract functions, or refactor conditions to reduce complexity.

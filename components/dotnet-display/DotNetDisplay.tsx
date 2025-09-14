@@ -1,8 +1,7 @@
 import DotNetInfoDisplay from "./DotNetInfoDisplay";
-import DotNetSdksDisplay from "./DotNetSdksDisplay";
-import DotNetRuntimesDisplay from "./DotNetRuntimesDisplay";
 import DotNetLocationDisplay from "./DotNetLocationDisplay";
 import DotNetVersionListView from "./DotNetVersionListView";
+import InProgressDialog from "../InProgressDialog";
 
 export default function DotNetDisplay() {
     return (
@@ -10,6 +9,7 @@ export default function DotNetDisplay() {
             <DotNetLocationDisplay />
             <DotNetVersionListView />
             <DotNetInfoDisplay />
+            <InProgressDialog />
         </>
     )
 }

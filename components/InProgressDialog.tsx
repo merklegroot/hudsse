@@ -1,26 +1,21 @@
 'use client';
 
 import React from 'react';
+import { useMessageStore } from '../store/messageStore';
 
-interface InProgressDialogProps {
-  isOpen: boolean;
-  title: string;
-  message: string;
-}
+export default function InProgressDialog() {
+  const isProcessing = useMessageStore((state) => state.processingState.isProcessing);
+  const title = useMessageStore((state) => state.processingState.title);
+  const message = useMessageStore((state) => state.processingState.message);
 
-export default function InProgressDialog({
-  isOpen,
-  title,
-  message,
-}: InProgressDialogProps) {
-  if (!isOpen) return null;
+  if (!isProcessing) return null;
 
   return (
     <div 
       className="fixed inset-0 flex items-center justify-center z-50"
-      style={{ backgroundColor: 'rgba(0, 0, 0, 0.65)' }}
+      style={{ backgroundColor: 'rgba(0, 0, 0, 0.3)' }}
     >
-      <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+      <div className="bg-white bg-opacity-95 rounded-lg shadow-xl max-w-md w-full mx-4">
         <div className="p-6">
           <div className="flex items-center mb-4">
             <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mr-3"></div>
