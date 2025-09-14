@@ -5,7 +5,7 @@ import { flexibleSseHandlerProps, sseFactory } from '@/workflows/sseFactory';
 import { spawnAndGetDataWorkflow } from '@/workflows/spawnAndGetDataWorkflow';
 
 // Download the dotnet-install.sh script
-async function downloadDotnetInstallScript(props: flexibleSsehandlerProps): Promise<string> {
+async function downloadDotnetInstallScript(props: flexibleSseHandlerProps): Promise<string> {
     const scriptUrl = 'https://dot.net/v1/dotnet-install.sh';
     const tempDir = os.tmpdir();
     const scriptPath = path.join(tempDir, 'dotnet-install.sh');
@@ -31,7 +31,7 @@ async function downloadDotnetInstallScript(props: flexibleSsehandlerProps): Prom
 }
 
 // Execute the dotnet-install.sh script
-async function executeDotnetInstall(props: flexibleSsehandlerProps, scriptPath: string, majorVersion: number) {
+async function executeDotnetInstall(props: flexibleSseHandlerProps, scriptPath: string, majorVersion: number) {
     return new Promise<void>(async (resolve) => {
         const channel = majorVersion === 8 ? 'LTS'
             // : majorVersion === 9 ? 'STS'
