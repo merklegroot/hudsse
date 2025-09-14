@@ -1,10 +1,7 @@
-import { NextRequest } from 'next/server';
-import { spawn } from 'child_process';
 import { promises as fs } from 'fs';
 import path from 'path';
 import os from 'os';
 import { flexibleSseHandlerProps, sseFactory } from '@/workflows/sseFactory';
-import { SseMessage } from '@/models/SseMessage';
 import { spawnAndGetDataWorkflow } from '@/workflows/spawnAndGetDataWorkflow';
 
 // Download the dotnet-install.sh script

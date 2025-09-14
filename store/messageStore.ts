@@ -10,19 +10,18 @@ interface dotnetState {
   runtimeEnvironment: RuntimeEnvironment;
   host: DotNetHost;
   workloadsInstalled: string;
-    otherArchitectures: string[];
-    environmentVariables: Record<string, string>;
-    globalJsonFile: string;
-    
-    // Detection status flags
-    hasTriedDetectingSdks: boolean;
-    hasTriedDetectingRuntimes: boolean;
+  otherArchitectures: string[];
+  environmentVariables: Record<string, string>;
+  globalJsonFile: string;
+
+  hasTriedDetectingSdks: boolean;
+  hasTriedDetectingRuntimes: boolean;
 }
 
 interface MessageState {
   messages: SseMessage[];
   dotnetState: dotnetState | null;
-  
+
   addMessage: (message: string) => void;
   addSSEMessage: (message: SseMessage) => void;
   setDotnetSdks: (sdks: SdkInfo[]) => void;
@@ -41,13 +40,13 @@ const createInitialState = (): Pick<MessageState, 'messages' | 'dotnetState'> =>
 
 const createAppVersions = (sdks: SdkInfo[], runtimes: RuntimeInfo[]): AppVersions => {
   const appVersions: AppVersions = {};
-  
+
   // Add SDKs first
   const sdkVersions = sdks.map(sdk => sdk.version);
   if (sdkVersions.length > 0) {
     appVersions['SDK'] = sdkVersions;
   }
-  
+
   // Add runtimes grouped by app name
   runtimes.forEach(runtime => {
     const appName = runtime.name; // e.g., "Microsoft.AspNetCore.App"
@@ -58,7 +57,7 @@ const createAppVersions = (sdks: SdkInfo[], runtimes: RuntimeInfo[]): AppVersion
       appVersions[appName].push(runtime.version);
     }
   });
-  
+
   return appVersions;
 };
 
@@ -96,7 +95,7 @@ const setWhichDotNetPathToState = (path: string | null) => (state: MessageState)
 
   const sdks = state.dotnetState?.dotnetSdks || [];
   const runtimes = state.dotnetState?.dotnetRuntimes || [];
-  
+
   return {
     dotnetState: {
       ...state.dotnetState,
@@ -136,7 +135,7 @@ const setDotnetInfoToState = (info: DotNetInfoResult | null) => (state: MessageS
 
   const sdks = info ? info.installedSdks.map(sdk => ({ version: sdk.version, path: sdk.path })) : [];
   const runtimes = info ? info.installedRuntimes.map(runtime => ({ name: runtime.name, version: runtime.version, path: runtime.path })) : [];
-  
+
   return {
     dotnetState: info ? {
       ...state.dotnetState,
