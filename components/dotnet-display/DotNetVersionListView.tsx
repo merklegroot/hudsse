@@ -5,19 +5,14 @@ import SseInstallDotNetButton from "../SseInstallDotNetButton";
 import SseUninstallDotNetButton from "../SseUninstallDotNetButton";
 import ConfirmationDialog from "../ConfirmationDialog";
 
-const getPillColor = (appName: string) => {
+function getPillColor(appName: string): string {
     const lowerAppName = appName.toLowerCase();
-    switch (lowerAppName) {
-        case 'sdk':
-            return 'bg-green-100 text-green-800 hover:bg-green-200';
-        case 'microsoft.aspnetcore.app':
-            return 'bg-purple-100 text-purple-800 hover:bg-purple-200';
-        case 'microsoft.netcore.app':
-            return 'bg-orange-100 text-orange-800 hover:bg-orange-200';
-        default:
-            return 'bg-blue-100 text-blue-800 hover:bg-blue-200';
-    }
-};
+    
+    return lowerAppName === 'sdk' ? 'bg-green-100 text-green-800 hover:bg-green-200'
+        : lowerAppName === 'microsoft.aspnetcore.app' ? 'bg-purple-100 text-purple-800 hover:bg-purple-200'
+        : lowerAppName === 'microsoft.netcore.app' ? 'bg-orange-100 text-orange-800 hover:bg-orange-200'
+        : 'bg-blue-100 text-blue-800 hover:bg-blue-200';
+}
 
 export function DotNetVersionView({ majorVersion, appVersions }: { majorVersion: number, appVersions: AppVersions }) {
     const [showInstallDialog, setShowInstallDialog] = useState(false);
@@ -33,13 +28,14 @@ export function DotNetVersionView({ majorVersion, appVersions }: { majorVersion:
     const hasAspNetCore = Object.keys(appVersions).some(key =>
         key.toLowerCase() === 'microsoft.aspnetcore.app' && appVersions[key].length > 0
     );
+    
     const hasNetCore = Object.keys(appVersions).some(key =>
         key.toLowerCase() === 'microsoft.netcore.app' && appVersions[key].length > 0
     );
 
     const isFullyInstalled = hasSDK && hasAspNetCore && hasNetCore;
 
-    const getStatusMessage = () => {
+    function getStatusMessage() {
         if (hasSDK && hasAspNetCore && hasNetCore) {
             return {
                 type: 'complete',
@@ -48,6 +44,7 @@ export function DotNetVersionView({ majorVersion, appVersions }: { majorVersion:
                 color: 'text-green-600'
             };
         }
+        
         if (hasAspNetCore && hasNetCore) {
             return {
                 type: 'runtimes-only',
@@ -56,6 +53,7 @@ export function DotNetVersionView({ majorVersion, appVersions }: { majorVersion:
                 color: 'text-yellow-600'
             };
         }
+        
         if (hasAspNetCore || hasNetCore) {
             const missing = hasAspNetCore ? 'Microsoft.NETCore.App' : 'Microsoft.AspNetCore.App';
             return {
@@ -65,53 +63,54 @@ export function DotNetVersionView({ majorVersion, appVersions }: { majorVersion:
                 color: 'text-red-600'
             };
         }
+        
         return {
             type: 'not-installed',
             message: 'Not installed',
             icon: '❌',
             color: 'text-red-600'
         };
-    };
+    }
 
     const status = getStatusMessage();
 
-    const handleInstallClick = () => {
+    function handleInstallClick() {
         setShowInstallDialog(true);
-    };
+    }
 
-    const handleInstallCancel = () => {
+    function handleInstallCancel() {
         setShowInstallDialog(false);
-    };
+    }
 
-    const handleInstallComplete = () => {
+    function handleInstallComplete() {
         // Optionally refresh the dotnet state here
         console.log(`Installation completed for .NET ${majorVersion}`);
-    };
+    }
 
-    const handleUninstallClick = (appName: string, version: string) => {
+    function handleUninstallClick(appName: string, version: string) {
         setUninstallAppName(appName);
         setUninstallVersion(version);
         setShowUninstallDialog(true);
-    };
+    }
 
 
-    const handleUninstallCancel = () => {
+    function handleUninstallCancel() {
         setShowUninstallDialog(false);
-    };
+    }
 
-    const handleUninstallStart = () => {
+    function handleUninstallStart() {
         setShowUninstallDialog(false);
         startProcessing(
             'Uninstalling .NET Component',
             `Uninstalling ${uninstallAppName} version ${uninstallVersion}... Please wait while the component is removed from your system.`
         );
-    };
+    }
 
-    const handleUninstallComplete = () => {
+    function handleUninstallComplete() {
         completeProcessing();
         // Optionally refresh the dotnet state here
         console.log(`Uninstall completed for ${uninstallAppName} ${uninstallVersion}`);
-    };
+    }
 
     return (
         <div className={`border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow flex flex-col h-full ${isFullyInstalled
@@ -230,9 +229,12 @@ export default function DotNetVersionListView() {
             const filteredVersions = versions.filter((version) =>
                 version.startsWith(majorVersion.toString())
             );
-            if (filteredVersions.length > 0) {
-                filtered[appName] = filteredVersions;
+            
+            if (filteredVersions.length === 0) {
+                return;
             }
+            
+            filtered[appName] = filteredVersions;
         });
 
         return filtered;

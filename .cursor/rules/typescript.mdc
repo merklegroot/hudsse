@@ -26,6 +26,7 @@ canExecute
 ```
 
 ## Control Flow
+Ternaries are often best for simple conditionals.
 Avoid `else if` chains when possible.
 Prefer early returns, guard clauses, or switch statements for better readability.
 Exception: Use `else if` only when it eliminates code duplication.
