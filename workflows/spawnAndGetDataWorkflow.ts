@@ -78,24 +78,26 @@ async function execute(options: SpawnOptions): Promise<SpawnResult> {
 
 /** Execute with multiple fallback methods */
 async function executeWithFallback(options: SpawnOptions): Promise<SpawnResult> {
-  const { command, args, timeout } = options;
+  const { command, args, timeout, dataCallback } = options;
   
   const methods = [
     // Method 1: Direct command
-    () => execute({ command, args, timeout }),
+    () => execute({ command, args, timeout, dataCallback }),
     
     // Method 2: Use login shell to get fresh user environment (without password)
     () => execute({
       command: 'bash',
       args: ['-l', '-c', `${command} ${args.join(' ')}`],
-      timeout
+      timeout,
+      dataCallback
     }),
     
     // Method 3: Use env -i for clean environment  
     () => execute({
       command: 'env',
       args: ['-i', command, ...args],
-      timeout
+      timeout,
+      dataCallback
     })
   ];
   

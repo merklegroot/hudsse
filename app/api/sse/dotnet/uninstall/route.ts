@@ -3,6 +3,23 @@ import { flexibleSseHandlerProps, sseFactory } from '@/workflows/sseFactory';
 import { spawnAndGetDataWorkflow } from '@/workflows/spawnAndGetDataWorkflow';
 import * as fs from 'fs';
 import { sseDotNetWorkflow } from '@/workflows/sseDotNetWorkflow';
+import { DotNetInfoResult } from '@/models/SseMessage';
+
+/** Given the .NET base path, which often looks like this:  /home/username/.dotnet/sdk/9.0.304/,
+ * return the root path which often looks like this: /home/username/.dotnet */
+function getDotnetRootPath(basePath: string): string {
+    let dotnetRootPath = basePath;
+    if (dotnetRootPath.includes('/sdk/')) {
+        dotnetRootPath = basePath.replace(/\/sdk\/.*$/, '');
+    }
+    
+    return dotnetRootPath;
+}
+
+function getSdkPath(result: DotNetInfoResult, version: string): string | undefined {
+    const dotnetRootPath = getDotnetRootPath(result.runtimeEnvironment?.basePath || '');
+    return `${dotnetRootPath}/sdk/${version}`;
+}
 
 // Execute dotnet uninstall command
 async function executeDotnetUninstall(props: flexibleSseHandlerProps, appName: string, version: string): Promise<boolean> {
@@ -14,55 +31,31 @@ async function executeDotnetUninstall(props: flexibleSseHandlerProps, appName: s
 
     // For SDK, find and remove the specific version folder
     props.sendMessage({ type: 'command', contents: `Finding SDK installation path for version ${version}...` });
-    return await executeManualSdkRemoval(props, version);
-}
 
-// Manual SDK removal by finding and deleting the SDK directory
-async function executeManualSdkRemoval(props: flexibleSseHandlerProps, version: string): Promise<boolean> {
     try {
-        // First, get dotnet info to find the base path
-        const result = await spawnAndGetDataWorkflow.executeWithFallback({
-            command: 'dotnet',
-            args: ['--info'],
-            timeout: 30000,
-            dataCallback: (data: string) => {
-                props.sendMessage({ type: 'stdout', contents: data });
-            }
-        });
-
+        const result = await sseDotNetWorkflow.executeDotNetInfo(props);
 
         if (!result.wasSuccessful) {
             props.sendMessage({ type: 'result', contents: `❌ Failed to get dotnet info for SDK removal. Exit code: ${result.exitCode}, stderr: "${result.stderr}"` });
             return false;
         }
 
-        // Parse the dotnet info to find the base path
-        const lines = result.stdout.split('\n');
-        const basePathLine = lines.find(line => line.includes('Base Path:'));
-
-        if (!basePathLine) {
-            props.sendMessage({ type: 'result', contents: '❌ Could not find base path in dotnet --info output' });
+        // get the bath path from the result
+        let basePath = result.parsedData?.runtimeEnvironment?.basePath;
+        if (!basePath) {
+            props.sendMessage({ type: 'result', contents: '❌ Could not find base path in dotnet info' });
             return false;
         }
 
-        // Extract the base path
-        const match = basePathLine.match(/Base Path:\s*(.+)/);
-        if (!match || !match[1]) {
-            props.sendMessage({ type: 'result', contents: '❌ Could not parse base path from dotnet --info output' });
-            return false;
-        }
-
-        let basePath = match[1].trim();
         props.sendMessage({ type: 'stdout', contents: `Found .NET base path: ${basePath}` });
 
-        // If the base path ends with a specific SDK version, go up to the parent directory
-        if (basePath.includes('/sdk/')) {
-            basePath = basePath.replace(/\/sdk\/.*$/, '');
-            props.sendMessage({ type: 'stdout', contents: `Adjusted base path to: ${basePath}` });
-        }
+
+        let dotnetRootPath = getDotnetRootPath(basePath);
+
+        props.sendMessage({ type: 'stdout', contents: `Found .NET root path: ${dotnetRootPath}` });
 
         // Look for SDKs in the base path
-        const sdkPath = `${basePath}/sdk/${version}`;
+        const sdkPath = `${dotnetRootPath}/sdk/${version}`;
         props.sendMessage({ type: 'stdout', contents: `Looking for SDK at: ${sdkPath}` });
 
         // Check if the SDK directory exists and remove it
@@ -88,7 +81,7 @@ async function executeManualSdkRemoval(props: flexibleSseHandlerProps, version: 
 
         // Verify that the directory was actually removed
         const stillExists = fs.existsSync(sdkPath);
-        
+
         if (stillExists) {
             props.sendMessage({ type: 'result', contents: `❌ SDK directory still exists after removal attempt: ${sdkPath}` });
             return false;

@@ -4,3 +4,7 @@ export interface SpawnResult {
     stderr: string;
     exitCode: number | null;
 }
+
+export interface SpawnResultWithParsedData<T> extends SpawnResult {
+    parsedData: T | undefined;
+}

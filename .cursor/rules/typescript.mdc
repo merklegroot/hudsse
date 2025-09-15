@@ -38,3 +38,9 @@ In other languages that support pattern matching, the pattern matching switch st
 ## Code Nesting
 Minimize nesting levels to improve readability.
 Use early returns, extract functions, or refactor conditions to reduce complexity.
+
+## Cross-Platform Concerns
+When splitting lines, do so in a way that works with the major EOL formats, including \n, \r, and \r\n
+When creating a line break, make sure to use the proper EOL format for the platform.
+Note that this sometimes may not apply to text that's rendered in the browser, as browsers on all platforms (even Windows) use \n.
+When joining paths, please do so in context of the OS's path format.
