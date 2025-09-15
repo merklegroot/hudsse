@@ -156,47 +156,50 @@ function createChainedSseCommandsHandler(chains: chainProp[]) {
             async start(controller) {
                 const results: any[] = [];
 
-                for (const chain of chains) {
-                    sendCommandMessage(controller, chain.commandAndArgs);
+                try {
+                    for (const chain of chains) {
+                        sendCommandMessage(controller, chain.commandAndArgs);
 
-                    const wasSuccessful = await executeCommand(chain.commandAndArgs, controller, (allOutput, controller) => {
-                        try {
-                            const parsedResult = chain.parser ? chain.parser(allOutput) : allOutput;
-                            results.push(parsedResult);
+                        const wasSuccessful = await executeCommand(chain.commandAndArgs, controller, (allOutput, controller) => {
+                            try {
+                                const parsedResult = chain.parser ? chain.parser(allOutput) : allOutput;
+                                results.push(parsedResult);
 
-                            // Handle different types of onSuccess
-                            let successMessage: string;
-                            if (typeof chain.onSuccess === 'function') {
-                                // If it's a function, call it and get the result
-                                const functionResult = chain.onSuccess(allOutput, controller);
-                                successMessage = typeof functionResult === 'string' ? functionResult : 'Command executed successfully';
-                            } else {
-                                if (typeof chain.onSuccess === 'string') {
-                                    // If it's a string, use it directly
-                                    const trimmed = chain.onSuccess.trim();
-                                    successMessage = trimmed.length > 0 ? trimmed : 'Command executed successfully';
+                                // Handle different types of onSuccess
+                                let successMessage: string;
+                                if (typeof chain.onSuccess === 'function') {
+                                    // If it's a function, call it and get the result
+                                    const functionResult = chain.onSuccess(allOutput, controller);
+                                    successMessage = typeof functionResult === 'string' ? functionResult : 'Command executed successfully';
                                 } else {
-                                    // If it's null/undefined, use default
-                                    successMessage = 'Command executed successfully';
+                                    if (typeof chain.onSuccess === 'string') {
+                                        // If it's a string, use it directly
+                                        const trimmed = chain.onSuccess.trim();
+                                        successMessage = trimmed.length > 0 ? trimmed : 'Command executed successfully';
+                                    } else {
+                                        // If it's null/undefined, use default
+                                        successMessage = 'Command executed successfully';
+                                    }
                                 }
+
+                                sendResultMessage(controller, successMessage, parsedResult);
+                            } catch (parseError) {
+                                sendErrorMessage(controller, `Failed to parse command output: ${parseError instanceof Error ? parseError.message : 'Unknown error'}`);
                             }
+                        });
 
-                            sendResultMessage(controller, successMessage, parsedResult);
-                        } catch (parseError) {
-                            sendErrorMessage(controller, `Failed to parse command output: ${parseError instanceof Error ? parseError.message : 'Unknown error'}`);
+                        // If command failed, we could choose to continue or break
+                        // For now, we'll continue with the next command
+                        if (!wasSuccessful) {
+                            // Error message was already sent by executeCommand
+                            continue;
                         }
-                    });
-
-                    // If command failed, we could choose to continue or break
-                    // For now, we'll continue with the next command
-                    if (!wasSuccessful) {
-                        // Error message was already sent by executeCommand
-                        continue;
                     }
-                }
 
-                controller.enqueue(new TextEncoder().encode('data: [DONE]\n\n'));
-                controller.close();
+                    controller.enqueue(new TextEncoder().encode('data: [DONE]\n\n'));
+                } finally {
+                    controller.close();
+                }
             }
         });
 
