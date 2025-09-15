@@ -5,6 +5,7 @@ import AddMessageButton from '@/components/AddMessageButton';
 import SseWhichDotNetButton from '@/components/SseWhichDotNetButton';
 import SseDotNetInfoButton from '@/components/SseDotNetInfoButton';
 import SseDelayedMessagesButton from '@/components/SseDelayedMessagesButton';
+import SseStepCounterButton from '@/components/SseStepCounterButton';
 import MessageList from '@/components/MessageList';
 import { StateViewer } from '@/components/StateViewer';
 import DotNetDisplay from '@/components/dotnet-display/DotNetDisplay';
@@ -25,6 +26,7 @@ export function HomeControl() {
                 {/* <SseDelayedMessagesButton />
                 <SseWhichDotNetButton /> */}
                 <SseDotNetInfoButton />
+                <SseStepCounterButton />
                 <button
                     onClick={() => {
                         startProcessing('Processing Test', 'This is a test of the generic processing dialog. Auto-closing in 3 seconds...');
