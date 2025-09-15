@@ -9,6 +9,7 @@ function getPillColor(appName: string): string {
     const lowerAppName = appName.toLowerCase();
     
     return lowerAppName === 'sdk' ? 'bg-green-100 text-green-800 hover:bg-green-200'
+        : lowerAppName === 'runtimes' ? 'bg-purple-100 text-purple-800 hover:bg-purple-200'
         : lowerAppName === 'microsoft.aspnetcore.app' ? 'bg-purple-100 text-purple-800 hover:bg-purple-200'
         : lowerAppName === 'microsoft.netcore.app' ? 'bg-orange-100 text-orange-800 hover:bg-orange-200'
         : 'bg-blue-100 text-blue-800 hover:bg-blue-200';
@@ -33,10 +34,11 @@ export function DotNetVersionView({ majorVersion, appVersions }: { majorVersion:
         key.toLowerCase() === 'microsoft.netcore.app' && appVersions[key].length > 0
     );
 
-    const isFullyInstalled = hasSDK && hasAspNetCore && hasNetCore;
+    const hasRuntimes = hasAspNetCore && hasNetCore;
+    const isFullyInstalled = hasSDK && hasRuntimes;
 
     function getStatusMessage() {
-        if (hasSDK && hasAspNetCore && hasNetCore) {
+        if (hasSDK && hasRuntimes) {
             return {
                 type: 'complete',
                 message: 'Installed!',
@@ -45,7 +47,7 @@ export function DotNetVersionView({ majorVersion, appVersions }: { majorVersion:
             };
         }
         
-        if (hasAspNetCore && hasNetCore) {
+        if (hasRuntimes) {
             return {
                 type: 'runtimes-only',
                 message: 'Runtimes only',
@@ -73,6 +75,35 @@ export function DotNetVersionView({ majorVersion, appVersions }: { majorVersion:
     }
 
     const status = getStatusMessage();
+
+    // Helper function to combine runtime versions
+    function getCombinedRuntimeVersions(): string[] {
+        const aspNetVersions = appVersions['Microsoft.AspNetCore.App'] || [];
+        const netCoreVersions = appVersions['Microsoft.NETCore.App'] || [];
+        
+        // Combine and deduplicate versions
+        const allVersions = [...aspNetVersions, ...netCoreVersions];
+        const uniqueVersions = Array.from(new Set(allVersions)).sort();
+        
+        return uniqueVersions;
+    }
+
+    // Helper function to get combined app versions for display
+    function getDisplayAppVersions(): Array<{appName: string, versions: string[]}> {
+        const displayVersions: Array<{appName: string, versions: string[]}> = [];
+        
+        // Add SDK if present
+        if (appVersions['SDK'] && appVersions['SDK'].length > 0) {
+            displayVersions.push({ appName: 'SDK', versions: appVersions['SDK'] });
+        }
+        
+        // Add combined runtimes if both are present
+        if (hasRuntimes) {
+            displayVersions.push({ appName: 'Runtimes', versions: getCombinedRuntimeVersions() });
+        }
+        
+        return displayVersions;
+    }
 
     function handleInstallClick() {
         setShowInstallDialog(true);
@@ -127,7 +158,7 @@ export function DotNetVersionView({ majorVersion, appVersions }: { majorVersion:
                 </div>
             </div>
             <div className="flex flex-col gap-3 flex-1">
-                {Object.entries(appVersions).map(([appName, versions]) => (
+                {getDisplayAppVersions().map(({appName, versions}) => (
                     <div key={appName}>
                         <div className="text-sm font-medium text-gray-700 mb-2">{appName}</div>
                         <div className="flex flex-wrap gap-1">
@@ -140,7 +171,9 @@ export function DotNetVersionView({ majorVersion, appVersions }: { majorVersion:
                                     <button
                                         onClick={(e) => {
                                             e.stopPropagation();
-                                            handleUninstallClick(appName, version);
+                                            // For runtimes, use 'runtime' as the app name for uninstall
+                                            const uninstallAppName = appName === 'Runtimes' ? 'runtime' : appName;
+                                            handleUninstallClick(uninstallAppName, version);
                                         }}
                                         className="ml-1 hover:bg-black hover:bg-opacity-20 rounded-full p-0.5 transition-colors"
                                         title={`Uninstall ${appName} ${version}`}
