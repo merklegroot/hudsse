@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server';
 import { flexibleSseHandlerProps, sseFactory } from '@/workflows/sseFactory';
 import { spawnAndGetDataWorkflow } from '@/workflows/spawnAndGetDataWorkflow';
 import * as fs from 'fs';
+import { sseDotNetWorkflow } from '@/workflows/sseDotNetWorkflow';
 
 // Execute dotnet uninstall command
 async function executeDotnetUninstall(props: flexibleSseHandlerProps, appName: string, version: string): Promise<boolean> {
@@ -28,6 +29,7 @@ async function executeManualSdkRemoval(props: flexibleSseHandlerProps, version: 
                 props.sendMessage({ type: 'stdout', contents: data });
             }
         });
+
 
         if (!result.wasSuccessful) {
             props.sendMessage({ type: 'result', contents: `❌ Failed to get dotnet info for SDK removal. Exit code: ${result.exitCode}, stderr: "${result.stderr}"` });
@@ -125,4 +127,6 @@ export const GET = sseFactory.createFlexibleSseHandler(async (props: flexibleSse
     } else {
         props.sendMessage({ type: 'result', contents: `❌ Failed to uninstall ${appName} ${version}. Check the output above for details.` });
     }
+
+    await sseDotNetWorkflow.executeDotNetInfo(props);
 });

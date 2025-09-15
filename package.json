@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev -p 3002",
     "build": "next build",
+    "debug": "NODE_OPTIONS='--inspect' npm run dev",
     "start": "next start",
     "test": "jest",
     "test:watch": "jest --watch",

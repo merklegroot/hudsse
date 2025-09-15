@@ -6,6 +6,7 @@ import SseWhichDotNetButton from '@/components/SseWhichDotNetButton';
 import SseDotNetInfoButton from '@/components/SseDotNetInfoButton';
 import SseDelayedMessagesButton from '@/components/SseDelayedMessagesButton';
 import SseStepCounterButton from '@/components/SseStepCounterButton';
+import PingButton from '@/components/PingButton';
 import MessageList from '@/components/MessageList';
 import { StateViewer } from '@/components/StateViewer';
 import DotNetDisplay from '@/components/dotnet-display/DotNetDisplay';
@@ -23,6 +24,7 @@ export function HomeControl() {
             
             <div className="space-x-4 mb-4">    
                 <AddMessageButton />
+                <PingButton />
                 {/* <SseDelayedMessagesButton />
                 <SseWhichDotNetButton /> */}
                 <SseDotNetInfoButton />

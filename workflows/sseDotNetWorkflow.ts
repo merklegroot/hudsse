@@ -42,6 +42,6 @@ async function executeDotNetInfo(props: flexibleSseHandlerProps) {
     return result;
 }
 
-export const spawnDotNet = {
+export const sseDotNetWorkflow = {
     executeDotNetInfo
 };

@@ -3,7 +3,7 @@ import path from 'path';
 import os from 'os';
 import { flexibleSseHandlerProps, sseFactory } from '@/workflows/sseFactory';
 import { spawnAndGetDataWorkflow } from '@/workflows/spawnAndGetDataWorkflow';
-import { spawnDotNet } from '@/workflows/spawnDotNet';
+import { sseDotNetWorkflow } from '@/workflows/sseDotNetWorkflow';
 
 // Download the dotnet-install.sh script
 async function downloadDotnetInstallScript(props: flexibleSseHandlerProps): Promise<string> {
@@ -79,5 +79,5 @@ export const GET = sseFactory.createFlexibleSseHandler(async (props: flexibleSse
     props.sendMessage({ type: 'other', contents: `Installing .NET ${majorVersion} SDK...` });
     await executeDotnetInstall(props, scriptPath, majorVersion);
 
-    await spawnDotNet.executeDotNetInfo(props);
+    await sseDotNetWorkflow.executeDotNetInfo(props);
 });
