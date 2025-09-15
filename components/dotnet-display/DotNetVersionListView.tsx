@@ -20,6 +20,7 @@ export function DotNetVersionView({ majorVersion, appVersions }: { majorVersion:
     const [showUninstallDialog, setShowUninstallDialog] = useState(false);
     const [uninstallVersion, setUninstallVersion] = useState<string>('');
     const [uninstallAppName, setUninstallAppName] = useState<string>('');
+    const [expandedRuntimes, setExpandedRuntimes] = useState<boolean>(false);
     const installButtonRef = useRef<HTMLButtonElement>(null);
     const uninstallButtonRef = useRef<HTMLButtonElement>(null);
     
@@ -89,20 +90,40 @@ export function DotNetVersionView({ majorVersion, appVersions }: { majorVersion:
     }
 
     // Helper function to get combined app versions for display
-    function getDisplayAppVersions(): Array<{appName: string, versions: string[]}> {
-        const displayVersions: Array<{appName: string, versions: string[]}> = [];
+    function getDisplayAppVersions(): Array<{appName: string, versions: string[], isExpandable?: boolean, expanded?: boolean}> {
+        const displayVersions: Array<{appName: string, versions: string[], isExpandable?: boolean, expanded?: boolean}> = [];
         
         // Add SDK if present
         if (appVersions['SDK'] && appVersions['SDK'].length > 0) {
             displayVersions.push({ appName: 'SDK', versions: appVersions['SDK'] });
         }
         
-        // Add combined runtimes if both are present
-        if (hasRuntimes) {
-            displayVersions.push({ appName: 'Runtimes', versions: getCombinedRuntimeVersions() });
+        // Add combined runtimes if both are present and not expanded
+        if (hasRuntimes && !expandedRuntimes) {
+            displayVersions.push({ 
+                appName: 'Runtimes', 
+                versions: getCombinedRuntimeVersions(),
+                isExpandable: true,
+                expanded: expandedRuntimes
+            });
         }
         
         return displayVersions;
+    }
+
+    // Helper function to get individual runtime components for expanded view
+    function getIndividualRuntimeComponents(): Array<{appName: string, versions: string[]}> {
+        const components: Array<{appName: string, versions: string[]}> = [];
+        
+        if (appVersions['Microsoft.AspNetCore.App'] && appVersions['Microsoft.AspNetCore.App'].length > 0) {
+            components.push({ appName: 'Microsoft.AspNetCore.App', versions: appVersions['Microsoft.AspNetCore.App'] });
+        }
+        
+        if (appVersions['Microsoft.NETCore.App'] && appVersions['Microsoft.NETCore.App'].length > 0) {
+            components.push({ appName: 'Microsoft.NETCore.App', versions: appVersions['Microsoft.NETCore.App'] });
+        }
+        
+        return components;
     }
 
     function handleInstallClick() {
@@ -158,9 +179,27 @@ export function DotNetVersionView({ majorVersion, appVersions }: { majorVersion:
                 </div>
             </div>
             <div className="flex flex-col gap-3 flex-1">
-                {getDisplayAppVersions().map(({appName, versions}) => (
+                {getDisplayAppVersions().map(({appName, versions, isExpandable, expanded}) => (
                     <div key={appName}>
-                        <div className="text-sm font-medium text-gray-700 mb-2">{appName}</div>
+                        <div className="flex items-center gap-2 mb-2">
+                            <div className="text-sm font-medium text-gray-700">{appName}</div>
+                            {isExpandable && (
+                                <button
+                                    onClick={() => setExpandedRuntimes(!expandedRuntimes)}
+                                    className="p-1 hover:bg-gray-100 rounded transition-colors"
+                                    title={expandedRuntimes ? 'Collapse runtimes' : 'Expand runtimes'}
+                                >
+                                    <svg 
+                                        className={`w-4 h-4 transition-transform ${expandedRuntimes ? 'rotate-90' : ''}`} 
+                                        fill="none" 
+                                        stroke="currentColor" 
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                    </svg>
+                                </button>
+                            )}
+                        </div>
                         <div className="flex flex-wrap gap-1">
                             {versions.map((version) => (
                                 <span
@@ -187,6 +226,58 @@ export function DotNetVersionView({ majorVersion, appVersions }: { majorVersion:
                         </div>
                     </div>
                 ))}
+                
+                {/* Show individual runtime components when expanded */}
+                {expandedRuntimes && (
+                    <div className="space-y-3">
+                        {getIndividualRuntimeComponents().map(({appName: componentName, versions: componentVersions}, index) => (
+                            <div key={componentName}>
+                                <div className="flex items-center gap-2 mb-2">
+                                    <div className="text-sm font-medium text-gray-700">{componentName}</div>
+                                    {index === 0 && (
+                                        <button
+                                            onClick={() => setExpandedRuntimes(false)}
+                                            className="p-1 hover:bg-gray-100 rounded transition-colors"
+                                            title="Collapse runtimes"
+                                        >
+                                            <svg 
+                                                className="w-4 h-4 rotate-90" 
+                                                fill="none" 
+                                                stroke="currentColor" 
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                            </svg>
+                                        </button>
+                                    )}
+                                </div>
+                                <div className="flex flex-wrap gap-1">
+                                    {componentVersions.map((version) => (
+                                        <span
+                                            key={`${componentName}-${version}`}
+                                            className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium transition-colors ${getPillColor(componentName)}`}
+                                        >
+                                            {version}
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    // For individual runtime components, use 'runtime' as the app name for uninstall
+                                                    handleUninstallClick('runtime', version);
+                                                }}
+                                                className="ml-1 hover:bg-black hover:bg-opacity-20 rounded-full p-0.5 transition-colors"
+                                                title={`Uninstall ${componentName} ${version}`}
+                                            >
+                                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                                </svg>
+                                            </button>
+                                        </span>
+                                    ))}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
             </div>
             <div className="mt-4 pt-3 border-t border-gray-200">
                 <button
