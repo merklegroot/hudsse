@@ -182,13 +182,13 @@ export function DotNetVersionView({ majorVersion, appVersions }: { majorVersion:
                 {getDisplayAppVersions().map(({appName, versions, isExpandable, expanded}) => (
                     <div key={appName}>
                         <div className="flex items-center gap-2 mb-2">
-                            <div className="text-sm font-medium text-gray-700">{appName}</div>
-                            {isExpandable && (
+                            {isExpandable ? (
                                 <button
                                     onClick={() => setExpandedRuntimes(!expandedRuntimes)}
-                                    className="p-1 hover:bg-gray-100 rounded transition-colors"
+                                    className="flex items-center gap-2 hover:bg-gray-100 rounded transition-colors p-1 -m-1"
                                     title={expandedRuntimes ? 'Collapse runtimes' : 'Expand runtimes'}
                                 >
+                                    <div className="text-sm font-medium text-gray-700">{appName}</div>
                                     <svg 
                                         className={`w-4 h-4 transition-transform ${expandedRuntimes ? 'rotate-90' : ''}`} 
                                         fill="none" 
@@ -198,6 +198,8 @@ export function DotNetVersionView({ majorVersion, appVersions }: { majorVersion:
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                                     </svg>
                                 </button>
+                            ) : (
+                                <div className="text-sm font-medium text-gray-700">{appName}</div>
                             )}
                         </div>
                         <div className="flex flex-wrap gap-1">
@@ -233,13 +235,13 @@ export function DotNetVersionView({ majorVersion, appVersions }: { majorVersion:
                         {getIndividualRuntimeComponents().map(({appName: componentName, versions: componentVersions}, index) => (
                             <div key={componentName}>
                                 <div className="flex items-center gap-2 mb-2">
-                                    <div className="text-sm font-medium text-gray-700">{componentName}</div>
-                                    {index === 0 && (
+                                    {index === 0 ? (
                                         <button
                                             onClick={() => setExpandedRuntimes(false)}
-                                            className="p-1 hover:bg-gray-100 rounded transition-colors"
+                                            className="flex items-center gap-2 hover:bg-gray-100 rounded transition-colors p-1 -m-1"
                                             title="Collapse runtimes"
                                         >
+                                            <div className="text-sm font-medium text-gray-700">{componentName}</div>
                                             <svg 
                                                 className="w-4 h-4 rotate-90" 
                                                 fill="none" 
@@ -249,6 +251,8 @@ export function DotNetVersionView({ majorVersion, appVersions }: { majorVersion:
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                                             </svg>
                                         </button>
+                                    ) : (
+                                        <div className="text-sm font-medium text-gray-700">{componentName}</div>
                                     )}
                                 </div>
                                 <div className="flex flex-wrap gap-1">
