@@ -8,11 +8,13 @@ async function executeDotNetInfo(props: flexibleSseHandlerProps): Promise<SpawnR
     console.log('executeDotNetInfo: Starting dotnet --info command');
     props.sendMessage({ type: 'other', contents: 'Executing dotnet --info command...' });
     
+    let allOutput = '';
     const result = await spawnAndGetDataWorkflow.executeWithFallback({
         command: 'dotnet',
         args: ['--info'],
         timeout: 5000,
         dataCallback: (data: string) => {
+            allOutput += data;
             // Process the data the same way as createSseCommandHandler
             const lines = data.split('\n').filter(line => line.trim().length > 0);
             
@@ -26,15 +28,17 @@ async function executeDotNetInfo(props: flexibleSseHandlerProps): Promise<SpawnR
         wasSuccessful: result.wasSuccessful, 
         exitCode: result.exitCode, 
         stdoutLength: result.stdout.length,
-        stderrLength: result.stderr.length 
+        stderrLength: result.stderr.length
     });
 
 
     let parsedInfo: DotNetInfoResult | undefined = undefined;
-    // Parse the result if successful
-    if (result.wasSuccessful && result.stdout) {
+    // Parse the result if we have output, regardless of exit code
+    // dotnet --info often returns non-zero exit codes but still provides useful information
+    // Use the collected output from dataCallback
+    if (allOutput && allOutput.length > 0) {
         try {
-            parsedInfo = parseDotnetInfo(result.stdout);
+            parsedInfo = parseDotnetInfo(allOutput);
             props.sendMessage({ 
                 type: 'result', 
                 contents: 'DotNet info parsed successfully',

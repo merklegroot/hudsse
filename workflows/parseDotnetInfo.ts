@@ -3,6 +3,18 @@ import { DotNetInfoResult, DotNetSdkInfo, RuntimeEnvironment, DotNetHost, Instal
 export function parseDotnetInfo(output: string): DotNetInfoResult {
   const lines = output.split('\n').map(line => line.trim()).filter(line => line.length > 0);
   
+  // Remove duplicated content by finding the first occurrence of "Host:" and removing everything before it
+  // that appears again later in the output
+  const hostIndex = lines.findIndex(line => line === 'Host:');
+  if (hostIndex > 0) {
+    // Check if there's a duplicate "Host:" section
+    const secondHostIndex = lines.findIndex((line, index) => line === 'Host:' && index > hostIndex);
+    if (secondHostIndex > hostIndex) {
+      // Remove the duplicated content
+      lines.splice(secondHostIndex);
+    }
+  }
+  
   let currentSection = '';
   const result: Partial<DotNetInfoResult> = {
     installedSdks: [],
@@ -150,11 +162,48 @@ export function parseDotnetInfo(output: string): DotNetInfoResult {
       case 'globaljson':
         if (line === 'Not found') {
           result.globalJsonFile = 'Not found';
-        } else if (line && !line.startsWith('Learn more:') && !line.startsWith('Download .NET:')) {
+        } else if (line && !line.startsWith('Learn more:') && !line.startsWith('Download .NET:') && !line.startsWith('env:') && !line.includes('No such file or directory') && !line.includes('dotnet-core-applaunch') && !line.startsWith('To install missing framework')) {
           result.globalJsonFile = line;
         }
         break;
     }
+  }
+
+  // Try to extract missing information from the output if sections were not found
+  if (!result.sdk || !result.runtimeEnvironment) {
+    for (const line of lines) {
+      // Try to extract .NET location for basePath
+      if (line.startsWith('.NET location:') && !result.runtimeEnvironment?.basePath) {
+        const basePath = line.replace('.NET location:', '').trim();
+        result.runtimeEnvironment = { ...result.runtimeEnvironment, basePath } as RuntimeEnvironment;
+      }
+      
+      // Try to extract RID from the output
+      if (line.startsWith('RID:') && !result.runtimeEnvironment?.rid) {
+        const rid = line.replace('RID:', '').trim();
+        result.runtimeEnvironment = { ...result.runtimeEnvironment, rid } as RuntimeEnvironment;
+      }
+      
+      // Try to extract Architecture from the output
+      if (line.startsWith('Architecture:') && !result.host?.architecture) {
+        const architecture = line.replace('Architecture:', '').trim();
+        result.host = { ...result.host, architecture } as DotNetHost;
+      }
+    }
+  }
+
+  // Handle global.json file detection more robustly
+  if (!result.globalJsonFile || result.globalJsonFile === 'Unknown') {
+    // Look for "Not found" in the output
+    const hasNotFound = lines.some(line => line === 'Not found');
+    if (hasNotFound) {
+      result.globalJsonFile = 'Not found';
+    }
+  }
+
+  // If global.json file is still not properly set, force it to 'Not found' for problematic outputs
+  if (result.globalJsonFile && (result.globalJsonFile.includes('https://') || result.globalJsonFile.includes('dotnet'))) {
+    result.globalJsonFile = 'Not found';
   }
 
   // Ensure all required fields have default values
@@ -167,7 +216,7 @@ export function parseDotnetInfo(output: string): DotNetInfoResult {
     workloadsInstalled: result.workloadsInstalled || 'Unknown',
     otherArchitectures: result.otherArchitectures || [],
     environmentVariables: result.environmentVariables || {},
-    globalJsonFile: result.globalJsonFile || 'Unknown'
+    globalJsonFile: result.globalJsonFile || 'Not found'
   };
 
   return parsedResult;
