@@ -64,9 +64,9 @@ function SimpleMessageView({ messages }: { messages: SseMessage[] }) {
 
   return (
     <div
-    className="bg-black border border-gray-600 rounded-lg p-4 text-sm h-96 flex flex-col"
-    style={{ fontFamily: 'Monaco, Menlo, "Ubuntu Mono", "Roboto Mono", Consolas, "Liberation Mono", "Courier New", monospace' }}>
-      <div 
+      className="bg-black border border-gray-600 rounded-lg p-4 text-sm h-96 flex flex-col"
+      style={{ fontFamily: 'Monaco, Menlo, "Ubuntu Mono", "Roboto Mono", Consolas, "Liberation Mono", "Courier New", monospace' }}>
+      <div
         ref={scrollRef}
         className="flex-1 overflow-y-auto space-y-1 pr-2 scrollbar-thin scrollbar-track-gray-800 scrollbar-thumb-gray-600">
         {messages.map((message: SseMessage, index) => (
@@ -77,20 +77,19 @@ function SimpleMessageView({ messages }: { messages: SseMessage[] }) {
   )
 }
 
-export default function MessageList({ messages }: { messages: SseMessage[] }) {
+export default function TerminalControl({ messages }: { messages: SseMessage[] }) {
+  const effectiveMessages: SseMessage[] = (messages || []).length > 0 ? messages : [
+    { type: 'info', contents: 'No messages yet' } as SseMessage
+  ];
+
   return (
     <div className="mt-6">
-      {messages.length === 0 ? (
-        <div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
-          <div className="text-gray-400 text-lg mb-2">📭</div>
-          <p className="text-gray-500 text-lg">No messages yet</p>
-          <p className="text-gray-400 text-sm mt-1">Click a button above to get started</p>
-        </div>
-      ) : (
-        <div>
-          <SimpleMessageView messages={messages} />
-        </div>
-      )}
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-2xl font-bold text-gray-900">Terminal</h2>
+      </div>
+      <div>
+        <SimpleMessageView messages={effectiveMessages} />
+      </div>
     </div>
   );
 }

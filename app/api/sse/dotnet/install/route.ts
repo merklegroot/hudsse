@@ -31,18 +31,32 @@ async function downloadDotnetInstallScript(props: flexibleSseHandlerProps): Prom
     }
 }
 
+function getDotNetInstallArgs(majorVersion: number) {
+    const args = [];
+
+    // args.push('--version', majorVersion.toString());
+
+    // if it's majorVersion 8, use channel LTS.
+    // if it's majorVersion 9, use channel STS.
+    // otherwise, give it the version and not the channel
+    if (majorVersion === 8) {
+        args.push('--channel', 'LTS');
+    } else if (majorVersion === 9) {
+        args.push('--channel', 'STS');
+    } else {
+        args.push('--version', majorVersion.toString());
+    }
+
+    args.push('--install-dir', path.join(os.homedir(), '.dotnet'));
+    args.push('--verbose');
+
+    return args;
+}
+
 // Execute the dotnet-install.sh script
 async function executeDotnetInstall(props: flexibleSseHandlerProps, scriptPath: string, majorVersion: number) {
     return new Promise<void>(async (resolve) => {
-        const channel = majorVersion === 8 ? 'LTS'
-            // : majorVersion === 9 ? 'STS'
-            : majorVersion.toString();
-
-        const args = [
-            '--channel', channel,
-            '--install-dir', path.join(os.homedir(), '.dotnet'),
-            '--verbose'
-        ];
+        const args = getDotNetInstallArgs(majorVersion);
 
         props.sendMessage({ type: 'command', contents: `Executing: bash ${scriptPath} ${args.join(' ')}` });
         const result = await spawnAndGetDataWorkflow.executeWithFallback({

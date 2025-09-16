@@ -1,4 +1,4 @@
-export type SseMessageType = 'other' | 'command' | 'stdout' | 'result';
+export type SseMessageType = 'other' | 'command' | 'stdout' | 'result' | 'info';
 
 export interface SdkInfo {
     version: string;
