@@ -31,24 +31,43 @@ async function downloadDotnetInstallScript(props: flexibleSseHandlerProps): Prom
     }
 }
 
-function getDotNetInstallArgs(majorVersion: number) {
-    const args = [];
 
-    // args.push('--version', majorVersion.toString());
 
-    // if it's majorVersion 8, use channel LTS.
-    // if it's majorVersion 9, use channel STS.
-    // otherwise, give it the version and not the channel
-    if (majorVersion === 8) {
-        args.push('--channel', 'LTS');
-    } else if (majorVersion === 9) {
-        args.push('--channel', 'STS');
-    } else {
-        args.push('--version', majorVersion.toString());
+function getDotNetInstallArgs(majorVersion: number): string[] {
+    type installerArgType = Record<string, string | boolean | number | undefined | null>;    
+
+    const installDirArg: installerArgType = { '--install-dir': path.join(os.homedir(), '.dotnet') };
+    const verboseArg: installerArgType = { '--verbose': true };
+
+    function getChannelAndVersion(majorVersion: number): installerArgType[] {
+        // if it's majorVersion 8, use channel LTS.
+        // if it's majorVersion 9, use channel STS.
+        // otherwise, give it the version and not the channel
+        if (majorVersion === 8)
+            return [{ channel: 'LTS', version: majorVersion.toString() }];
+        
+        if (majorVersion === 9)
+            return [{ channel: 'STS', version: majorVersion.toString() }];
+
+        // weird, microsoft. this is weird of you.
+        if (majorVersion === 7)
+            return [{ channel: '7.0' }];
+
+        throw Error(`Not implemented for version ${majorVersion} yet.`);
     }
+    
+    const channelAndVersionArgs: installerArgType[] = getChannelAndVersion(majorVersion);
+    const argKvps: installerArgType[] = [ installDirArg, verboseArg, ...channelAndVersionArgs];
 
-    args.push('--install-dir', path.join(os.homedir(), '.dotnet'));
-    args.push('--verbose');
+    // now we just want an array of strings. note that if the value is empty-ish, just ignore it.
+    const args: string[] = [];
+    for (const argKvp of argKvps) {
+        for (const [key, value] of Object.entries(argKvp)) {
+            if (value) {
+                args.push(`${key} ${value}`);
+            }
+        }
+    }
 
     return args;
 }
