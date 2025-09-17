@@ -17,6 +17,16 @@ alwaysApply: true
 # Manual Version Downloads
 <https://dotnet.microsoft.com/en-us/download/dotnet>
 
+# .NET 7 Downloads
+<https://dotnet.microsoft.com/en-us/download/dotnet/7.0>
+
+# .NET 7 Linux AMD 64
+
+@https://builds.dotnet.microsoft.com/dotnet/Sdk/7.0.410/dotnet-sdk-7.0.410-linux-arm64.tar.gz 
+
+when the user asks to install the .net 7 sdk, it should download that file and use its contents for the installation.
+
+
 
 * Installer Tool Syntax
 ```shell
