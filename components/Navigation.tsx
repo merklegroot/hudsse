@@ -24,17 +24,17 @@ function NavLink({ label, href }: { label: string, href: string }) {
 export default function Navigation() {
   return (
     <nav className="bg-gray-800 text-white p-4 sticky top-0 z-50 shadow-lg border-b border-gray-700">
-      <div className="container mx-auto flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4">
-        <div className="flex items-center">
+      <div className="container mx-auto flex flex-col lg:flex-row lg:items-center gap-4">
+        <div className="flex items-center gap-6">
           <Link href="/home" className="text-xl font-bold text-white hover:text-gray-300 transition-colors">
-            My App
+            HudApp SSE
           </Link>
+          <ul className="flex flex-wrap gap-4 lg:gap-6">
+            <NavLink href="/home" label="Home" />
+            <NavLink href="/files" label="Files" />
+            <NavLink href="/machine" label="Machine" />
+          </ul>
         </div>
-        <ul className="flex flex-wrap gap-4 lg:gap-6">
-          <NavLink href="/home" label="Home" />
-          <NavLink href="/files" label="Files" />
-          <NavLink href="/machine" label="Machine" />
-        </ul>
       </div>
     </nav>
   )
