@@ -26,8 +26,8 @@ function getDotnetRootPath(basePath: string): string {
 // Download the .NET 7 SDK archive
 async function downloadDotNet7SdkArchive(props: flexibleSseHandlerProps): Promise<string> {
     const url = 'https://builds.dotnet.microsoft.com/dotnet/Sdk/7.0.410/dotnet-sdk-7.0.410-linux-x64.tar.gz'
-    const tempDir = getAppDownloadFolder();
-    const archivePath = path.join(tempDir, 'dotnet-sdk-7.0.410-linux-x64.tar.gz');
+    const appDownloadFoldr = getAppDownloadFolder();
+    const archivePath = path.join(appDownloadFoldr, 'dotnet-sdk-7.0.410-linux-x64.tar.gz');
 
     return await sseDownloadFileWorkflow(props, url, archivePath);
 }

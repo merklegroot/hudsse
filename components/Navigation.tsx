@@ -33,6 +33,7 @@ export default function Navigation() {
         <ul className="flex flex-wrap gap-4 lg:gap-6">
           <NavLink href="/home" label="Home" />
           <NavLink href="/files" label="Files" />
+          <NavLink href="/machine" label="Machine" />
         </ul>
       </div>
     </nav>
