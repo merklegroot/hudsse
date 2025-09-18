@@ -64,7 +64,7 @@ function SimpleMessageView({ messages }: { messages: SseMessage[] }) {
 
   return (
     <div
-      className="bg-black border border-gray-600 rounded-lg p-4 text-sm h-96 flex flex-col"
+      className="bg-black border border-gray-600 text-sm h-full flex flex-col p-4"
       style={{ fontFamily: 'Monaco, Menlo, "Ubuntu Mono", "Roboto Mono", Consolas, "Liberation Mono", "Courier New", monospace' }}>
       <div
         ref={scrollRef}
@@ -83,13 +83,8 @@ export default function TerminalControl({ messages }: { messages: SseMessage[] }
   ];
 
   return (
-    <div className="mt-6">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-2xl font-bold text-gray-900">Terminal</h2>
-      </div>
-      <div>
-        <SimpleMessageView messages={effectiveMessages} />
-      </div>
+    <div className="h-full">
+      <SimpleMessageView messages={effectiveMessages} />
     </div>
   );
 }
