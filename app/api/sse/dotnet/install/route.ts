@@ -1,15 +1,11 @@
 import { promises as fs } from 'fs';
 import path from 'path';
 import os from 'os';
-import { createWriteStream } from 'fs';
-import { pipeline } from 'stream/promises';
-import { Readable } from 'stream';
-import { createGunzip } from 'zlib';
 import { extract } from 'tar';
 import { flexibleSseHandlerProps, sseFactory } from '@/workflows/sseFactory';
 import { spawnAndGetDataWorkflow } from '@/workflows/spawnAndGetDataWorkflow';
 import { sseDotNetWorkflow } from '@/workflows/sseDotNetWorkflow';
-import { DotNetInfoResult } from '@/models/SseMessage';
+import { sseDownloadFileWorkflow } from '@/workflows/sseDownloadFileWorkflow';
 
 function getAppDownloadFolder(): string {
     // return os.tmpdir();
@@ -27,38 +23,13 @@ function getDotnetRootPath(basePath: string): string {
     return dotnetRootPath;
 }
 
-async function downloadFile(props: flexibleSseHandlerProps, url: string, localFilePath: string): Promise<string> {
-    // if the file already exists, just return the local file path
-    try {
-        await fs.stat(localFilePath);
-        return localFilePath;
-    } catch (error) {
-        // File doesn't exist, proceed with download
-    }
-
-    // Ensure the directory exists
-    const dir = path.dirname(localFilePath);
-    await fs.mkdir(dir, { recursive: true });
-
-    // otherwise, download the file
-    const response = await fetch(url);
-    if (!response.ok) {
-        throw new Error(`Failed to download file: ${response.statusText}`);
-    }
-
-    const buffer = await response.arrayBuffer();
-    await fs.writeFile(localFilePath, Buffer.from(buffer));
-
-    return localFilePath;
-}
-
 // Download the .NET 7 SDK archive
 async function downloadDotNet7SdkArchive(props: flexibleSseHandlerProps): Promise<string> {
     const url = 'https://builds.dotnet.microsoft.com/dotnet/Sdk/7.0.410/dotnet-sdk-7.0.410-linux-x64.tar.gz'
     const tempDir = getAppDownloadFolder();
     const archivePath = path.join(tempDir, 'dotnet-sdk-7.0.410-linux-x64.tar.gz');
 
-    return await downloadFile(props, url, archivePath);
+    return await sseDownloadFileWorkflow(props, url, archivePath);
 }
 
 // Extract the .NET 7 SDK archive
@@ -115,7 +86,7 @@ async function downloadDotnetInstallScript(props: flexibleSseHandlerProps): Prom
     
 
     try {
-        const downloadedFileFullPath = await downloadFile(props, scriptUrl, path.join(getAppDownloadFolder(), 'dotnet-install.sh'));
+        const downloadedFileFullPath = await sseDownloadFileWorkflow(props, scriptUrl, path.join(getAppDownloadFolder(), 'dotnet-install.sh'));
         props.sendMessage({ type: 'other', contents: 'Script downloaded successfully' });
 
         props.sendMessage({ type: 'other', contents: 'Making script executable...' });
