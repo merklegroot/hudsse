@@ -20,7 +20,7 @@ export function HomeControl() {
     const processingMessage = useMessageStore((state) => state.processingState.message);
 
     return (
-        <div>
+        <div className="h-full flex flex-col">
             
             <div className="space-x-4 mb-4">    
                 <AddMessageButton />
@@ -53,7 +53,7 @@ export function HomeControl() {
                 <DotNetInstallLink />
             </div>
             
-            <div>
+            <div className="flex-1">
                 <DotNetDisplay />
             </div>            
         </div>

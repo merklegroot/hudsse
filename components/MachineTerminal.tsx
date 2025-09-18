@@ -90,7 +90,7 @@ export function MachineTerminal() {
 
   if (isCollapsed) {
     return (
-      <div className="fixed top-[3rem] right-0 h-[calc(100vh-3rem)] z-40 flex">
+      <div className="h-full flex">
         {/* Collapsed state - just the handle with arrow */}
         <div 
           className="w-6 bg-gray-700 hover:bg-gray-600 flex items-center justify-center border-l border-gray-600 cursor-pointer"
@@ -113,7 +113,7 @@ export function MachineTerminal() {
   return (
     <div 
       ref={containerRef}
-      className="fixed top-[3rem] right-0 h-[calc(100vh-3rem)] z-40 flex"
+      className="h-full flex"
       style={{ width: `${width}%` }}
     >
       {/* Resize handle with collapse button */}

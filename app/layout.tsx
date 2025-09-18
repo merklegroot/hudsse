@@ -19,8 +19,12 @@ export default function RootLayout({
       <body>
         <SseProvider>
           <Navigation />
-          <MachineTerminal />
-          {children}
+          <div className="flex h-[calc(100vh-4rem)]">
+            <div className="flex-1">
+              {children}
+            </div>
+            <MachineTerminal />
+          </div>
         </SseProvider>
       </body>
     </html>
