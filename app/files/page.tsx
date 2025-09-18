@@ -7,6 +7,7 @@ interface FileInfo {
   path: string
   size: number
   created: string
+  isDirectory: boolean
 }
 
 interface FilesResponse {
@@ -81,7 +82,8 @@ export default function FilesPage() {
     setFileToDelete(null)
   }
 
-  const formatFileSize = (bytes: number): string => {
+  const formatFileSize = (bytes: number, isDirectory: boolean): string => {
+    if (isDirectory) return '—'
     if (bytes === 0) return '0 B'
     const k = 1024
     const sizes = ['B', 'KB', 'MB', 'GB', 'TB']
@@ -120,18 +122,18 @@ export default function FilesPage() {
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold text-gray-800 mb-6">Files</h1>
       <p className="text-gray-600 mb-6">
-        Files in the download folder:
+        Files and folders in the download directory:
       </p>
       
       {files.length === 0 ? (
         <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
-          <p className="text-gray-600">No files found in the download folder.</p>
+          <p className="text-gray-600">No files or folders found in the download directory.</p>
         </div>
       ) : (
         <div className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
           <div className="px-6 py-4 border-b border-gray-200">
             <h2 className="text-lg font-semibold text-gray-800">
-              {files.length} file{files.length !== 1 ? 's' : ''} found
+              {files.length} item{files.length !== 1 ? 's' : ''} found
             </h2>
           </div>
           <div className="overflow-x-auto">
@@ -156,12 +158,23 @@ export default function FilesPage() {
                 {files.map((file, index) => (
                   <tr key={index} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <code className="text-sm text-gray-800 font-mono break-all">
-                        {file.name}
-                      </code>
+                      <div className="flex items-center">
+                        {file.isDirectory ? (
+                          <svg className="w-5 h-5 text-blue-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" />
+                          </svg>
+                        ) : (
+                          <svg className="w-5 h-5 text-gray-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenodd" />
+                          </svg>
+                        )}
+                        <code className={`text-sm font-mono break-all ${file.isDirectory ? 'text-blue-700 font-semibold' : 'text-gray-800'}`}>
+                          {file.name}
+                        </code>
+                      </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {formatFileSize(file.size)}
+                      {formatFileSize(file.size, file.isDirectory)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {formatDate(file.created)}
@@ -189,10 +202,11 @@ export default function FilesPage() {
           <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
             <div className="mt-3 text-center">
               <h3 className="text-lg font-medium text-gray-900 mb-4">
-                Delete File
+                Delete {fileToDelete.isDirectory ? 'Folder' : 'File'}
               </h3>
               <p className="text-sm text-gray-500 mb-6">
                 Are you sure you want to delete <strong>{fileToDelete.name}</strong>?
+                {fileToDelete.isDirectory && ' This will delete the folder and all its contents.'}
                 This action cannot be undone.
               </p>
               <div className="flex justify-center space-x-4">
