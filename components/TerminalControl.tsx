@@ -64,7 +64,7 @@ function SimpleMessageView({ messages }: { messages: SseMessage[] }) {
 
   return (
     <div
-      className="bg-black border border-gray-600 text-sm h-full flex flex-col p-4"
+      className="bg-black text-sm h-full flex flex-col p-4"
       style={{ fontFamily: 'Monaco, Menlo, "Ubuntu Mono", "Roboto Mono", Consolas, "Liberation Mono", "Courier New", monospace' }}>
       <div
         ref={scrollRef}
