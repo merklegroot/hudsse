@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { useMessageStore } from '../../store/messageStore';
+import { useDotNetStore } from '../../store/dotnetStore';
 
 function InfoCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -24,7 +24,7 @@ function InfoRow({ label, value }: { label: string; value: string }) {
 }
 
 export default function DotNetInfoDisplay() {
-  const dotnetState = useMessageStore((state) => state.dotnetState);
+  const dotnetState = useDotNetStore((state) => state.dotnetState);
 
   if (!dotnetState) {
     return (

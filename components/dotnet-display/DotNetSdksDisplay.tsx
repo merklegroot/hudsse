@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { useMessageStore } from '../../store/messageStore';
+import { useDotNetStore } from '../../store/dotnetStore';
 import { SdkInfo } from '../../models/SseMessage';
 
 function SdkItem({ sdk }: { sdk: SdkInfo }) {
@@ -26,7 +26,7 @@ function SdkItem({ sdk }: { sdk: SdkInfo }) {
 }
 
 export default function DotNetSdksDisplay() {
-  const dotnetSdks = useMessageStore((state) => state.dotnetState?.dotnetSdks) || [];
+  const dotnetSdks = useDotNetStore((state) => state.dotnetState?.dotnetSdks) || [];
 
   return (
     <div className="mt-6">

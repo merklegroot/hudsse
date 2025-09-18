@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { useMessageStore } from '../../store/messageStore';
+import { useDotNetStore } from '../../store/dotnetStore';
 import { RuntimeInfo } from '../../models/SseMessage';
 
 function RuntimeItem({ runtime }: { runtime: RuntimeInfo }) {
@@ -26,7 +26,7 @@ function RuntimeItem({ runtime }: { runtime: RuntimeInfo }) {
 }
 
 export default function DotNetRuntimesDisplay() {
-  const dotnetRuntimes = useMessageStore((state) => state.dotnetState?.dotnetRuntimes) || [];
+  const dotnetRuntimes = useDotNetStore((state) => state.dotnetState?.dotnetRuntimes) || [];
 
   return (
     <div className="mt-6">

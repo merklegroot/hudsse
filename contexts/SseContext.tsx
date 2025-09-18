@@ -3,6 +3,7 @@
 import React, { createContext, useContext, ReactNode, useState, useCallback } from 'react';
 import { sseClientHandlerFactory } from '../workflows/sseClientHandlerFactory';
 import { useMessageStore } from '../store/messageStore';
+import { useDotNetStore } from '../store/dotnetStore';
 import { SseMessage, ListSdksResult, ListRuntimesResult, WhichDotNetResult, DotNetInfoResult } from '../models/SseMessage';
 
 interface SseContextType {
@@ -18,10 +19,10 @@ interface SseProviderProps {
 
 export function SseProvider({ children }: SseProviderProps) {
   const addSseMessage = useMessageStore((state) => state.addSSEMessage);
-  const setDotnetSdks = useMessageStore((state) => state.setDotnetSdks);
-  const setDotnetRuntimes = useMessageStore((state) => state.setDotnetRuntimes);
-  const setWhichDotNetPath = useMessageStore((state) => state.setWhichDotNetPath);
-  const setDotnetInfo = useMessageStore((state) => state.setDotnetInfo);
+  const setDotnetSdks = useDotNetStore((state) => state.setDotnetSdks);
+  const setDotnetRuntimes = useDotNetStore((state) => state.setDotnetRuntimes);
+  const setWhichDotNetPath = useDotNetStore((state) => state.setWhichDotNetPath);
+  const setDotnetInfo = useDotNetStore((state) => state.setDotnetInfo);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSseMessage = useCallback((message: SseMessage) => {

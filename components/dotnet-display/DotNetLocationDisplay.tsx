@@ -1,10 +1,10 @@
 'use client';
 
 import React from 'react';
-import { useMessageStore } from '../../store/messageStore';
+import { useDotNetStore } from '../../store/dotnetStore';
 
 export default function DotNetLocationDisplay() {
-  const whichDotNetPath = useMessageStore((state) => state.dotnetState?.dotnetPath);
+  const whichDotNetPath = useDotNetStore((state) => state.dotnetState?.dotnetPath);
 
   return (
     <div className="mt-6">
