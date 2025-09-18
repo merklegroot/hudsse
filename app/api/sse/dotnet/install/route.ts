@@ -9,10 +9,22 @@ import { extract } from 'tar';
 import { flexibleSseHandlerProps, sseFactory } from '@/workflows/sseFactory';
 import { spawnAndGetDataWorkflow } from '@/workflows/spawnAndGetDataWorkflow';
 import { sseDotNetWorkflow } from '@/workflows/sseDotNetWorkflow';
+import { DotNetInfoResult } from '@/models/SseMessage';
 
 function getAppDownloadFolder(): string {
     // return os.tmpdir();
     return path.join(process.cwd(), "download");
+}
+
+/** Given the .NET base path, which often looks like this:  /home/username/.dotnet/sdk/9.0.304/,
+ * return the root path which often looks like this: /home/username/.dotnet */
+function getDotnetRootPath(basePath: string): string {
+    let dotnetRootPath = basePath;
+    if (dotnetRootPath.includes('/sdk/')) {
+        dotnetRootPath = basePath.replace(/\/sdk\/.*$/, '');
+    }
+    
+    return dotnetRootPath;
 }
 
 async function downloadFile(props: flexibleSseHandlerProps, url: string, localFilePath: string): Promise<string> {
@@ -50,59 +62,48 @@ async function downloadDotNet7SdkArchive(props: flexibleSseHandlerProps): Promis
 }
 
 // Extract the .NET 7 SDK archive
-async function extractDotNet7SdkArchive(props: flexibleSseHandlerProps, archivePath: string): Promise<string> {
-    const tempDir = getAppDownloadFolder();
-    const extractDir = path.join(tempDir, 'dotnet-sdk-7.0.410');
-
+async function extractDotNet7SdkArchive(props: flexibleSseHandlerProps, archivePath: string, installDir: string): Promise<string> {
     try {
-        props.sendMessage({ type: 'other', contents: 'Extracting .NET 7 SDK archive...' });
+        props.sendMessage({ type: 'other', contents: `Extracting .NET 7 SDK archive to ${installDir}...` });
+        
+        // Ensure the install directory exists
+        await fs.mkdir(installDir, { recursive: true });
         
         await extract({
             file: archivePath,
-            cwd: tempDir,
+            cwd: installDir,
             onentry: (entry) => {
                 props.sendMessage({ type: 'other', contents: `Extracting: ${entry.path}` });
             }
         });
 
+        // Make the dotnet executable executable
+        const dotnetExecutable = path.join(installDir, 'dotnet');
+        await fs.chmod(dotnetExecutable, 0o755);
+
         props.sendMessage({ type: 'other', contents: 'Archive extracted successfully' });
-        return extractDir;
+        return installDir;
     } catch (error) {
         throw new Error(`Failed to extract .NET 7 SDK archive: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
 }
 
-// Install the extracted .NET 7 SDK
-async function installDotNet7Sdk(props: flexibleSseHandlerProps, extractDir: string): Promise<void> {
-    const installDir = path.join(os.homedir(), '.dotnet');
-    
+// Verify the .NET 7 SDK installation
+async function installDotNet7Sdk(props: flexibleSseHandlerProps, installDir: string): Promise<void> {
     try {
-        props.sendMessage({ type: 'other', contents: `Installing .NET 7 SDK to ${installDir}...` });
+        props.sendMessage({ type: 'other', contents: `Verifying .NET 7 SDK installation at ${installDir}...` });
         
-        // Ensure the install directory exists
-        await fs.mkdir(installDir, { recursive: true });
+        // Verify the dotnet executable exists and is executable
+        const dotnetExecutable = path.join(installDir, 'dotnet');
+        const stat = await fs.stat(dotnetExecutable);
         
-        // Copy the extracted SDK contents to the install directory
-        const sdkContents = await fs.readdir(extractDir);
-        for (const item of sdkContents) {
-            const sourcePath = path.join(extractDir, item);
-            const destPath = path.join(installDir, item);
-            
-            const stat = await fs.stat(sourcePath);
-            if (stat.isDirectory()) {
-                await fs.cp(sourcePath, destPath, { recursive: true });
-            } else {
-                await fs.copyFile(sourcePath, destPath);
-            }
+        if (!stat.isFile()) {
+            throw new Error('dotnet executable not found');
         }
 
-        // Make the dotnet executable executable
-        const dotnetExecutable = path.join(installDir, 'dotnet');
-        await fs.chmod(dotnetExecutable, 0o755);
-
-        props.sendMessage({ type: 'other', contents: '.NET 7 SDK installed successfully' });
+        props.sendMessage({ type: 'other', contents: '.NET 7 SDK installation verified successfully' });
     } catch (error) {
-        throw new Error(`Failed to install .NET 7 SDK: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        throw new Error(`Failed to verify .NET 7 SDK installation: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
 }
 
@@ -204,9 +205,23 @@ export const GET = sseFactory.createFlexibleSseHandler(async (props: flexibleSse
     // Special handling for .NET 7 SDK - use direct download instead of install script
     if (majorVersion === 7) {
         try {
+            // First, get the current .NET installation path
+            props.sendMessage({ type: 'other', contents: 'Getting current .NET installation path...' });
+            const dotnetInfoResult = await sseDotNetWorkflow.executeDotNetInfo(props);
+            
+            let installDir: string;
+            if (dotnetInfoResult.parsedData?.runtimeEnvironment?.basePath) {
+                installDir = getDotnetRootPath(dotnetInfoResult.parsedData.runtimeEnvironment.basePath);
+                props.sendMessage({ type: 'other', contents: `Found existing .NET installation at: ${installDir}` });
+            } else {
+                // Fallback to default location if no existing installation found
+                installDir = path.join(os.homedir(), '.dotnet');
+                props.sendMessage({ type: 'other', contents: `No existing .NET installation found, using default location: ${installDir}` });
+            }
+            
             const archivePath = await downloadDotNet7SdkArchive(props);
-            const extractDir = await extractDotNet7SdkArchive(props, archivePath);
-            await installDotNet7Sdk(props, extractDir);
+            await extractDotNet7SdkArchive(props, archivePath, installDir);
+            await installDotNet7Sdk(props, installDir);
             
             props.sendMessage({ type: 'result', contents: '✅ .NET 7 SDK installation completed successfully!' });
         } catch (error) {
