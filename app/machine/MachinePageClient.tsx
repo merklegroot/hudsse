@@ -10,9 +10,9 @@ export function MachinePageClient() {
   const machineState = useMachineStore((state) => state.machineState);
   const isMobile = useIsMobile();
 
-  // Empty data placeholders matching hudapp structure
+  // Data items matching hudapp structure, using machineStore data where available
   const infoItems = [
-    { label: 'Machine Name', value: '' },
+    { label: 'Machine Name', value: machineState?.hostname || '' },
     { label: 'Local IP Address', value: '' },
     { label: 'Machine Model', value: '' },
     { label: 'CPU Model', value: '' },

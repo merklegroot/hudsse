@@ -1,10 +1,10 @@
 import { sseFactory } from '@/workflows/sseFactory';
 import { parseHostname } from '@/workflows/parseHostname';
 
-export const GET = sseFactory.createSseCommandHandler(
+sseFactory.createChainedSseCommandsHandler([
   {
     commandAndArgs: { command: 'hostname', args: [] },
     parser: parseHostname,
     onSuccess: 'Hostname retrieved successfully'
   }
-);
+]);

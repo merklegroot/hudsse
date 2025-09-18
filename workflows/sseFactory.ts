@@ -111,11 +111,18 @@ async function executeCommand(
     }
 }
 
-export interface chainProp {
+export interface commandArgsChainProp {
     commandAndArgs: CommandAndArgs;
     parser?: (output: string) => any;
     onSuccess: onSuccess;
 }
+
+export interface flexibleChainProp {
+    workflow: (props: flexibleSseHandlerProps) => Promise<void>;
+    onSuccess: onSuccess;
+}
+
+export type chainProp = commandArgsChainProp | flexibleChainProp;
 
 export interface flexibleSseHandlerProps {
     req: NextRequest;
@@ -158,23 +165,49 @@ function createChainedSseCommandsHandler(chains: chainProp[]) {
 
                 try {
                     for (const chain of chains) {
-                        sendCommandMessage(controller, chain.commandAndArgs);
+                        // Check to see if chain is a commandArgsChainProp
+                        if (!('commandAndArgs' in chain)) {
+                            // If it's not a commandArgsChainProp, it must be a flexibleChainProp
+                            const flexibleChain = chain as flexibleChainProp;
+                            await flexibleChain.workflow({
+                                req,
+                                controller,
+                                sendMessage: (message: SseMessage) => sendSseMessage(controller, message),
+                                onError: (error: string) => sendErrorMessage(controller, error)
+                            });
+                            
+                            // Handle onSuccess for flexible chain
+                            if (typeof flexibleChain.onSuccess === 'function') {
+                                flexibleChain.onSuccess('', controller);
+                            } else if (typeof flexibleChain.onSuccess === 'string') {
+                                const trimmed = flexibleChain.onSuccess.trim();
+                                const successMessage = trimmed.length > 0 ? trimmed : 'Workflow executed successfully';
+                                sendResultMessage(controller, successMessage);
+                            } else {
+                                sendResultMessage(controller, 'Workflow executed successfully');
+                            }
+                            continue;
+                        }
+                        
+                        // If it is, cast it to a commandArgsChainProp
+                        const commandChain = chain as commandArgsChainProp;
+                        sendCommandMessage(controller, commandChain.commandAndArgs);
 
-                        const wasSuccessful = await executeCommand(chain.commandAndArgs, controller, (allOutput, controller) => {
+                        const wasSuccessful = await executeCommand(commandChain.commandAndArgs, controller, (allOutput, controller) => {
                             try {
-                                const parsedResult = chain.parser ? chain.parser(allOutput) : allOutput;
+                                const parsedResult = commandChain.parser ? commandChain.parser(allOutput) : allOutput;
                                 results.push(parsedResult);
 
                                 // Handle different types of onSuccess
                                 let successMessage: string;
-                                if (typeof chain.onSuccess === 'function') {
+                                if (typeof commandChain.onSuccess === 'function') {
                                     // If it's a function, call it and get the result
-                                    const functionResult = chain.onSuccess(allOutput, controller);
+                                    const functionResult = commandChain.onSuccess(allOutput, controller);
                                     successMessage = typeof functionResult === 'string' ? functionResult : 'Command executed successfully';
                                 } else {
-                                    if (typeof chain.onSuccess === 'string') {
+                                    if (typeof commandChain.onSuccess === 'string') {
                                         // If it's a string, use it directly
-                                        const trimmed = chain.onSuccess.trim();
+                                        const trimmed = commandChain.onSuccess.trim();
                                         successMessage = trimmed.length > 0 ? trimmed : 'Command executed successfully';
                                     } else {
                                         // If it's null/undefined, use default
