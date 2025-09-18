@@ -4,7 +4,8 @@ import React, { createContext, useContext, ReactNode, useState, useCallback } fr
 import { sseClientHandlerFactory } from '../workflows/sseClientHandlerFactory';
 import { useMessageStore } from '../store/messageStore';
 import { useDotNetStore } from '../store/dotnetStore';
-import { SseMessage, ListSdksResult, ListRuntimesResult, WhichDotNetResult, DotNetInfoResult } from '../models/SseMessage';
+import { useMachineStore } from '../store/machineStore';
+import { SseMessage, ListSdksResult, ListRuntimesResult, WhichDotNetResult, DotNetInfoResult, HostnameResult } from '../models/SseMessage';
 
 interface SseContextType {
   startSseStream: (createEventSource: () => EventSource) => EventSource;
@@ -23,6 +24,7 @@ export function SseProvider({ children }: SseProviderProps) {
   const setDotnetRuntimes = useDotNetStore((state) => state.setDotnetRuntimes);
   const setWhichDotNetPath = useDotNetStore((state) => state.setWhichDotNetPath);
   const setDotnetInfo = useDotNetStore((state) => state.setDotnetInfo);
+  const setHostnameResult = useMachineStore((state) => state.setHostnameResult);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSseMessage = useCallback((message: SseMessage) => {
@@ -52,11 +54,16 @@ export function SseProvider({ children }: SseProviderProps) {
         if (parsedResult.sdk && parsedResult.runtimeEnvironment && parsedResult.host) {
           setDotnetInfo(parsedResult as DotNetInfoResult);
         }
+        
+        // Handle Hostname result
+        if (parsedResult.hostname && typeof parsedResult.hostname === 'string') {
+          setHostnameResult(parsedResult as HostnameResult);
+        }
       } catch (error) {
         console.warn('Failed to parse result:', error);
       }
     }
-  }, [addSseMessage, setDotnetSdks, setDotnetRuntimes, setWhichDotNetPath, setDotnetInfo]);
+  }, [addSseMessage, setDotnetSdks, setDotnetRuntimes, setWhichDotNetPath, setDotnetInfo, setHostnameResult]);
 
   const startSseStream = useCallback((createEventSource: () => EventSource) => {
     if (isLoading) {
