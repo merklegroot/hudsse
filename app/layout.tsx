@@ -1,7 +1,8 @@
-import type { Metadata } from 'next'
-import Navigation from '../components/Navigation'
-import { SseProvider } from '../contexts/SseContext'
-import '../styles/globals.css'
+import type { Metadata } from 'next';
+import Navigation from '../components/Navigation';
+import { SseProvider } from '../contexts/SseContext';
+import { MachineTerminal } from '../components/MachineTerminal';
+import '../styles/globals.css';
 
 export const metadata: Metadata = {
   title: 'SSE App',
@@ -18,9 +19,10 @@ export default function RootLayout({
       <body>
         <SseProvider>
           <Navigation />
+          <MachineTerminal />
           {children}
         </SseProvider>
       </body>
     </html>
-  )
+  );
 }
