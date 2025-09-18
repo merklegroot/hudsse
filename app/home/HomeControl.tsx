@@ -7,7 +7,6 @@ import SseDotNetInfoButton from '@/components/SseDotNetInfoButton';
 import SseDelayedMessagesButton from '@/components/SseDelayedMessagesButton';
 import SseStepCounterButton from '@/components/SseStepCounterButton';
 import PingButton from '@/components/PingButton';
-import TerminalControl from '@/components/TerminalControl';
 import { StateViewer } from '@/components/StateViewer';
 import DotNetDisplay from '@/components/dotnet-display/DotNetDisplay';
 import DotNetInstallLink from '@/components/dotnet-display/DotnetInstallLink';
@@ -54,13 +53,8 @@ export function HomeControl() {
                 <DotNetInstallLink />
             </div>
             
-            <div className="flex gap-6">
-                <div className="flex-3">
-                    <DotNetDisplay />
-                </div>
-                <div className="flex-2">
-                    <TerminalControl messages={messages} />
-                </div>
+            <div>
+                <DotNetDisplay />
             </div>            
         </div>
     )
