@@ -17,7 +17,7 @@ export function MachineTerminal() {
   }
 
   return (
-    <div className="fixed top-[3rem] right-0 w-1/2 h-[calc(100vh-3rem)] z-40">
+    <div className="fixed top-[3rem] right-0 w-1/3 h-[calc(100vh-3rem)] z-40">
       <TerminalControl messages={messages} />
     </div>
   );
