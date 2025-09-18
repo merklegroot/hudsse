@@ -71,6 +71,10 @@ export interface DotNetInfoResult {
     globalJsonFile: string;
 }
 
+export interface HostnameResult {
+    hostname: string;
+}
+
 export interface SseMessage {
     type: SseMessageType;
     contents: string;
