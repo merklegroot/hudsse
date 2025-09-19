@@ -29,21 +29,26 @@ export function detectPlatform(): platformType {
   return platformType.unknown;
 }
 
+const detectPlatformChain = {
+  workflow: async (props: flexibleSseHandlerProps) => {
+    const detectedPlatform = detectPlatform();
+    const platformResult = { platform: detectedPlatform };
+    props.sendMessage({ 
+      type: 'result', 
+      contents: `Platform: ${detectedPlatform}`,
+      result: JSON.stringify(platformResult)
+    });
+  },
+  onSuccess: 'Platform detected successfully'
+};
+
+const hostNameChain = {
+  commandAndArgs: { command: 'hostname', args: [] },
+  parser: parseHostname,
+  onSuccess: 'Hostname retrieved successfully'
+};
+
 export const GET = sseFactory.createChainedSseCommandsHandler([
-  {
-    commandAndArgs: { command: 'hostname', args: [] },
-    parser: parseHostname,
-    onSuccess: 'Hostname retrieved successfully'
-  },{
-    workflow: async (props: flexibleSseHandlerProps) => {
-      const detectedPlatform = detectPlatform();
-      const platformResult = { platform: detectedPlatform };
-      props.sendMessage({ 
-        type: 'result', 
-        contents: `Platform: ${detectedPlatform}`,
-        result: JSON.stringify(platformResult)
-      });
-    },
-    onSuccess: 'Platform detected successfully'
-  }
+  hostNameChain,
+  detectPlatformChain
 ]);
