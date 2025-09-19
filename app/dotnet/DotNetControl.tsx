@@ -11,7 +11,7 @@ import { StateViewer } from '@/components/StateViewer';
 import DotNetDisplay from '@/components/dotnet-display/DotNetDisplay';
 import DotNetInstallLink from '@/components/dotnet-display/DotnetInstallLink';
 
-export function HomeControl() {
+export function DotNetControl() {
     const messages = useMessageStore((state) => state.messages);
     const startProcessing = useMessageStore((state) => state.startProcessing);
     const completeProcessing = useMessageStore((state) => state.completeProcessing);

@@ -1,9 +1,9 @@
 'use client';
 
 import { useIsMobile } from '@/hooks/useIsMobile';
-import { HomeControl } from './HomeControl';
+import { DotNetControl } from './DotNetControl';
 
-export function HomePageClient() {
+export function DotNetPageClient() {
   const isMobile = useIsMobile();
 
   return (
@@ -12,7 +12,7 @@ export function HomePageClient() {
         <div className="p-6 h-full">
           <h1 className="text-3xl font-bold text-gray-900 mb-4">Home</h1>
           <p className="text-gray-600 mb-6">Welcome to the Home page!</p>
-          <HomeControl />
+          <DotNetControl />
         </div>
       </div>
     </div>

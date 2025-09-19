@@ -7,7 +7,7 @@ import SseMachineInfoButton from '@/components/SseMachineInfoButton';
 import { MachineStateViewer } from '@/components/MachineStateViewer';
 import SystemDetailField from '@/components/SystemDetailField';
 
-export function MachinePageClient() {
+export function MachinePageControl() {
   const machineState = useMachineStore((state) => state.machineState);
   const isMobile = useIsMobile();
 

@@ -1,12 +1,5 @@
-import type { Metadata } from 'next';
-import { HomeControl } from './HomeControl';
-import { HomePageClient } from './HomePageClient';
+import { MachinePageControl } from './MachinePageClient';
 
-export const metadata: Metadata = {
-  title: 'Home - SSE App',
-  description: 'Home page',
-}
-
-export default function Home() {
-  return <HomePageClient />;
+export default function Machine() {
+  return <MachinePageControl />;
 }
