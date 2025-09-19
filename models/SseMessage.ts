@@ -75,6 +75,10 @@ export interface HostnameResult {
     hostname: string;
 }
 
+export interface IpAddressResult {
+    ipAddress: string;
+}
+
 export interface PlatformResult {
     platform: string;
 }
