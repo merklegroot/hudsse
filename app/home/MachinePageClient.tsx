@@ -15,7 +15,7 @@ export function MachinePageControl() {
   const infoItems = [
     { label: 'Machine Name', value: machineState?.hostname || '' },
     { label: 'Platform', value: machineState?.platform || '' },
-    { label: 'Local IP Address', value: '' },
+    { label: 'Local IP Address', value: machineState?.ipAddress || '' },
     { label: 'Machine Model', value: '' },
     { label: 'CPU Model', value: '' },
     { label: 'Operating System', value: '' },

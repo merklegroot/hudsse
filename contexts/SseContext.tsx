@@ -5,7 +5,7 @@ import { sseClientHandlerFactory } from '../workflows/sseClientHandlerFactory';
 import { useMessageStore } from '../store/messageStore';
 import { useDotNetStore } from '../store/dotnetStore';
 import { useMachineStore } from '../store/machineStore';
-import { SseMessage, ListSdksResult, ListRuntimesResult, WhichDotNetResult, DotNetInfoResult, HostnameResult, PlatformResult } from '../models/SseMessage';
+import { SseMessage, ListSdksResult, ListRuntimesResult, WhichDotNetResult, DotNetInfoResult, HostnameResult, PlatformResult, IpAddressResult } from '../models/SseMessage';
 
 interface SseContextType {
   startSseStream: (createEventSource: () => EventSource) => EventSource;
@@ -26,6 +26,7 @@ export function SseProvider({ children }: SseProviderProps) {
   const setDotnetInfo = useDotNetStore((state) => state.setDotnetInfo);
   const setHostnameResult = useMachineStore((state) => state.setHostnameResult);
   const setPlatformResult = useMachineStore((state) => state.setPlatformResult);
+  const setIpAddressResult = useMachineStore((state) => state.setIpAddressResult);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSseMessage = useCallback((message: SseMessage) => {
@@ -65,11 +66,16 @@ export function SseProvider({ children }: SseProviderProps) {
         if (parsedResult.platform && typeof parsedResult.platform === 'string') {
           setPlatformResult(parsedResult as PlatformResult);
         }
+        
+        // Handle IP Address result
+        if (parsedResult.ipAddress && typeof parsedResult.ipAddress === 'string') {
+          setIpAddressResult(parsedResult as IpAddressResult);
+        }
       } catch (error) {
         console.warn('Failed to parse result:', error);
       }
     }
-  }, [addSseMessage, setDotnetSdks, setDotnetRuntimes, setWhichDotNetPath, setDotnetInfo, setHostnameResult, setPlatformResult]);
+  }, [addSseMessage, setDotnetSdks, setDotnetRuntimes, setWhichDotNetPath, setDotnetInfo, setHostnameResult, setPlatformResult, setIpAddressResult]);
 
   const startSseStream = useCallback((createEventSource: () => EventSource) => {
     if (isLoading) {
