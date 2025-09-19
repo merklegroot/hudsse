@@ -99,7 +99,7 @@ export function FilesPageClient() {
 
   if (loading) {
     return (
-      <div className={`h-screen flex flex-col ${isMobile ? 'pb-[33.333333%]' : 'pr-[50%]'}`}>
+      <div className="h-full flex flex-col">
         <div className="flex-none p-6">
           <h1 className="text-3xl font-bold text-gray-900">Files</h1>
         </div>
@@ -117,7 +117,7 @@ export function FilesPageClient() {
 
   if (error) {
     return (
-      <div className={`h-screen flex flex-col ${isMobile ? 'pb-[33.333333%]' : 'pr-[50%]'}`}>
+      <div className="h-full flex flex-col">
         <div className="flex-none p-6">
           <h1 className="text-3xl font-bold text-gray-900">Files</h1>
         </div>
@@ -133,7 +133,7 @@ export function FilesPageClient() {
   }
 
   return (
-    <div className={`h-screen flex flex-col ${isMobile ? 'pb-[33.333333%]' : 'pr-[50%]'}`}>
+    <div className="h-full flex flex-col">
       <div className="flex-none p-6">
         <h1 className="text-3xl font-bold text-gray-900">Files</h1>
         <p className="text-gray-600 mt-2">

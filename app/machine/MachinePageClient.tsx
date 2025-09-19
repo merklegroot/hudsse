@@ -24,7 +24,7 @@ export function MachinePageClient() {
   const virtualization = '';
 
   return (
-    <div className={`h-screen flex flex-col ${isMobile ? 'pb-[33.333333%]' : 'pr-[50%]'}`}>
+    <div className="h-full flex flex-col">
       <div className="flex-none p-6">
         <h1 className="text-4xl font-bold mb-8">Machine Information</h1>
       </div>
