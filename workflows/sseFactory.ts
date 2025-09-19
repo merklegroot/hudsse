@@ -193,21 +193,21 @@ function createChainedSseCommandsHandler(chains: chainProp[]) {
                         const commandChain = chain as commandArgsChainProp;
                         sendCommandMessage(controller, commandChain.commandAndArgs);
 
-                        const wasSuccessful = await executeCommand(commandChain.commandAndArgs, controller, (allOutput, controller) => {
+                        const wasSuccessful = await executeCommand(chain.commandAndArgs, controller, (allOutput, controller) => {
                             try {
-                                const parsedResult = commandChain.parser ? commandChain.parser(allOutput) : allOutput;
+                                const parsedResult = chain.parser ? chain.parser(allOutput) : allOutput;
                                 results.push(parsedResult);
 
                                 // Handle different types of onSuccess
                                 let successMessage: string;
-                                if (typeof commandChain.onSuccess === 'function') {
+                                if (typeof chain.onSuccess === 'function') {
                                     // If it's a function, call it and get the result
-                                    const functionResult = commandChain.onSuccess(allOutput, controller);
+                                    const functionResult = chain.onSuccess(allOutput, controller);
                                     successMessage = typeof functionResult === 'string' ? functionResult : 'Command executed successfully';
                                 } else {
-                                    if (typeof commandChain.onSuccess === 'string') {
+                                    if (typeof chain.onSuccess === 'string') {
                                         // If it's a string, use it directly
-                                        const trimmed = commandChain.onSuccess.trim();
+                                        const trimmed = chain.onSuccess.trim();
                                         successMessage = trimmed.length > 0 ? trimmed : 'Command executed successfully';
                                     } else {
                                         // If it's null/undefined, use default

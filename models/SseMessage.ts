@@ -75,6 +75,10 @@ export interface HostnameResult {
     hostname: string;
 }
 
+export interface PlatformResult {
+    platform: string;
+}
+
 export interface SseMessage {
     type: SseMessageType;
     contents: string;

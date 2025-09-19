@@ -3,6 +3,7 @@
 import { useMachineStore } from '@/store/machineStore';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import SseHostnameButton from '@/components/SseHostnameButton';
+import SseMachineInfoButton from '@/components/SseMachineInfoButton';
 import { MachineStateViewer } from '@/components/MachineStateViewer';
 import SystemDetailField from '@/components/SystemDetailField';
 
@@ -13,6 +14,7 @@ export function MachinePageClient() {
   // Data items matching hudapp structure, using machineStore data where available
   const infoItems = [
     { label: 'Machine Name', value: machineState?.hostname || '' },
+    { label: 'Platform', value: machineState?.platform || '' },
     { label: 'Local IP Address', value: '' },
     { label: 'Machine Model', value: '' },
     { label: 'CPU Model', value: '' },
@@ -32,6 +34,7 @@ export function MachinePageClient() {
         <div className="p-6">
           <div className="space-x-4 mb-4">    
             <SseHostnameButton />
+            <SseMachineInfoButton />
           </div>
           
           <div className="max-w-7xl mx-auto">

@@ -5,7 +5,7 @@ import { sseClientHandlerFactory } from '../workflows/sseClientHandlerFactory';
 import { useMessageStore } from '../store/messageStore';
 import { useDotNetStore } from '../store/dotnetStore';
 import { useMachineStore } from '../store/machineStore';
-import { SseMessage, ListSdksResult, ListRuntimesResult, WhichDotNetResult, DotNetInfoResult, HostnameResult } from '../models/SseMessage';
+import { SseMessage, ListSdksResult, ListRuntimesResult, WhichDotNetResult, DotNetInfoResult, HostnameResult, PlatformResult } from '../models/SseMessage';
 
 interface SseContextType {
   startSseStream: (createEventSource: () => EventSource) => EventSource;
@@ -25,6 +25,7 @@ export function SseProvider({ children }: SseProviderProps) {
   const setWhichDotNetPath = useDotNetStore((state) => state.setWhichDotNetPath);
   const setDotnetInfo = useDotNetStore((state) => state.setDotnetInfo);
   const setHostnameResult = useMachineStore((state) => state.setHostnameResult);
+  const setPlatformResult = useMachineStore((state) => state.setPlatformResult);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSseMessage = useCallback((message: SseMessage) => {
@@ -59,11 +60,16 @@ export function SseProvider({ children }: SseProviderProps) {
         if (parsedResult.hostname && typeof parsedResult.hostname === 'string') {
           setHostnameResult(parsedResult as HostnameResult);
         }
+        
+        // Handle Platform result
+        if (parsedResult.platform && typeof parsedResult.platform === 'string') {
+          setPlatformResult(parsedResult as PlatformResult);
+        }
       } catch (error) {
         console.warn('Failed to parse result:', error);
       }
     }
-  }, [addSseMessage, setDotnetSdks, setDotnetRuntimes, setWhichDotNetPath, setDotnetInfo, setHostnameResult]);
+  }, [addSseMessage, setDotnetSdks, setDotnetRuntimes, setWhichDotNetPath, setDotnetInfo, setHostnameResult, setPlatformResult]);
 
   const startSseStream = useCallback((createEventSource: () => EventSource) => {
     if (isLoading) {
