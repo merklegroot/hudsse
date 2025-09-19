@@ -30,9 +30,9 @@ export default function Navigation() {
             HudApp SSE
           </Link>
           <ul className="flex flex-wrap gap-4 lg:gap-6">
-            <NavLink href="/home" label="Home" />
-            <NavLink href="/files" label="Files" />
+            <NavLink href="/home" label="Machine" />
             <NavLink href="/dotnet" label=".NET" />
+            <NavLink href="/files" label="Files" />
           </ul>
         </div>
       </div>
