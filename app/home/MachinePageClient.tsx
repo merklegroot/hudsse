@@ -6,6 +6,7 @@ import SseHostnameButton from '@/components/SseHostnameButton';
 import SseMachineInfoButton from '@/components/SseMachineInfoButton';
 import { MachineStateViewer } from '@/components/MachineStateViewer';
 import SystemDetailField from '@/components/SystemDetailField';
+import { getDistroFlavor } from '@/utils/distroUtil';
 
 export function MachinePageControl() {
   const machineState = useMachineStore((state) => state.machineState);
@@ -18,7 +19,7 @@ export function MachinePageControl() {
     { label: 'Local IP Address', value: machineState?.ipAddress || '' },
     { label: 'Machine Model', value: machineState?.systemInfo?.productName || '' },
     { label: 'CPU Model', value: machineState?.systemInfo?.cpuModel || '' },
-    { label: 'Distro', value: machineState?.systemInfo?.distro || '' },
+    { label: 'Distro Flavor', value: getDistroFlavor(machineState?.systemInfo?.baseDistro, machineState?.systemInfo?.desktopEnvironment) },
     { label: 'Kernel Version', value: machineState?.systemInfo?.kernelVersion || '' },
     { label: 'Motherboard', value: machineState?.systemInfo?.boardName || '' },
   ];

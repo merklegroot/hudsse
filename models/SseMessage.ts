@@ -88,7 +88,8 @@ export interface SystemInfoResult {
     ipAddress: string | null;
     kernelVersion: string | null;
     cpuModel: string | null;
-    distro: string | null;
+    baseDistro: string | null;
+    desktopEnvironment: string | null;
     productName: string | null;
     boardName: string | null;
 }

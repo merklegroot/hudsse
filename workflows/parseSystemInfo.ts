@@ -7,7 +7,8 @@ export function parseSystemInfo(output: string): SystemInfoResult {
     let ipAddress: string | null = null;
     let kernelVersion: string | null = null;
     let cpuModel: string | null = null;
-    let distro: string | null = null;
+    let baseDistro: string | null = null;
+    let desktopEnvironment: string | null = null;
     let productName: string | null = null;
     let boardName: string | null = null;
     
@@ -44,8 +45,13 @@ export function parseSystemInfo(output: string): SystemInfoResult {
             continue;
         }
         
-        if (trimmedLine.includes('Distro:')) {
-            currentSection = 'distro';
+        if (trimmedLine.includes('Base Distro:')) {
+            currentSection = 'baseDistro';
+            continue;
+        }
+        
+        if (trimmedLine.includes('Desktop Environment:')) {
+            currentSection = 'desktopEnvironment';
             continue;
         }
         
@@ -92,9 +98,14 @@ export function parseSystemInfo(output: string): SystemInfoResult {
                     cpuModel = trimmedLine;
                 }
                 break;
-            case 'distro':
-                if (!distro && trimmedLine && !trimmedLine.startsWith('Reading') && !trimmedLine.startsWith('cat')) {
-                    distro = trimmedLine;
+            case 'baseDistro':
+                if (!baseDistro && trimmedLine && !trimmedLine.startsWith('Reading') && !trimmedLine.startsWith('cat')) {
+                    baseDistro = trimmedLine;
+                }
+                break;
+            case 'desktopEnvironment':
+                if (!desktopEnvironment && trimmedLine && !trimmedLine.startsWith('Reading') && !trimmedLine.startsWith('echo')) {
+                    desktopEnvironment = trimmedLine;
                 }
                 break;
             case 'product':
@@ -115,7 +126,8 @@ export function parseSystemInfo(output: string): SystemInfoResult {
         ipAddress,
         kernelVersion,
         cpuModel,
-        distro,
+        baseDistro,
+        desktopEnvironment,
         productName,
         boardName
     };

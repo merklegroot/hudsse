@@ -3,6 +3,9 @@
 # Script to read system information from various files
 # Continues reading even if individual files fail
 
+# When possible, this script shouldn't involve complex logic.
+# Most of the parsing should be done outside of here.
+
 echo "Reading system information..."
 echo "================================"
 
@@ -55,11 +58,18 @@ echo "lscpu | grep 'Model name' | cut -d':' -f2 | xargs"
 lscpu | grep "Model name" | cut -d':' -f2 | xargs
 echo "--------------------------------"
 
-# Get distro
+# Get base distro
 echo ""
-echo "Distro:"
+echo "Base Distro:"
 echo "cat /etc/os-release | grep 'PRETTY_NAME' | cut -d'=' -f2 | tr -d '\"'"
 cat /etc/os-release | grep "PRETTY_NAME" | cut -d'=' -f2 | tr -d '"'
+echo "--------------------------------"
+
+# Get desktop environment
+echo ""
+echo "Desktop Environment:"
+echo "echo \$XDG_CURRENT_DESKTOP"
+echo $XDG_CURRENT_DESKTOP
 echo "--------------------------------"
 
 # Read /sys/class/dmi/id/product_name (system product name)
