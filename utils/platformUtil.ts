@@ -27,6 +27,27 @@ function detectPlatform(): platformType {
     return platformType.unknown;
 }
 
+function formatText(text: string): string {
+    return text
+        .split(/[-_\s]+/)
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+        .join(' ');
+}
+
+function getFriendlyPlatformName(osType: platformType): string {
+    return osType === platformType.linux ? 'Linux' :
+           osType === platformType.windows ? 'Windows' :
+           osType === platformType.mac ? 'macOS' :
+           osType === platformType.aix ? 'AIX' :
+           osType === platformType.freebsd ? 'FreeBSD' :
+           osType === platformType.openbsd ? 'OpenBSD' :
+           osType === platformType.sunos ? 'SunOS' :
+           osType === platformType.android ? 'Android' :
+           osType === platformType.unknown ? 'Unknown' :
+           formatText(osType);
+}
+
 export const platformUtil = {
-    detectPlatform
+    detectPlatform,
+    getFriendlyPlatformName
 };

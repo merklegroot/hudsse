@@ -1,4 +1,4 @@
-import { platformType } from "@/utils/platformUtil";
+import { platformType, platformUtil } from "@/utils/platformUtil";
 
 export function OsTypeControl({ osType }: { osType: platformType }) {
     return (
@@ -8,7 +8,7 @@ export function OsTypeControl({ osType }: { osType: platformType }) {
             </div>
             <div>
                 <h3 className="text-xl font-bold text-gray-800 mb-2">OS Type</h3>
-                <p className="text-2xl font-semibold text-gray-900">{osType || 'Unknown'}</p>
+                <p className="text-2xl font-semibold text-gray-900">{platformUtil.getFriendlyPlatformName(osType)}</p>
             </div>
         </div>
     )
