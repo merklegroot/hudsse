@@ -84,6 +84,8 @@ export interface PlatformResult {
 }
 
 export interface SystemInfoResult {
+    hostname: string | null;
+    ipAddress: string | null;
     kernelVersion: string | null;
     productName: string | null;
     boardName: string | null;

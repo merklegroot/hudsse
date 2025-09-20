@@ -3,12 +3,14 @@ import { SystemInfoResult } from '../models/SseMessage';
 export function parseSystemInfo(output: string): SystemInfoResult {
     const lines = output.trim().split('\n');
     
+    let hostname: string | null = null;
+    let ipAddress: string | null = null;
     let kernelVersion: string | null = null;
     let productName: string | null = null;
     let boardName: string | null = null;
     
     // Parse the output from the system info script
-    // The script outputs sections with headers like "Kernel Version:", "System Product Name:", etc.
+    // The script outputs sections with headers like "Hostname:", "IP Address:", "Kernel Version:", etc.
     let currentSection = '';
     
     for (const line of lines) {
@@ -20,6 +22,16 @@ export function parseSystemInfo(output: string): SystemInfoResult {
         }
         
         // Check for section headers
+        if (trimmedLine.includes('Hostname:')) {
+            currentSection = 'hostname';
+            continue;
+        }
+        
+        if (trimmedLine.includes('IP Address:')) {
+            currentSection = 'ip';
+            continue;
+        }
+        
         if (trimmedLine.includes('Kernel Version:')) {
             currentSection = 'kernel';
             continue;
@@ -48,6 +60,16 @@ export function parseSystemInfo(output: string): SystemInfoResult {
         
         // Extract the actual content based on current section
         switch (currentSection) {
+            case 'hostname':
+                if (!hostname && trimmedLine && !trimmedLine.startsWith('Reading') && !trimmedLine.startsWith('hostname')) {
+                    hostname = trimmedLine;
+                }
+                break;
+            case 'ip':
+                if (!ipAddress && trimmedLine && !trimmedLine.startsWith('Reading') && !trimmedLine.startsWith('hostname')) {
+                    ipAddress = trimmedLine;
+                }
+                break;
             case 'kernel':
                 if (!kernelVersion && trimmedLine && !trimmedLine.startsWith('Reading')) {
                     kernelVersion = trimmedLine;
@@ -67,6 +89,8 @@ export function parseSystemInfo(output: string): SystemInfoResult {
     }
     
     return {
+        hostname,
+        ipAddress,
         kernelVersion,
         productName,
         boardName

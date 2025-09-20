@@ -6,6 +6,20 @@
 echo "Reading system information..."
 echo "================================"
 
+# Get hostname
+echo ""
+echo "Hostname:"
+echo "hostname"
+hostname
+echo "--------------------------------"
+
+# Get IP address
+echo ""
+echo "IP Address:"
+echo "hostname -I"
+hostname -I
+echo "--------------------------------"
+
 # Function to safely read a file
 read_file_safely() {
     local file_path="$1"

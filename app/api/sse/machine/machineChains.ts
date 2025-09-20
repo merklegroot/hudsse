@@ -1,5 +1,3 @@
-import { parseHostname } from '@/workflows/parseHostname';
-import { parseIpAddress } from '@/workflows/parseIpAddress';
 import { parseSystemInfo } from '@/workflows/parseSystemInfo';
 import { flexibleSseHandlerProps } from '@/workflows/sseFactory';
 import { platformUtil } from '@/utils/platformUtil';
@@ -18,18 +16,6 @@ const detectPlatformChain = {
     onSuccess: 'Platform detected successfully'
 };
 
-const hostNameChain = {
-    commandAndArgs: { command: 'hostname', args: [] },
-    parser: parseHostname,
-    onSuccess: 'Hostname retrieved successfully'
-};
-
-const ipAddressChain = {
-    commandAndArgs: { command: 'hostname', args: ['-I'] },
-    parser: parseIpAddress,
-    onSuccess: 'IP address retrieved successfully'
-};
-
 const systemInfoChain = {
     commandAndArgs: { command: './scripts/read_system_info.sh', args: [] },
     parser: parseSystemInfo,
@@ -37,8 +23,6 @@ const systemInfoChain = {
 };
 
 export const machineChains = {
-    hostNameChain,
-    ipAddressChain,
     detectPlatformChain,
     systemInfoChain
 };
