@@ -27,24 +27,35 @@ function detectPlatform(): platformType {
     return platformType.unknown;
 }
 
-function formatText(text: string): string {
+function formatText(text: string | undefined | null): string {
+    if (!text) {
+        return 'Unknown';
+    }
+    
     return text
         .split(/[-_\s]+/)
         .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
         .join(' ');
 }
 
-function getFriendlyPlatformName(osType: platformType): string {
-    return osType === platformType.linux ? 'Linux' :
-           osType === platformType.windows ? 'Windows' :
-           osType === platformType.mac ? 'macOS' :
-           osType === platformType.aix ? 'AIX' :
-           osType === platformType.freebsd ? 'FreeBSD' :
-           osType === platformType.openbsd ? 'OpenBSD' :
-           osType === platformType.sunos ? 'SunOS' :
-           osType === platformType.android ? 'Android' :
-           osType === platformType.unknown ? 'Unknown' :
-           formatText(osType);
+function getFriendlyPlatformName(osType: platformType | undefined | null): string {
+    if (!osType) {
+        return 'Unknown';
+    }
+    
+    const platformNameLookup: Record<platformType, string> = {
+        [platformType.linux]: 'Linux',
+        [platformType.windows]: 'Windows',
+        [platformType.mac]: 'macOS',
+        [platformType.aix]: 'AIX',
+        [platformType.freebsd]: 'FreeBSD',
+        [platformType.openbsd]: 'OpenBSD',
+        [platformType.sunos]: 'SunOS',
+        [platformType.android]: 'Android',
+        [platformType.unknown]: 'Unknown'
+    };
+
+    return platformNameLookup[osType] || formatText(osType);
 }
 
 export const platformUtil = {
