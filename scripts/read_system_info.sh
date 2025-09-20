@@ -55,6 +55,13 @@ echo "lscpu | grep 'Model name' | cut -d':' -f2 | xargs"
 lscpu | grep "Model name" | cut -d':' -f2 | xargs
 echo "--------------------------------"
 
+# Get distro
+echo ""
+echo "Distro:"
+echo "cat /etc/os-release | grep 'PRETTY_NAME' | cut -d'=' -f2 | tr -d '\"'"
+cat /etc/os-release | grep "PRETTY_NAME" | cut -d'=' -f2 | tr -d '"'
+echo "--------------------------------"
+
 # Read /sys/class/dmi/id/product_name (system product name)
 read_file_safely "/sys/class/dmi/id/product_name" "System Product Name"
 

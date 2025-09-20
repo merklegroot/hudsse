@@ -18,7 +18,7 @@ export function MachinePageControl() {
     { label: 'Local IP Address', value: machineState?.ipAddress || '' },
     { label: 'Machine Model', value: machineState?.systemInfo?.productName || '' },
     { label: 'CPU Model', value: machineState?.systemInfo?.cpuModel || '' },
-    { label: 'Distro', value: '' },
+    { label: 'Distro', value: machineState?.systemInfo?.distro || '' },
     { label: 'Kernel Version', value: machineState?.systemInfo?.kernelVersion || '' },
     { label: 'Motherboard', value: machineState?.systemInfo?.boardName || '' },
   ];

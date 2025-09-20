@@ -7,6 +7,7 @@ export function parseSystemInfo(output: string): SystemInfoResult {
     let ipAddress: string | null = null;
     let kernelVersion: string | null = null;
     let cpuModel: string | null = null;
+    let distro: string | null = null;
     let productName: string | null = null;
     let boardName: string | null = null;
     
@@ -40,6 +41,11 @@ export function parseSystemInfo(output: string): SystemInfoResult {
         
         if (trimmedLine.includes('CPU Model:')) {
             currentSection = 'cpu';
+            continue;
+        }
+        
+        if (trimmedLine.includes('Distro:')) {
+            currentSection = 'distro';
             continue;
         }
         
@@ -86,6 +92,11 @@ export function parseSystemInfo(output: string): SystemInfoResult {
                     cpuModel = trimmedLine;
                 }
                 break;
+            case 'distro':
+                if (!distro && trimmedLine && !trimmedLine.startsWith('Reading') && !trimmedLine.startsWith('cat')) {
+                    distro = trimmedLine;
+                }
+                break;
             case 'product':
                 if (!productName && trimmedLine && !trimmedLine.startsWith('Reading')) {
                     productName = trimmedLine;
@@ -104,6 +115,7 @@ export function parseSystemInfo(output: string): SystemInfoResult {
         ipAddress,
         kernelVersion,
         cpuModel,
+        distro,
         productName,
         boardName
     };
