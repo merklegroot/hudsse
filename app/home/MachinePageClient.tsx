@@ -1,7 +1,9 @@
 'use client';
 
+import { useEffect } from 'react';
 import { useMachineStore } from '@/store/machineStore';
 import { useIsMobile } from '@/hooks/useIsMobile';
+import { useSse } from '@/contexts/SseContext';
 import SseHostnameButton from '@/components/SseHostnameButton';
 import SseMachineInfoButton from '@/components/SseMachineInfoButton';
 import { MachineStateViewer } from '@/components/MachineStateViewer';
@@ -13,6 +15,21 @@ import { platformType } from '@/utils/platformUtil';
 export function MachinePageControl() {
   const machineState = useMachineStore((state) => state.machineState);
   const isMobile = useIsMobile();
+  const { startSseStream, isLoading } = useSse();
+
+  // Automatically fetch machine info when the page loads if it hasn't been fetched yet
+  useEffect(() => {
+    // Check if we haven't tried detecting system info yet
+    const hasTriedDetectingSystemInfo = machineState?.hasTriedDetectingSystemInfo ?? false;
+    
+    if (!hasTriedDetectingSystemInfo && !isLoading) {
+      // Create EventSource for machine info endpoint
+      const createEventSource = () => new EventSource('/api/sse/machine/info');
+      
+      // Start the SSE stream
+      startSseStream(createEventSource);
+    }
+  }, [machineState?.hasTriedDetectingSystemInfo, isLoading, startSseStream]);
 
   // Data items matching hudapp structure, using machineStore data where available
   const infoItems = [
