@@ -13,11 +13,11 @@ echo "hostname"
 hostname
 echo "--------------------------------"
 
-# Get IP address
+# Get IP address (primary IPv4 only)
 echo ""
 echo "IP Address:"
-echo "hostname -I"
-hostname -I
+echo "hostname -I | awk '{print \$1}'"
+hostname -I | awk '{print $1}'
 echo "--------------------------------"
 
 # Function to safely read a file
@@ -41,8 +41,12 @@ read_file_safely() {
     echo "--------------------------------"
 }
 
-# Read /proc/version (kernel version)
-read_file_safely "/proc/version" "Kernel Version"
+# Get kernel version (human readable)
+echo ""
+echo "Kernel Version:"
+echo "uname -r"
+uname -r
+echo "--------------------------------"
 
 # Read /sys/class/dmi/id/product_name (system product name)
 read_file_safely "/sys/class/dmi/id/product_name" "System Product Name"

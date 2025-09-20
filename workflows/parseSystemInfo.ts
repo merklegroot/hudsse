@@ -71,7 +71,7 @@ export function parseSystemInfo(output: string): SystemInfoResult {
                 }
                 break;
             case 'kernel':
-                if (!kernelVersion && trimmedLine && !trimmedLine.startsWith('Reading')) {
+                if (!kernelVersion && trimmedLine && !trimmedLine.startsWith('Reading') && !trimmedLine.startsWith('uname')) {
                     kernelVersion = trimmedLine;
                 }
                 break;
