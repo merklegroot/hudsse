@@ -7,6 +7,8 @@ import SseMachineInfoButton from '@/components/SseMachineInfoButton';
 import { MachineStateViewer } from '@/components/MachineStateViewer';
 import SystemDetailField from '@/components/SystemDetailField';
 import { getDistroFlavor } from '@/utils/distroUtil';
+import { OsTypeControl } from './controls/OsTypeControl';
+import { platformType } from '@/utils/platformUtil';
 
 export function MachinePageControl() {
   const machineState = useMachineStore((state) => state.machineState);
@@ -15,16 +17,14 @@ export function MachinePageControl() {
   // Data items matching hudapp structure, using machineStore data where available
   const infoItems = [
     { label: 'Machine Name', value: machineState?.hostname || '' },
-    { label: 'Platform', value: machineState?.platform || '' },
     { label: 'Local IP Address', value: machineState?.ipAddress || '' },
     { label: 'Machine Model', value: machineState?.systemInfo?.productName || '' },
     { label: 'CPU Model', value: machineState?.systemInfo?.cpuModel || '' },
-    { label: 'Distro Flavor', value: getDistroFlavor(machineState?.systemInfo?.baseDistro, machineState?.systemInfo?.desktopEnvironment) },
+    { label: 'Distro Flavor', value: getDistroFlavor(machineState?.systemInfo?.baseDistro ?? null, machineState?.systemInfo?.desktopEnvironment ?? null) },
     { label: 'Kernel Version', value: machineState?.systemInfo?.kernelVersion || '' },
     { label: 'Motherboard', value: machineState?.systemInfo?.boardName || '' },
   ];
 
-  const osType = '';
   const virtualization = '';
 
   return (
@@ -45,15 +45,7 @@ export function MachinePageControl() {
               <div className="flex-shrink-0 w-80">
                 <div className="bg-gray-50 rounded-lg p-8 text-center space-y-8">
                   {/* OS Type */}
-                  <div className="flex flex-col items-center space-y-4">
-                    <div className="w-20 h-20 bg-gray-300 rounded-lg flex items-center justify-center">
-                      <span className="text-gray-600 text-sm">OS</span>
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-bold text-gray-800 mb-2">OS Type</h3>
-                      <p className="text-2xl font-semibold text-gray-900">{osType || 'Unknown'}</p>
-                    </div>
-                  </div>
+                  <OsTypeControl osType={machineState?.platform as platformType} />
                   
                   {/* Virtualization */}
                   <div className="flex flex-col items-center space-y-4">
