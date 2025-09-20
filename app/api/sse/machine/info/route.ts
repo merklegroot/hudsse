@@ -4,5 +4,6 @@ import { machineChains } from '../machineChains';
 export const GET = sseFactory.createChainedSseCommandsHandler([
   machineChains.hostNameChain,
   machineChains.detectPlatformChain,
-  machineChains.ipAddressChain
+  machineChains.ipAddressChain,
+  machineChains.systemInfoChain
 ]);

@@ -83,6 +83,12 @@ export interface PlatformResult {
     platform: string;
 }
 
+export interface SystemInfoResult {
+    kernelVersion: string | null;
+    productName: string | null;
+    boardName: string | null;
+}
+
 export interface SseMessage {
     type: SseMessageType;
     contents: string;
