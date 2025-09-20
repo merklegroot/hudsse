@@ -87,6 +87,7 @@ export interface SystemInfoResult {
     hostname: string | null;
     ipAddress: string | null;
     kernelVersion: string | null;
+    cpuModel: string | null;
     productName: string | null;
     boardName: string | null;
 }
