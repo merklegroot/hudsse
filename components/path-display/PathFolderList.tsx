@@ -14,7 +14,7 @@ export function PathFolderList({ folders }: PathFolderListProps) {
   }
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-2 pb-2">
       {folders.map((folder, index) => (
         <div 
           key={index}
