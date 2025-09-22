@@ -11,7 +11,8 @@ import SystemDetailField from '@/components/SystemDetailField';
 import { getDistroFlavor } from '@/utils/distroUtil';
 import { OsTypeControl } from './controls/OsTypeControl';
 import { platformType } from '@/utils/platformUtil';
-import { virtualizationUtil } from '@/utils/virtualizationUtil';
+import { virtualizationUtil, VirtualizationType } from '@/utils/virtualizationUtil';
+import VirtualizationIcon from '@/components/VirtualizationIcon';
 
 export function MachinePageControl() {
   const machineState = useMachineStore((state) => state.machineState);
@@ -69,9 +70,10 @@ export function MachinePageControl() {
                   
                   {/* Virtualization */}
                   <div className="flex flex-col items-center space-y-4">
-                    <div className="w-20 h-20 bg-gray-300 rounded-lg flex items-center justify-center">
-                      <span className="text-gray-600 text-sm">VM</span>
-                    </div>
+                    <VirtualizationIcon 
+                      virtualizationType={machineState?.virtualization as VirtualizationType || VirtualizationType.UNKNOWN} 
+                      className="w-20 h-20" 
+                    />
                     <div>
                       <h3 className="text-xl font-bold text-gray-800 mb-2">Virtualization</h3>
                       <p className="text-lg font-semibold text-gray-900 text-center leading-tight">{virtualization || 'Unknown'}</p>
