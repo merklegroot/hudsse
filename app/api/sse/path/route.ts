@@ -3,7 +3,7 @@ import { parsePath } from '@/workflows/parsePath';
 
 export const GET = sseFactory.createSseCommandHandler(
   {
-    commandAndArgs: { command: 'bash', args: ['-c', 'echo $PATH'] },
+    commandAndArgs: { command: 'bash', args: ['-l', '-c', 'echo $PATH'] },
     parser: parsePath,
     onSuccess: 'Path retrieved successfully'
   }
