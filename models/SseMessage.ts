@@ -83,6 +83,10 @@ export interface PlatformResult {
     platform: string;
 }
 
+export interface VirtualizationResult {
+    virtualization: number;
+}
+
 export interface SystemInfoResult {
     hostname: string | null;
     ipAddress: string | null;

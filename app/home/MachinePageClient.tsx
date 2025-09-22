@@ -11,6 +11,7 @@ import SystemDetailField from '@/components/SystemDetailField';
 import { getDistroFlavor } from '@/utils/distroUtil';
 import { OsTypeControl } from './controls/OsTypeControl';
 import { platformType } from '@/utils/platformUtil';
+import { virtualizationUtil } from '@/utils/virtualizationUtil';
 
 export function MachinePageControl() {
   const machineState = useMachineStore((state) => state.machineState);
@@ -42,7 +43,9 @@ export function MachinePageControl() {
     { label: 'Motherboard', value: machineState?.systemInfo?.boardName || '' },
   ];
 
-  const virtualization = '';
+  const virtualization = machineState?.virtualization !== null && machineState?.virtualization !== undefined 
+    ? virtualizationUtil.getVirtualizationFriendlyName(machineState.virtualization as any)
+    : '';
 
   return (
     <div className="h-full flex flex-col">

@@ -33,7 +33,10 @@ Exception: Use `else if` only when it eliminates code duplication.
 
 ## Switch Statements
 Don't use switch statements in TypeScript/JavaScript.
-In other languages that support pattern matching, the pattern matching switch statment can be ok.
+Never use them.
+Stop using them.
+If you use one, I need you to write on the chalkboard 50 times "I will stop using switch statements."
+In other languages that support pattern matching, the pattern matching switch statment can be ok. TypeScript and JavaScipt don't support it.
 
 ## Code Nesting
 Minimize nesting levels to improve readability.

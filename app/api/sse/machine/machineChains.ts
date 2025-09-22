@@ -1,6 +1,7 @@
 import { parseSystemInfo } from '@/workflows/parseSystemInfo';
 import { flexibleSseHandlerProps } from '@/workflows/sseFactory';
 import { platformUtil } from '@/utils/platformUtil';
+import { virtualizationUtil } from '@/utils/virtualizationUtil';
 
 const detectPlatformChain = {
     workflow: async (props: flexibleSseHandlerProps) => {
@@ -22,7 +23,22 @@ const systemInfoChain = {
     onSuccess: 'System information retrieved successfully'
 };
 
+const detectVirtualizationChain = {
+    workflow: async (props: flexibleSseHandlerProps) => {
+        const detectedVirtualization = virtualizationUtil.getVirtualizationFromEnv();
+        const virtualizationResult = { virtualization: detectedVirtualization };
+
+        props.sendMessage({
+            type: 'result',
+            contents: `Virtualization: ${virtualizationUtil.getVirtualizationFriendlyName(detectedVirtualization)}`,
+            result: JSON.stringify(virtualizationResult)
+        });
+    },
+    onSuccess: 'Virtualization detected successfully'
+};
+
 export const machineChains = {
     detectPlatformChain,
-    systemInfoChain
+    systemInfoChain,
+    detectVirtualizationChain
 };
