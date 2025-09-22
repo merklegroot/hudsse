@@ -33,6 +33,7 @@ export default function Navigation() {
             <NavLink href="/home" label="Machine" />
             <NavLink href="/dotnet" label=".NET" />
             <NavLink href="/files" label="Files" />
+            <NavLink href="/path" label="Path" />
           </ul>
         </div>
       </div>

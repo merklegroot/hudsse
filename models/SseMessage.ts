@@ -98,6 +98,11 @@ export interface SystemInfoResult {
     boardName: string | null;
 }
 
+export interface PathResult {
+    path: string;
+    folders: string[];
+}
+
 export interface SseMessage {
     type: SseMessageType;
     contents: string;

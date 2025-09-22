@@ -5,7 +5,8 @@ import { sseClientHandlerFactory } from '../workflows/sseClientHandlerFactory';
 import { useMessageStore } from '../store/messageStore';
 import { useDotNetStore } from '../store/dotnetStore';
 import { useMachineStore } from '../store/machineStore';
-import { SseMessage, ListSdksResult, ListRuntimesResult, WhichDotNetResult, DotNetInfoResult, HostnameResult, PlatformResult, IpAddressResult, SystemInfoResult, VirtualizationResult } from '../models/SseMessage';
+import { usePathStore } from '../store/pathStore';
+import { SseMessage, ListSdksResult, ListRuntimesResult, WhichDotNetResult, DotNetInfoResult, HostnameResult, PlatformResult, IpAddressResult, SystemInfoResult, VirtualizationResult, PathResult } from '../models/SseMessage';
 
 interface SseContextType {
   startSseStream: (createEventSource: () => EventSource) => EventSource;
@@ -29,6 +30,7 @@ export function SseProvider({ children }: SseProviderProps) {
   const setIpAddressResult = useMachineStore((state) => state.setIpAddressResult);
   const setSystemInfoResult = useMachineStore((state) => state.setSystemInfoResult);
   const setVirtualizationResult = useMachineStore((state) => state.setVirtualizationResult);
+  const setPathResult = usePathStore((state) => state.setPathResult);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSseMessage = useCallback((message: SseMessage) => {
@@ -83,11 +85,16 @@ export function SseProvider({ children }: SseProviderProps) {
         if (parsedResult.virtualization !== undefined && typeof parsedResult.virtualization === 'number') {
           setVirtualizationResult(parsedResult as VirtualizationResult);
         }
+        
+        // Handle Path result
+        if (parsedResult.path && Array.isArray(parsedResult.folders)) {
+          setPathResult(parsedResult as PathResult);
+        }
       } catch (error) {
         console.warn('Failed to parse result:', error);
       }
     }
-  }, [addSseMessage, setDotnetSdks, setDotnetRuntimes, setWhichDotNetPath, setDotnetInfo, setHostnameResult, setPlatformResult, setIpAddressResult, setSystemInfoResult, setVirtualizationResult]);
+  }, [addSseMessage, setDotnetSdks, setDotnetRuntimes, setWhichDotNetPath, setDotnetInfo, setHostnameResult, setPlatformResult, setIpAddressResult, setSystemInfoResult, setVirtualizationResult, setPathResult]);
 
   const startSseStream = useCallback((createEventSource: () => EventSource) => {
     if (isLoading) {
