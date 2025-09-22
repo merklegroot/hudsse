@@ -2,19 +2,20 @@
 
 export enum VirtualizationType {
     Invalid = 0,
-    VERCEL = 1,
-    AWS_LAMBDA = 2,
-    AZURE_FUNCTIONS = 3,
-    GOOGLE_CLOUD_PLATFORM = 4,
-    HEROKU = 5,
-    RAILWAY = 6,
-    NETLIFY = 7,
-    RENDER = 8,
-    FLY_IO = 9,
-    DIGITAL_OCEAN = 10,
-    LINODE = 11,
-    VULTR = 12,
-    UNKNOWN = 13
+    PHYSICAL = 1,
+    VERCEL = 2,
+    AWS_LAMBDA = 3,
+    AZURE_FUNCTIONS = 4,
+    GOOGLE_CLOUD_PLATFORM = 5,
+    HEROKU = 6,
+    RAILWAY = 7,
+    NETLIFY = 8,
+    RENDER = 9,
+    FLY_IO = 10,
+    DIGITAL_OCEAN = 11,
+    LINODE = 12,
+    VULTR = 13,
+    UNKNOWN = 100
 }
 
 function getVirtualizationFromEnv(): VirtualizationType {
@@ -59,11 +60,12 @@ function getVirtualizationFromEnv(): VirtualizationType {
         return VirtualizationType.VULTR;
     }
     
-    return VirtualizationType.UNKNOWN;
+    return VirtualizationType.PHYSICAL;
 }
 
 const virtualizationTypeNames: Record<VirtualizationType, string> = {
     [VirtualizationType.Invalid]: 'Invalid',
+    [VirtualizationType.PHYSICAL]: 'Physical Machine',
     [VirtualizationType.VERCEL]: 'Vercel',
     [VirtualizationType.AWS_LAMBDA]: 'AWS Lambda',
     [VirtualizationType.AZURE_FUNCTIONS]: 'Azure Functions',
