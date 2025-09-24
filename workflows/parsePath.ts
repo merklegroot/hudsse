@@ -19,10 +19,16 @@ export function parsePath(output: string): PathResult {
   
   // Deduplicate folders while preserving order (first occurrence wins)
   const trimmedFolders = folders.map(folder => folder.trim());
-  const uniqueFolders = [...new Set(trimmedFolders)];
-  
+  const uniqueFolders: string[] = [];
+  for (const folder of trimmedFolders) {
+    if (!uniqueFolders.includes(folder)) {
+      uniqueFolders.push(folder);
+    }
+  }
+
   // Sort folders alphabetically (case-insensitive for better user experience)
   const sortedFolders = uniqueFolders
+    .slice()
     .sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
   
   return {
