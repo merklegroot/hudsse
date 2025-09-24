@@ -17,6 +17,6 @@ describe('ssePathWorkflow', () => {
         };
         const path = await ssePathWorkflow.executePath(props as flexibleSseHandlerProps);
 
-        console.log(path);
+        expect(path!.parsedData!.folders.length).toBeGreaterThan(0);
     });
 });
