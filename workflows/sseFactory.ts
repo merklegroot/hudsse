@@ -80,7 +80,7 @@ async function executeCommand(
     };
 
     try {
-        const result: SpawnResult = await spawnAndGetDataWorkflow.execute(spawnOptions);
+        const result: SpawnResult = await spawnAndGetDataWorkflow.executeWithFallback(spawnOptions);
 
         if (!result.wasSuccessful) {
             sendErrorMessage(controller, `Error: ${result.stderr}`);
