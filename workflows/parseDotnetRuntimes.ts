@@ -17,7 +17,7 @@ export function parseDotnetRuntimes(output: string): ListRuntimesResult {
     }
     
     // Parse format: "name version [path]"
-    // Example: "Microsoft.AspNetCore.App 7.0.20 [/home/goose/.dotnet/shared/Microsoft.AspNetCore.App]"
+    // Example: "Microsoft.AspNetCore.App 7.0.20 [/home/localuser/.dotnet/shared/Microsoft.AspNetCore.App]"
     const match = trimmedLine.match(/^(.+?)\s+(\S+)\s+\[(.+)\]$/);
     if (match) {
       const name = match[1].trim();

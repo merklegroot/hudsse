@@ -7,8 +7,6 @@ async function execute(options: SpawnOptions): Promise<SpawnResult> {
   const { command, args, timeout = 10000, dataCallback } = options;
   
   return new Promise((resolve) => {
-    // console.log(`Spawning command: ${command} ${args.join(' ')}`);
-    
     const child: ChildProcess = spawn(command, args, {
       stdio: ['pipe', 'pipe', 'pipe'],
       env: {  NODE_ENV: 'development' },

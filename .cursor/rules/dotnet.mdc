@@ -108,7 +108,7 @@ Install Location:
   Location is chosen in following order:
     - --install-dir option
     - Environmental variable DOTNET_INSTALL_DIR
-    - /home/goose/.dotnet
+    - ~/.dotnet
 ```
 
 # Manual Version Downloads

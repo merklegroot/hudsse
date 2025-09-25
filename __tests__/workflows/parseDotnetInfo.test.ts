@@ -221,22 +221,22 @@ global.json file:
   RID:          linux-x64
 
 .NET SDKs installed:
-  8.0.414 [/home/goose/.dotnet/sdk]
-  9.0.304 [/home/goose/.dotnet/sdk]
+  8.0.414 [/home/localuser/.dotnet/sdk]
+  9.0.304 [/home/localuser/.dotnet/sdk]
 
 .NET runtimes installed:
-  Microsoft.AspNetCore.App 7.0.20 [/home/goose/.dotnet/shared/Microsoft.AspNetCore.App]
-  Microsoft.AspNetCore.App 8.0.19 [/home/goose/.dotnet/shared/Microsoft.AspNetCore.App]
-  Microsoft.AspNetCore.App 8.0.20 [/home/goose/.dotnet/shared/Microsoft.AspNetCore.App]
-  Microsoft.NETCore.App 7.0.20 [/home/goose/.dotnet/shared/Microsoft.NETCore.App]
-  Microsoft.NETCore.App 8.0.19 [/home/goose/.dotnet/shared/Microsoft.NETCore.App]
-  Microsoft.NETCore.App 8.0.20 [/home/goose/.dotnet/shared/Microsoft.NETCore.App]
+  Microsoft.AspNetCore.App 7.0.20 [/home/localuser/.dotnet/shared/Microsoft.AspNetCore.App]
+  Microsoft.AspNetCore.App 8.0.19 [/home/localuser/.dotnet/shared/Microsoft.AspNetCore.App]
+  Microsoft.AspNetCore.App 8.0.20 [/home/localuser/.dotnet/shared/Microsoft.AspNetCore.App]
+  Microsoft.NETCore.App 7.0.20 [/home/localuser/.dotnet/shared/Microsoft.NETCore.App]
+  Microsoft.NETCore.App 8.0.19 [/home/localuser/.dotnet/shared/Microsoft.NETCore.App]
+  Microsoft.NETCore.App 8.0.20 [/home/localuser/.dotnet/shared/Microsoft.NETCore.App]
 
 Other architectures found:
   None
 
 Environment variables:
-  DOTNET_ROOT       [/home/goose/.dotnet]
+  DOTNET_ROOT       [/home/localuser/.dotnet]
 
 global.json file:
   Not found
@@ -248,15 +248,15 @@ Download .NET:
   https://aka.ms/dotnet/download
 You must install or update .NET to run this application.
 
-App: /home/goose/.dotnet/sdk/9.0.304/dotnet.dll
+App: /home/localuser/.dotnet/sdk/9.0.304/dotnet.dll
 Architecture: x64
 Framework: 'Microsoft.NETCore.App', version '9.0.8' (x64)
-.NET location: /home/goose/.dotnet/
+.NET location: /home/localuser/.dotnet/
 
 The following frameworks were found:
-  7.0.20 at [/home/goose/.dotnet/shared/Microsoft.NETCore.App]
-  8.0.19 at [/home/goose/.dotnet/shared/Microsoft.NETCore.App]
-  8.0.20 at [/home/goose/.dotnet/shared/Microsoft.NETCore.App]
+  7.0.20 at [/home/localuser/.dotnet/shared/Microsoft.NETCore.App]
+  8.0.19 at [/home/localuser/.dotnet/shared/Microsoft.NETCore.App]
+  8.0.20 at [/home/localuser/.dotnet/shared/Microsoft.NETCore.App]
 
 Learn more:
 https://aka.ms/dotnet/app-launch-failed
@@ -276,11 +276,11 @@ https://aka.ms/dotnet-core-applaunch?framework=Microsoft.NETCore.App&framework_v
     expect(result.installedSdks).toHaveLength(2);
     expect(result.installedSdks[0]).toEqual({
       version: '8.0.414',
-      path: '/home/goose/.dotnet/sdk'
+      path: '/home/localuser/.dotnet/sdk'
     });
     expect(result.installedSdks[1]).toEqual({
       version: '9.0.304',
-      path: '/home/goose/.dotnet/sdk'
+      path: '/home/localuser/.dotnet/sdk'
     });
 
     // Should extract runtimes
@@ -288,12 +288,12 @@ https://aka.ms/dotnet-core-applaunch?framework=Microsoft.NETCore.App&framework_v
     expect(result.installedRuntimes[0]).toEqual({
       name: 'Microsoft.AspNetCore.App',
       version: '7.0.20',
-      path: '/home/goose/.dotnet/shared/Microsoft.AspNetCore.App'
+      path: '/home/localuser/.dotnet/shared/Microsoft.AspNetCore.App'
     });
 
     // Should extract environment variables
     expect(result.environmentVariables).toEqual({
-      'DOTNET_ROOT': '/home/goose/.dotnet'
+      'DOTNET_ROOT': '/home/localuser/.dotnet'
     });
 
     // Should handle global.json file
@@ -306,6 +306,6 @@ https://aka.ms/dotnet-core-applaunch?framework=Microsoft.NETCore.App&framework_v
     expect(result.runtimeEnvironment.rid).toBe('linux-x64');
 
     // Should extract .NET location
-    expect(result.runtimeEnvironment.basePath).toBe('/home/goose/.dotnet/');
+    expect(result.runtimeEnvironment.basePath).toBe('/home/localuser/.dotnet/');
   });
 });
