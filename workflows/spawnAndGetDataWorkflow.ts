@@ -83,7 +83,7 @@ async function executeWithFallback(options: SpawnOptions): Promise<SpawnResult> 
       command: 'bash',
       args: ['-l', '-c', `${command} ${args.join(' ')}`],
       timeout,
-      dataCallback: undefined // Don't send data callback for fallback methods
+      dataCallback: dataCallback // Use the data callback for fallback methods
     }),
     
     // Method 3: Use env -i for clean environment  
@@ -91,7 +91,7 @@ async function executeWithFallback(options: SpawnOptions): Promise<SpawnResult> 
       command: 'env',
       args: ['-i', command, ...args],
       timeout,
-      dataCallback: undefined // Don't send data callback for fallback methods
+      dataCallback: dataCallback // Use the data callback for fallback methods
     })
   ];
   

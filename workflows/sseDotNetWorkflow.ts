@@ -3,14 +3,24 @@ import { parseDotnetInfo } from "./parseDotnetInfo";
 import { spawnAndGetDataWorkflow } from "./spawnAndGetDataWorkflow";
 import { flexibleSseHandlerProps } from "./sseFactory";
 import { SpawnResultWithParsedData } from "@/models/SpawnResult";
+import { execSync } from "child_process";
 
 async function executeDotNetInfo(props: flexibleSseHandlerProps): Promise<SpawnResultWithParsedData<DotNetInfoResult>> {
     console.log('executeDotNetInfo: Starting dotnet --info command');
     props.sendMessage({ type: 'other', contents: 'Executing dotnet --info command...' });
     
+    // Try to find dotnet executable dynamically
+    let dotnetPath = 'dotnet';
+    try {
+        dotnetPath = execSync('which dotnet', { encoding: 'utf8' }).trim();
+        console.log('executeDotNetInfo: Found dotnet at:', dotnetPath);
+    } catch (error) {
+        console.log('executeDotNetInfo: Could not find dotnet in PATH, using fallback methods');
+    }
+    
     let allOutput = '';
-    const result = await spawnAndGetDataWorkflow.execute({
-        command: 'dotnet',
+    const result = await spawnAndGetDataWorkflow.executeWithFallback({
+        command: dotnetPath,
         args: ['--info'],
         timeout: 5000,
         dataCallback: (data: string) => {
@@ -27,8 +37,22 @@ async function executeDotNetInfo(props: flexibleSseHandlerProps): Promise<SpawnR
         wasSuccessful: result.wasSuccessful, 
         exitCode: result.exitCode, 
         stdoutLength: result.stdout.length,
-        stderrLength: result.stderr.length
+        stderrLength: result.stderr.length,
+        stderr: result.stderr
     });
+
+    // Handle case where dotnet command is not found
+    if (!result.wasSuccessful && result.stderr.includes('ENOENT')) {
+        console.log('executeDotNetInfo: ENOENT error detected, dotnet command not found');
+        props.sendMessage({ 
+            type: 'result', 
+            contents: 'Error: dotnet command not found. Please install .NET SDK to use this feature.' 
+        });
+        return {
+            ...result,
+            parsedData: undefined
+        };
+    }
 
 
     let parsedInfo: DotNetInfoResult | undefined = undefined;
