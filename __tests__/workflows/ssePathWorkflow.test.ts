@@ -15,6 +15,7 @@ describe('ssePathWorkflow', () => {
             sendMessage: jest.fn(),
             onError: jest.fn()
         };
+        
         const path = await ssePathWorkflow.executePath(props as flexibleSseHandlerProps);
 
         expect(path!.parsedData!.folders.length).toBeGreaterThan(0);

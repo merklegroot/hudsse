@@ -9,13 +9,12 @@ async function executeDotNetInfo(props: flexibleSseHandlerProps): Promise<SpawnR
     props.sendMessage({ type: 'other', contents: 'Executing dotnet --info command...' });
     
     let allOutput = '';
-    const result = await spawnAndGetDataWorkflow.executeWithFallback({
+    const result = await spawnAndGetDataWorkflow.execute({
         command: 'dotnet',
         args: ['--info'],
         timeout: 5000,
         dataCallback: (data: string) => {
             allOutput += data;
-            // Process the data the same way as createSseCommandHandler
             const lines = data.split('\n').filter(line => line.trim().length > 0);
             
             for (const line of lines) {
