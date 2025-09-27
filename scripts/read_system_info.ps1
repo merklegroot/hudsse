@@ -10,6 +10,6 @@ Write-Host "================================"
 # Get hostname
 Write-Host ""
 Write-Host "Hostname:"
-Write-Host "hostname"
-hostname
+Write-Host "GetHostName()"
+[System.Net.Dns]::GetHostName()
 Write-Host "--------------------------------"

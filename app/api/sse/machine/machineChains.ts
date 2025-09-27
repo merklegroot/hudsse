@@ -18,7 +18,7 @@ const detectPlatformChain: flexibleChainProp = {
     onSuccess: 'Platform detected successfully'
 };
 
-const platform = platformUtil.detectPlatform();
+const currentPlatform = platformUtil.detectPlatform();
 
 const systemInfoChainLinux: commandArgsChainProp = {
     commandAndArgs: { command: './scripts/read_system_info.sh', args: [] },
@@ -27,12 +27,12 @@ const systemInfoChainLinux: commandArgsChainProp = {
 };
 
 const systemInfoChainWindows: commandArgsChainProp = {
-    commandAndArgs: { command: './scripts/read_system_info.ps1', args: [] },
+    commandAndArgs: { command: 'powershell.exe', args: ['-ExecutionPolicy', 'Bypass', '-File', './scripts/read_system_info.ps1'] },
     parser: parseSystemInfo,
     onSuccess: 'System information retrieved successfully'
 };
 
-const systemInfoChain = platform === platformType.windows 
+const systemInfoChain = currentPlatform === platformType.windows 
     ? systemInfoChainWindows 
     : systemInfoChainLinux;
 
