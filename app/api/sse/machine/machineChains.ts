@@ -4,6 +4,7 @@ import { platformType, platformUtil } from '@/utils/platformUtil';
 import { virtualizationUtil } from '@/utils/virtualizationUtil';
 import { platform } from 'os';
 import { parseHostname } from '@/workflows/parseHostname';
+import { parseIpAddress } from '@/workflows/parseIpAddress';
 
 const detectPlatformChain: flexibleChainProp = {
     workflow: async (props: flexibleSseHandlerProps) => {
@@ -36,6 +37,22 @@ const hostNameChainWindows: commandArgsChainProp = {
 const hostnameChain = currentPlatform === platformType.windows 
     ? hostNameChainWindows 
     : hostnameChainLinux;
+
+const ipAddressChainLinux: commandArgsChainProp = {
+    commandAndArgs: { command: 'hostname', args: ['-I'] },
+    parser: parseIpAddress,
+    onSuccess: 'IP address retrieved successfully'
+};
+
+const ipAddressChainWindows: commandArgsChainProp = {
+    commandAndArgs: { command: 'powershell.exe', args: ['-ExecutionPolicy', 'Bypass', '-Command', '(Get-NetIPAddress -AddressFamily IPv4 | Where-Object {$_.IPAddress -ne "127.0.0.1"} | Select-Object -First 1).IPAddress'] },
+    parser: parseIpAddress,
+    onSuccess: 'IP address retrieved successfully'
+};
+
+const ipAddressChain = currentPlatform === platformType.windows 
+    ? ipAddressChainWindows 
+    : ipAddressChainLinux;
 
 const systemInfoChainLinux: commandArgsChainProp = {
     commandAndArgs: { command: './scripts/read_system_info.sh', args: [] },
@@ -70,6 +87,7 @@ const detectVirtualizationChain: flexibleChainProp = {
 export const machineChains = {
     detectPlatformChain,
     hostnameChain,
+    ipAddressChain,
     systemInfoChain,
     detectVirtualizationChain
 };

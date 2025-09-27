@@ -9,12 +9,12 @@
 echo "Reading system information..."
 echo "================================"
 
-# Get IP address (primary IPv4 only)
-echo ""
-echo "IP Address:"
-echo "hostname -I | awk '{print \$1}'"
-hostname -I | awk '{print $1}'
-echo "--------------------------------"
+# # Get IP address (primary IPv4 only)
+# echo ""
+# echo "IP Address:"
+# echo "hostname -I | awk '{print \$1}'"
+# hostname -I | awk '{print $1}'
+# echo "--------------------------------"
 
 # Function to safely read a file
 read_file_safely() {
