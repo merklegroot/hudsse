@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useMachineStore } from '@/store/machineStore';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useSse } from '@/contexts/SseContext';
@@ -18,9 +18,15 @@ export function MachinePageControl() {
   const machineState = useMachineStore((state) => state.machineState);
   const isMobile = useIsMobile();
   const { startSseStream, isLoading } = useSse();
+  const [ isFirst, setIsFirst ] = useState<boolean>(true);
 
   // Automatically fetch machine info when the page loads if it hasn't been fetched yet
   useEffect(() => {
+    if (!isFirst)
+      return;
+
+    setIsFirst(false);
+
     // Check if we haven't tried detecting system info yet
     const hasTriedDetectingSystemInfo = machineState?.hasTriedDetectingSystemInfo ?? false;
     
