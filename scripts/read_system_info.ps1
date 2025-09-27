@@ -7,9 +7,9 @@
 Write-Host "Reading system information..."
 Write-Host "================================"
 
-# Get hostname
-Write-Host ""
-Write-Host "Hostname:"
-Write-Host "GetHostName()"
-[System.Net.Dns]::GetHostName()
-Write-Host "--------------------------------"
+# # Get hostname
+# Write-Host ""
+# Write-Host "Hostname:"
+# Write-Host "GetHostName()"
+# [System.Net.Dns]::GetHostName()
+# Write-Host "--------------------------------"

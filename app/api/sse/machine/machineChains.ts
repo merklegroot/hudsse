@@ -3,6 +3,7 @@ import { flexibleSseHandlerProps, flexibleChainProp, commandArgsChainProp } from
 import { platformType, platformUtil } from '@/utils/platformUtil';
 import { virtualizationUtil } from '@/utils/virtualizationUtil';
 import { platform } from 'os';
+import { parseHostname } from '@/workflows/parseHostname';
 
 const detectPlatformChain: flexibleChainProp = {
     workflow: async (props: flexibleSseHandlerProps) => {
@@ -19,6 +20,22 @@ const detectPlatformChain: flexibleChainProp = {
 };
 
 const currentPlatform = platformUtil.detectPlatform();
+
+const hostnameChainLinux: commandArgsChainProp = {
+    commandAndArgs: { command: 'hostname', args: [] },
+    parser: parseHostname,
+    onSuccess: 'Hostname retrieved successfully'
+};
+
+const hostNameChainWindows: commandArgsChainProp = {
+    commandAndArgs: { command: 'powershell.exe', args: ['-ExecutionPolicy', 'Bypass', '-Command', '[System.Net.Dns]::GetHostName()'] },
+    parser: parseHostname,
+    onSuccess: 'Hostname retrieved successfully'
+};
+
+const hostnameChain = currentPlatform === platformType.windows 
+    ? hostNameChainWindows 
+    : hostnameChainLinux;
 
 const systemInfoChainLinux: commandArgsChainProp = {
     commandAndArgs: { command: './scripts/read_system_info.sh', args: [] },
@@ -50,12 +67,9 @@ const detectVirtualizationChain: flexibleChainProp = {
     onSuccess: 'Virtualization detected successfully'
 };
 
-export const machineChains: {
-    detectPlatformChain: flexibleChainProp;
-    systemInfoChain: commandArgsChainProp;
-    detectVirtualizationChain: flexibleChainProp;
-} = {
+export const machineChains = {
     detectPlatformChain,
+    hostnameChain,
     systemInfoChain,
     detectVirtualizationChain
 };

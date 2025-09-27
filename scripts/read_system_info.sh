@@ -9,13 +9,6 @@
 echo "Reading system information..."
 echo "================================"
 
-# Get hostname
-echo ""
-echo "Hostname:"
-echo "hostname"
-hostname
-echo "--------------------------------"
-
 # Get IP address (primary IPv4 only)
 echo ""
 echo "IP Address:"
