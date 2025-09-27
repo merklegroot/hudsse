@@ -1,7 +1,8 @@
 import { parseSystemInfo } from '@/workflows/parseSystemInfo';
 import { flexibleSseHandlerProps, flexibleChainProp, commandArgsChainProp } from '@/workflows/sseFactory';
-import { platformUtil } from '@/utils/platformUtil';
+import { platformType, platformUtil } from '@/utils/platformUtil';
 import { virtualizationUtil } from '@/utils/virtualizationUtil';
+import { platform } from 'os';
 
 const detectPlatformChain: flexibleChainProp = {
     workflow: async (props: flexibleSseHandlerProps) => {
@@ -17,11 +18,23 @@ const detectPlatformChain: flexibleChainProp = {
     onSuccess: 'Platform detected successfully'
 };
 
-const systemInfoChain: commandArgsChainProp = {
+const platform = platformUtil.detectPlatform();
+
+const systemInfoChainLinux: commandArgsChainProp = {
     commandAndArgs: { command: './scripts/read_system_info.sh', args: [] },
     parser: parseSystemInfo,
     onSuccess: 'System information retrieved successfully'
 };
+
+const systemInfoChainWindows: commandArgsChainProp = {
+    commandAndArgs: { command: './scripts/read_system_info.ps1', args: [] },
+    parser: parseSystemInfo,
+    onSuccess: 'System information retrieved successfully'
+};
+
+const systemInfoChain = platform === platformType.windows 
+    ? systemInfoChainWindows 
+    : systemInfoChainLinux;
 
 const detectVirtualizationChain: flexibleChainProp = {
     workflow: async (props: flexibleSseHandlerProps) => {
