@@ -6,7 +6,7 @@ import { useMessageStore } from '../store/messageStore';
 import { useDotNetStore } from '../store/dotnetStore';
 import { useMachineStore } from '../store/machineStore';
 import { usePathStore } from '../store/pathStore';
-import { SseMessage, ListSdksResult, ListRuntimesResult, WhichDotNetResult, DotNetInfoResult, HostnameResult, PlatformResult, IpAddressResult, KernelVersionResult, CpuModelResult, SystemInfoResult, VirtualizationResult, PathResult } from '../models/SseMessage';
+import { SseMessage, ListSdksResult, ListRuntimesResult, WhichDotNetResult, DotNetInfoResult, HostnameResult, PlatformResult, IpAddressResult, KernelVersionResult, CpuModelResult, DistroFlavorResult, SystemInfoResult, VirtualizationResult, PathResult } from '../models/SseMessage';
 
 interface SseContextType {
   startSseStream: (createEventSource: () => EventSource) => EventSource;
@@ -30,6 +30,7 @@ export function SseProvider({ children }: SseProviderProps) {
   const setIpAddressResult = useMachineStore((state) => state.setIpAddressResult);
   const setKernelVersionResult = useMachineStore((state) => state.setKernelVersionResult);
   const setCpuModelResult = useMachineStore((state) => state.setCpuModelResult);
+  const setDistroFlavorResult = useMachineStore((state) => state.setDistroFlavorResult);
   const setSystemInfoResult = useMachineStore((state) => state.setSystemInfoResult);
   const setVirtualizationResult = useMachineStore((state) => state.setVirtualizationResult);
   const setPathResult = usePathStore((state) => state.setPathResult);
@@ -86,6 +87,11 @@ export function SseProvider({ children }: SseProviderProps) {
         // Handle CPU Model result
         if (parsedResult.cpuModel && typeof parsedResult.cpuModel === 'string') {
           setCpuModelResult(parsedResult as CpuModelResult);
+        }
+        
+        // Handle Distro Flavor result
+        if (parsedResult.distroFlavor && typeof parsedResult.distroFlavor === 'string') {
+          setDistroFlavorResult(parsedResult as DistroFlavorResult);
         }
         
         // Handle System Info result

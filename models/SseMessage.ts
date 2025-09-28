@@ -87,6 +87,10 @@ export interface CpuModelResult {
     cpuModel: string;
 }
 
+export interface DistroFlavorResult {
+    distroFlavor: string;
+}
+
 export interface PlatformResult {
     platform: string;
 }

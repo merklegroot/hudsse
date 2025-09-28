@@ -7,6 +7,7 @@ import { parseHostname } from '@/workflows/parseHostname';
 import { parseIpAddress } from '@/workflows/parseIpAddress';
 import { parseKernelVersion } from '@/workflows/parseKernelVersion';
 import { parseCpuModel } from '@/workflows/parseCpuModel';
+import { parseDistroFlavor } from '@/workflows/parseDistroFlavor';
 
 const detectPlatformChain: flexibleChainProp = {
     workflow: async (props: flexibleSseHandlerProps) => {
@@ -88,6 +89,22 @@ const cpuModelChain = currentPlatform === platformType.windows
     ? cpuModelChainWindows 
     : cpuModelChainLinux;
 
+const distroFlavorChainLinux: commandArgsChainProp = {
+    commandAndArgs: { command: './scripts/detect_distro_flavor.sh', args: [] },
+    parser: parseDistroFlavor,
+    onSuccess: 'Distro flavor retrieved successfully'
+};
+
+const distroFlavorChainWindows: commandArgsChainProp = {
+    commandAndArgs: { command: 'powershell.exe', args: ['-ExecutionPolicy', 'Bypass', '-File', './scripts/detect_distro_flavor.ps1'] },
+    parser: parseDistroFlavor,
+    onSuccess: 'Distro flavor retrieved successfully'
+};
+
+const distroFlavorChain = currentPlatform === platformType.windows 
+    ? distroFlavorChainWindows 
+    : distroFlavorChainLinux;
+
 const systemInfoChainLinux: commandArgsChainProp = {
     commandAndArgs: { command: './scripts/read_system_info.sh', args: [] },
     parser: parseSystemInfo,
@@ -124,6 +141,7 @@ export const machineChains = {
     ipAddressChain,
     kernelVersionChain,
     cpuModelChain,
+    distroFlavorChain,
     systemInfoChain,
     detectVirtualizationChain
 };
