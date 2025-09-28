@@ -99,6 +99,12 @@ export interface VirtualizationResult {
     virtualization: number;
 }
 
+export interface MachineModelResult {
+    productName: string | null;
+    boardName: string | null;
+    manufacturer: string | null;
+}
+
 export interface SystemInfoResult {
     hostname: string | null;
     ipAddress: string | null;

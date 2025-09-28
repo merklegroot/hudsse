@@ -8,6 +8,7 @@ import { parseIpAddress } from '@/workflows/parseIpAddress';
 import { parseKernelVersion } from '@/workflows/parseKernelVersion';
 import { parseCpuModel } from '@/workflows/parseCpuModel';
 import { parseDistroFlavor } from '@/workflows/parseDistroFlavor';
+import { parseMachineModel } from '@/workflows/parseMachineModel';
 
 const detectPlatformChain: flexibleChainProp = {
     workflow: async (props: flexibleSseHandlerProps) => {
@@ -135,6 +136,22 @@ const detectVirtualizationChain: flexibleChainProp = {
     onSuccess: 'Virtualization detected successfully'
 };
 
+const machineModelChainLinux: commandArgsChainProp = {
+    commandAndArgs: { command: './scripts/detect_machine_model.sh', args: [] },
+    parser: parseMachineModel,
+    onSuccess: 'Machine model retrieved successfully'
+};
+
+const machineModelChainWindows: commandArgsChainProp = {
+    commandAndArgs: { command: 'powershell.exe', args: ['-ExecutionPolicy', 'Bypass', '-File', './scripts/detect_machine_model.ps1'] },
+    parser: parseMachineModel,
+    onSuccess: 'Machine model retrieved successfully'
+};
+
+const machineModelChain = currentPlatform === platformType.windows 
+    ? machineModelChainWindows 
+    : machineModelChainLinux;
+
 export const machineChains = {
     detectPlatformChain,
     hostnameChain,
@@ -143,5 +160,6 @@ export const machineChains = {
     cpuModelChain,
     distroFlavorChain,
     systemInfoChain,
-    detectVirtualizationChain
+    detectVirtualizationChain,
+    machineModelChain
 };
