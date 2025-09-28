@@ -6,6 +6,7 @@ export const GET = sseFactory.createChainedSseCommandsHandler([
   machineChains.hostnameChain,
   machineChains.ipAddressChain,
   machineChains.kernelVersionChain,
+  machineChains.cpuModelChain,
   machineChains.systemInfoChain,
   machineChains.detectVirtualizationChain
 ]);

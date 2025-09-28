@@ -6,6 +6,7 @@ import { platform } from 'os';
 import { parseHostname } from '@/workflows/parseHostname';
 import { parseIpAddress } from '@/workflows/parseIpAddress';
 import { parseKernelVersion } from '@/workflows/parseKernelVersion';
+import { parseCpuModel } from '@/workflows/parseCpuModel';
 
 const detectPlatformChain: flexibleChainProp = {
     workflow: async (props: flexibleSseHandlerProps) => {
@@ -71,6 +72,22 @@ const kernelVersionChain = currentPlatform === platformType.windows
     ? kernelVersionChainWindows 
     : kernelVersionChainLinux;
 
+const cpuModelChainLinux: commandArgsChainProp = {
+    commandAndArgs: { command: 'sh', args: ['-c', "lscpu | grep 'Model name' | cut -d':' -f2 | xargs"] },
+    parser: parseCpuModel,
+    onSuccess: 'CPU model retrieved successfully'
+};
+
+const cpuModelChainWindows: commandArgsChainProp = {
+    commandAndArgs: { command: 'powershell.exe', args: ['-ExecutionPolicy', 'Bypass', '-Command', 'Get-WmiObject -Class Win32_Processor | Select-Object -ExpandProperty Name'] },
+    parser: parseCpuModel,
+    onSuccess: 'CPU model retrieved successfully'
+};
+
+const cpuModelChain = currentPlatform === platformType.windows 
+    ? cpuModelChainWindows 
+    : cpuModelChainLinux;
+
 const systemInfoChainLinux: commandArgsChainProp = {
     commandAndArgs: { command: './scripts/read_system_info.sh', args: [] },
     parser: parseSystemInfo,
@@ -106,6 +123,7 @@ export const machineChains = {
     hostnameChain,
     ipAddressChain,
     kernelVersionChain,
+    cpuModelChain,
     systemInfoChain,
     detectVirtualizationChain
 };

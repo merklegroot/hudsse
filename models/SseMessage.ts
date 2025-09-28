@@ -83,6 +83,10 @@ export interface KernelVersionResult {
     kernelVersion: string;
 }
 
+export interface CpuModelResult {
+    cpuModel: string;
+}
+
 export interface PlatformResult {
     platform: string;
 }

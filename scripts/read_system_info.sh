@@ -37,13 +37,6 @@ read_file_safely() {
     echo "--------------------------------"
 }
 
-# # Get kernel version (human readable)
-# echo ""
-# echo "Kernel Version:"
-# echo "uname -r"
-# uname -r
-# echo "--------------------------------"
-
 # Get CPU model
 echo ""
 echo "CPU Model:"

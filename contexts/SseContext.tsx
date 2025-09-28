@@ -6,7 +6,7 @@ import { useMessageStore } from '../store/messageStore';
 import { useDotNetStore } from '../store/dotnetStore';
 import { useMachineStore } from '../store/machineStore';
 import { usePathStore } from '../store/pathStore';
-import { SseMessage, ListSdksResult, ListRuntimesResult, WhichDotNetResult, DotNetInfoResult, HostnameResult, PlatformResult, IpAddressResult, KernelVersionResult, SystemInfoResult, VirtualizationResult, PathResult } from '../models/SseMessage';
+import { SseMessage, ListSdksResult, ListRuntimesResult, WhichDotNetResult, DotNetInfoResult, HostnameResult, PlatformResult, IpAddressResult, KernelVersionResult, CpuModelResult, SystemInfoResult, VirtualizationResult, PathResult } from '../models/SseMessage';
 
 interface SseContextType {
   startSseStream: (createEventSource: () => EventSource) => EventSource;
@@ -29,6 +29,7 @@ export function SseProvider({ children }: SseProviderProps) {
   const setPlatformResult = useMachineStore((state) => state.setPlatformResult);
   const setIpAddressResult = useMachineStore((state) => state.setIpAddressResult);
   const setKernelVersionResult = useMachineStore((state) => state.setKernelVersionResult);
+  const setCpuModelResult = useMachineStore((state) => state.setCpuModelResult);
   const setSystemInfoResult = useMachineStore((state) => state.setSystemInfoResult);
   const setVirtualizationResult = useMachineStore((state) => state.setVirtualizationResult);
   const setPathResult = usePathStore((state) => state.setPathResult);
@@ -80,6 +81,11 @@ export function SseProvider({ children }: SseProviderProps) {
         // Handle Kernel Version result
         if (parsedResult.kernelVersion && typeof parsedResult.kernelVersion === 'string') {
           setKernelVersionResult(parsedResult as KernelVersionResult);
+        }
+        
+        // Handle CPU Model result
+        if (parsedResult.cpuModel && typeof parsedResult.cpuModel === 'string') {
+          setCpuModelResult(parsedResult as CpuModelResult);
         }
         
         // Handle System Info result
