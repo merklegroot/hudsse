@@ -1,15 +1,17 @@
 import { create } from 'zustand';
-import { HostnameResult, PlatformResult, IpAddressResult, SystemInfoResult, VirtualizationResult } from '../models/SseMessage';
+import { HostnameResult, PlatformResult, IpAddressResult, KernelVersionResult, SystemInfoResult, VirtualizationResult } from '../models/SseMessage';
 
 interface MachineState {
   hostname: string | null;
   platform: string | null;
   ipAddress: string | null;
+  kernelVersion: string | null;
   systemInfo: SystemInfoResult | null;
   virtualization: number | null;
   hasTriedDetectingHostname: boolean;
   hasTriedDetectingPlatform: boolean;
   hasTriedDetectingIpAddress: boolean;
+  hasTriedDetectingKernelVersion: boolean;
   hasTriedDetectingSystemInfo: boolean;
   hasTriedDetectingVirtualization: boolean;
 }
@@ -20,17 +22,20 @@ interface MachineStore {
   setHostname: (hostname: string | null) => void;
   setPlatform: (platform: string | null) => void;
   setIpAddress: (ipAddress: string | null) => void;
+  setKernelVersion: (kernelVersion: string | null) => void;
   setSystemInfo: (systemInfo: SystemInfoResult | null) => void;
   setVirtualization: (virtualization: number | null) => void;
   setHostnameResult: (result: HostnameResult | null) => void;
   setPlatformResult: (result: PlatformResult | null) => void;
   setIpAddressResult: (result: IpAddressResult | null) => void;
+  setKernelVersionResult: (result: KernelVersionResult | null) => void;
   setSystemInfoResult: (result: SystemInfoResult | null) => void;
   setVirtualizationResult: (result: VirtualizationResult | null) => void;
   setMachineState: (state: MachineState | null) => void;
   setHasTriedDetectingHostname: (hasTried: boolean) => void;
   setHasTriedDetectingPlatform: (hasTried: boolean) => void;
   setHasTriedDetectingIpAddress: (hasTried: boolean) => void;
+  setHasTriedDetectingKernelVersion: (hasTried: boolean) => void;
   setHasTriedDetectingSystemInfo: (hasTried: boolean) => void;
   setHasTriedDetectingVirtualization: (hasTried: boolean) => void;
 }
@@ -57,6 +62,13 @@ const setIpAddressToState = (ipAddress: string | null) => (state: MachineStore) 
   machineState: state.machineState ? {
     ...state.machineState,
     ipAddress: ipAddress
+  } : null
+});
+
+const setKernelVersionToState = (kernelVersion: string | null) => (state: MachineStore) => ({
+  machineState: state.machineState ? {
+    ...state.machineState,
+    kernelVersion: kernelVersion
   } : null
 });
 
@@ -109,11 +121,30 @@ const setIpAddressResultToState = (result: IpAddressResult | null) => (state: Ma
     hostname: state.machineState?.hostname || null,
     platform: state.machineState?.platform || null,
     ipAddress: result.ipAddress,
+    kernelVersion: state.machineState?.kernelVersion || null,
     systemInfo: state.machineState?.systemInfo || null,
     virtualization: state.machineState?.virtualization || null,
     hasTriedDetectingHostname: state.machineState?.hasTriedDetectingHostname || false,
     hasTriedDetectingPlatform: state.machineState?.hasTriedDetectingPlatform || false,
     hasTriedDetectingIpAddress: true,
+    hasTriedDetectingKernelVersion: state.machineState?.hasTriedDetectingKernelVersion || false,
+    hasTriedDetectingSystemInfo: state.machineState?.hasTriedDetectingSystemInfo || false,
+    hasTriedDetectingVirtualization: state.machineState?.hasTriedDetectingVirtualization || false
+  } : state.machineState
+});
+
+const setKernelVersionResultToState = (result: KernelVersionResult | null) => (state: MachineStore) => ({
+  machineState: result ? {
+    hostname: state.machineState?.hostname || null,
+    platform: state.machineState?.platform || null,
+    ipAddress: state.machineState?.ipAddress || null,
+    kernelVersion: result.kernelVersion,
+    systemInfo: state.machineState?.systemInfo || null,
+    virtualization: state.machineState?.virtualization || null,
+    hasTriedDetectingHostname: state.machineState?.hasTriedDetectingHostname || false,
+    hasTriedDetectingPlatform: state.machineState?.hasTriedDetectingPlatform || false,
+    hasTriedDetectingIpAddress: state.machineState?.hasTriedDetectingIpAddress || false,
+    hasTriedDetectingKernelVersion: true,
     hasTriedDetectingSystemInfo: state.machineState?.hasTriedDetectingSystemInfo || false,
     hasTriedDetectingVirtualization: state.machineState?.hasTriedDetectingVirtualization || false
   } : state.machineState
@@ -124,11 +155,13 @@ const setSystemInfoResultToState = (result: SystemInfoResult | null) => (state: 
     hostname: state.machineState?.hostname || null,
     platform: state.machineState?.platform || null,
     ipAddress: state.machineState?.ipAddress || null,
+    kernelVersion: state.machineState?.kernelVersion || null,
     systemInfo: result,
     virtualization: state.machineState?.virtualization || null,
     hasTriedDetectingHostname: state.machineState?.hasTriedDetectingHostname || false,
     hasTriedDetectingPlatform: state.machineState?.hasTriedDetectingPlatform || false,
     hasTriedDetectingIpAddress: state.machineState?.hasTriedDetectingIpAddress || false,
+    hasTriedDetectingKernelVersion: state.machineState?.hasTriedDetectingKernelVersion || false,
     hasTriedDetectingSystemInfo: true,
     hasTriedDetectingVirtualization: state.machineState?.hasTriedDetectingVirtualization || false
   } : state.machineState
@@ -139,11 +172,13 @@ const setVirtualizationResultToState = (result: VirtualizationResult | null) => 
     hostname: state.machineState?.hostname || null,
     platform: state.machineState?.platform || null,
     ipAddress: state.machineState?.ipAddress || null,
+    kernelVersion: state.machineState?.kernelVersion || null,
     systemInfo: state.machineState?.systemInfo || null,
     virtualization: result.virtualization,
     hasTriedDetectingHostname: state.machineState?.hasTriedDetectingHostname || false,
     hasTriedDetectingPlatform: state.machineState?.hasTriedDetectingPlatform || false,
     hasTriedDetectingIpAddress: state.machineState?.hasTriedDetectingIpAddress || false,
+    hasTriedDetectingKernelVersion: state.machineState?.hasTriedDetectingKernelVersion || false,
     hasTriedDetectingSystemInfo: state.machineState?.hasTriedDetectingSystemInfo || false,
     hasTriedDetectingVirtualization: true
   } : state.machineState
@@ -174,6 +209,13 @@ const setHasTriedDetectingIpAddressToState = (hasTried: boolean) => (state: Mach
   } : null
 });
 
+const setHasTriedDetectingKernelVersionToState = (hasTried: boolean) => (state: MachineStore) => ({
+  machineState: state.machineState ? {
+    ...state.machineState,
+    hasTriedDetectingKernelVersion: hasTried
+  } : null
+});
+
 const setHasTriedDetectingSystemInfoToState = (hasTried: boolean) => (state: MachineStore) => ({
   machineState: state.machineState ? {
     ...state.machineState,
@@ -192,17 +234,20 @@ const createMachineActions = (set: (fn: (state: MachineStore) => Partial<Machine
   setHostname: (hostname: string | null) => set((state) => setHostnameToState(hostname)(state)),
   setPlatform: (platform: string | null) => set((state) => setPlatformToState(platform)(state)),
   setIpAddress: (ipAddress: string | null) => set((state) => setIpAddressToState(ipAddress)(state)),
+  setKernelVersion: (kernelVersion: string | null) => set((state) => setKernelVersionToState(kernelVersion)(state)),
   setSystemInfo: (systemInfo: SystemInfoResult | null) => set((state) => setSystemInfoToState(systemInfo)(state)),
   setVirtualization: (virtualization: number | null) => set((state) => setVirtualizationToState(virtualization)(state)),
   setHostnameResult: (result: HostnameResult | null) => set((state) => setHostnameResultToState(result)(state)),
   setPlatformResult: (result: PlatformResult | null) => set((state) => setPlatformResultToState(result)(state)),
   setIpAddressResult: (result: IpAddressResult | null) => set((state) => setIpAddressResultToState(result)(state)),
+  setKernelVersionResult: (result: KernelVersionResult | null) => set((state) => setKernelVersionResultToState(result)(state)),
   setSystemInfoResult: (result: SystemInfoResult | null) => set((state) => setSystemInfoResultToState(result)(state)),
   setVirtualizationResult: (result: VirtualizationResult | null) => set((state) => setVirtualizationResultToState(result)(state)),
   setMachineState: (state: MachineState | null) => set(() => setMachineStateToState(state)),
   setHasTriedDetectingHostname: (hasTried: boolean) => set((state) => setHasTriedDetectingHostnameToState(hasTried)(state)),
   setHasTriedDetectingPlatform: (hasTried: boolean) => set((state) => setHasTriedDetectingPlatformToState(hasTried)(state)),
   setHasTriedDetectingIpAddress: (hasTried: boolean) => set((state) => setHasTriedDetectingIpAddressToState(hasTried)(state)),
+  setHasTriedDetectingKernelVersion: (hasTried: boolean) => set((state) => setHasTriedDetectingKernelVersionToState(hasTried)(state)),
   setHasTriedDetectingSystemInfo: (hasTried: boolean) => set((state) => setHasTriedDetectingSystemInfoToState(hasTried)(state)),
   setHasTriedDetectingVirtualization: (hasTried: boolean) => set((state) => setHasTriedDetectingVirtualizationToState(hasTried)(state))
 });

@@ -79,6 +79,10 @@ export interface IpAddressResult {
     ipAddress: string;
 }
 
+export interface KernelVersionResult {
+    kernelVersion: string;
+}
+
 export interface PlatformResult {
     platform: string;
 }

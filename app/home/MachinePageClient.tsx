@@ -46,7 +46,7 @@ export function MachinePageControl() {
     { label: 'Machine Model', value: machineState?.systemInfo?.productName || '' },
     { label: 'CPU Model', value: machineState?.systemInfo?.cpuModel || '' },
     { label: 'Distro Flavor', value: getDistroFlavor(machineState?.systemInfo?.baseDistro ?? null, machineState?.systemInfo?.desktopEnvironment ?? null) },
-    { label: 'Kernel Version', value: machineState?.systemInfo?.kernelVersion || '' },
+    { label: 'Kernel Version', value: machineState?.kernelVersion || '' },
     { label: 'Motherboard', value: machineState?.systemInfo?.boardName || '' },
   ];
 

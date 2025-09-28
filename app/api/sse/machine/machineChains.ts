@@ -5,6 +5,7 @@ import { virtualizationUtil } from '@/utils/virtualizationUtil';
 import { platform } from 'os';
 import { parseHostname } from '@/workflows/parseHostname';
 import { parseIpAddress } from '@/workflows/parseIpAddress';
+import { parseKernelVersion } from '@/workflows/parseKernelVersion';
 
 const detectPlatformChain: flexibleChainProp = {
     workflow: async (props: flexibleSseHandlerProps) => {
@@ -54,6 +55,22 @@ const ipAddressChain = currentPlatform === platformType.windows
     ? ipAddressChainWindows 
     : ipAddressChainLinux;
 
+const kernelVersionChainLinux: commandArgsChainProp = {
+    commandAndArgs: { command: 'uname', args: ['-r'] },
+    parser: parseKernelVersion,
+    onSuccess: 'Kernel version retrieved successfully'
+};
+
+const kernelVersionChainWindows: commandArgsChainProp = {
+    commandAndArgs: { command: 'powershell.exe', args: ['-ExecutionPolicy', 'Bypass', '-Command', '[System.Environment]::OSVersion.VersionString'] },
+    parser: parseKernelVersion,
+    onSuccess: 'Kernel version retrieved successfully'
+};
+
+const kernelVersionChain = currentPlatform === platformType.windows 
+    ? kernelVersionChainWindows 
+    : kernelVersionChainLinux;
+
 const systemInfoChainLinux: commandArgsChainProp = {
     commandAndArgs: { command: './scripts/read_system_info.sh', args: [] },
     parser: parseSystemInfo,
@@ -88,6 +105,7 @@ export const machineChains = {
     detectPlatformChain,
     hostnameChain,
     ipAddressChain,
+    kernelVersionChain,
     systemInfoChain,
     detectVirtualizationChain
 };

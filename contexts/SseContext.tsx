@@ -6,7 +6,7 @@ import { useMessageStore } from '../store/messageStore';
 import { useDotNetStore } from '../store/dotnetStore';
 import { useMachineStore } from '../store/machineStore';
 import { usePathStore } from '../store/pathStore';
-import { SseMessage, ListSdksResult, ListRuntimesResult, WhichDotNetResult, DotNetInfoResult, HostnameResult, PlatformResult, IpAddressResult, SystemInfoResult, VirtualizationResult, PathResult } from '../models/SseMessage';
+import { SseMessage, ListSdksResult, ListRuntimesResult, WhichDotNetResult, DotNetInfoResult, HostnameResult, PlatformResult, IpAddressResult, KernelVersionResult, SystemInfoResult, VirtualizationResult, PathResult } from '../models/SseMessage';
 
 interface SseContextType {
   startSseStream: (createEventSource: () => EventSource) => EventSource;
@@ -28,6 +28,7 @@ export function SseProvider({ children }: SseProviderProps) {
   const setHostnameResult = useMachineStore((state) => state.setHostnameResult);
   const setPlatformResult = useMachineStore((state) => state.setPlatformResult);
   const setIpAddressResult = useMachineStore((state) => state.setIpAddressResult);
+  const setKernelVersionResult = useMachineStore((state) => state.setKernelVersionResult);
   const setSystemInfoResult = useMachineStore((state) => state.setSystemInfoResult);
   const setVirtualizationResult = useMachineStore((state) => state.setVirtualizationResult);
   const setPathResult = usePathStore((state) => state.setPathResult);
@@ -76,8 +77,13 @@ export function SseProvider({ children }: SseProviderProps) {
           setIpAddressResult(parsedResult as IpAddressResult);
         }
         
+        // Handle Kernel Version result
+        if (parsedResult.kernelVersion && typeof parsedResult.kernelVersion === 'string') {
+          setKernelVersionResult(parsedResult as KernelVersionResult);
+        }
+        
         // Handle System Info result
-        if (parsedResult.kernelVersion !== undefined || parsedResult.productName !== undefined || parsedResult.boardName !== undefined) {
+        if (parsedResult.productName !== undefined || parsedResult.boardName !== undefined) {
           setSystemInfoResult(parsedResult as SystemInfoResult);
         }
         
