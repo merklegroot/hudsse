@@ -10,6 +10,7 @@ import { parseCpuModel } from '@/workflows/parseCpuModel';
 import { parseDistroFlavor } from '@/workflows/parseDistroFlavor';
 import { parseMachineModel } from '@/workflows/parseMachineModel';
 import { parseMotherboardName } from '@/workflows/parseMotherboardName';
+import { parsePackageManager } from '@/workflows/parsePackageManager';
 
 const detectPlatformChain: flexibleChainProp = {
     workflow: async (props: flexibleSseHandlerProps) => {
@@ -153,6 +154,22 @@ const motherboardNameChain = currentPlatform === platformType.windows
     ? motherboardNameChainWindows 
     : motherboardNameChainLinux;
 
+const packageManagerChainLinux: commandArgsChainProp = {
+    commandAndArgs: { command: './scripts/detect_package_manager.sh', args: [] },
+    parser: parsePackageManager,
+    onSuccess: 'Package manager retrieved successfully'
+};
+
+const packageManagerChainWindows: commandArgsChainProp = {
+    commandAndArgs: { command: 'powershell.exe', args: ['-ExecutionPolicy', 'Bypass', '-File', './scripts/detect_package_manager.ps1'] },
+    parser: parsePackageManager,
+    onSuccess: 'Package manager retrieved successfully'
+};
+
+const packageManagerChain = currentPlatform === platformType.windows 
+    ? packageManagerChainWindows 
+    : packageManagerChainLinux;
+
 export const machineChains = {
     detectPlatformChain,
     hostnameChain,
@@ -162,5 +179,6 @@ export const machineChains = {
     distroFlavorChain,
     detectVirtualizationChain,
     machineModelChain,
-    motherboardNameChain
+    motherboardNameChain,
+    packageManagerChain
 };

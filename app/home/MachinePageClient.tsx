@@ -59,6 +59,7 @@ export function MachinePageControl() {
     { label: 'Distro Flavor', value: machineState?.distroFlavor || '' },
     { label: 'Kernel Version', value: machineState?.kernelVersion || '' },
     { label: 'Motherboard', value: machineState?.motherboardName || '' },
+    { label: 'Package Manager', value: machineState?.packageManager || '' },
   ];
 
   const virtualization = machineState?.virtualization !== null && machineState?.virtualization !== undefined 

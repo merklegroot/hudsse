@@ -6,7 +6,7 @@ import { useMessageStore } from '../store/messageStore';
 import { useDotNetStore } from '../store/dotnetStore';
 import { useMachineStore } from '../store/machineStore';
 import { usePathStore } from '../store/pathStore';
-import { SseMessage, ListSdksResult, ListRuntimesResult, WhichDotNetResult, DotNetInfoResult, HostnameResult, PlatformResult, IpAddressResult, KernelVersionResult, CpuModelResult, DistroFlavorResult, VirtualizationResult, PathResult, MotherboardNameResult, MachineModelResult } from '../models/SseMessage';
+import { SseMessage, ListSdksResult, ListRuntimesResult, WhichDotNetResult, DotNetInfoResult, HostnameResult, PlatformResult, IpAddressResult, KernelVersionResult, CpuModelResult, DistroFlavorResult, VirtualizationResult, PathResult, MotherboardNameResult, MachineModelResult, PackageManagerResult } from '../models/SseMessage';
 
 interface SseContextType {
   startSseStream: (createEventSource: () => EventSource) => EventSource;
@@ -31,10 +31,10 @@ export function SseProvider({ children }: SseProviderProps) {
   const setKernelVersionResult = useMachineStore((state) => state.setKernelVersionResult);
   const setCpuModelResult = useMachineStore((state) => state.setCpuModelResult);
   const setDistroFlavorResult = useMachineStore((state) => state.setDistroFlavorResult);
-  const setSystemInfoResult = useMachineStore((state) => state.setSystemInfoResult);
+  const setSystemInfoResult = useMachineStore((state) => state.setMachineModelResult);
   const setVirtualizationResult = useMachineStore((state) => state.setVirtualizationResult);
   const setMotherboardNameResult = useMachineStore((state) => state.setMotherboardNameResult);
-  const setMachineModelResult = useMachineStore((state) => state.setMachineModelResult);
+  const setPackageManagerResult = useMachineStore((state) => state.setPackageManagerResult);
   const setPathResult = usePathStore((state) => state.setPathResult);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -108,7 +108,12 @@ export function SseProvider({ children }: SseProviderProps) {
         
         // Handle Machine Model result
         if (parsedResult.productName !== undefined || parsedResult.boardName !== undefined || parsedResult.manufacturer !== undefined) {
-          setMachineModelResult(parsedResult as MachineModelResult);
+          setSystemInfoResult(parsedResult as MachineModelResult);
+        }
+        
+        // Handle Package Manager result
+        if (parsedResult.packageManager !== undefined) {
+          setPackageManagerResult(parsedResult as PackageManagerResult);
         }
         
         // Handle Path result
@@ -119,7 +124,7 @@ export function SseProvider({ children }: SseProviderProps) {
         console.warn('Failed to parse result:', error);
       }
     }
-  }, [addSseMessage, setDotnetSdks, setDotnetRuntimes, setWhichDotNetPath, setDotnetInfo, setHostnameResult, setPlatformResult, setIpAddressResult, setSystemInfoResult, setVirtualizationResult, setMotherboardNameResult, setMachineModelResult, setPathResult]);
+  }, [addSseMessage, setDotnetSdks, setDotnetRuntimes, setWhichDotNetPath, setDotnetInfo, setHostnameResult, setPlatformResult, setIpAddressResult, setSystemInfoResult, setVirtualizationResult, setMotherboardNameResult, setPackageManagerResult, setPathResult]);
 
   const startSseStream = useCallback((createEventSource: () => EventSource) => {
     if (isLoading) {

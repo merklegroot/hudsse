@@ -109,6 +109,10 @@ export interface MotherboardNameResult {
     motherboardName: string | null;
 }
 
+export interface PackageManagerResult {
+    packageManager: string | null;
+}
+
 export interface PathResult {
     path: string;
     folders: string[];
