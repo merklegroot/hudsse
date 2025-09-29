@@ -6,8 +6,8 @@ Write-Host "================================"
 
 # Read system product name
 Write-Host ""
-Write-Host "Machine Model:"
 Write-Host "Get-WmiObject -Class Win32_ComputerSystem | Select-Object -ExpandProperty Model"
+Write-Host "Machine Model:"
 try {
     $productName = Get-WmiObject -Class Win32_ComputerSystem | Select-Object -ExpandProperty Model
     if ($productName) {
