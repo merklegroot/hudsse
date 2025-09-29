@@ -7,8 +7,8 @@ Write-Host "================================"
 try {
     # Get motherboard name
     Write-Host ""
-    Write-Host "Motherboard Name:"
     Write-Host "Get-WmiObject -Class Win32_BaseBoard | Select-Object -ExpandProperty Product"
+    Write-Host "Motherboard Name:"    
     $motherboardName = Get-WmiObject -Class Win32_BaseBoard | Select-Object -ExpandProperty Product
     Write-Host $motherboardName
     Write-Host "--------------------------------"
