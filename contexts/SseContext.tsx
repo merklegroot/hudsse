@@ -34,6 +34,7 @@ export function SseProvider({ children }: SseProviderProps) {
   const setSystemInfoResult = useMachineStore((state) => state.setSystemInfoResult);
   const setVirtualizationResult = useMachineStore((state) => state.setVirtualizationResult);
   const setMotherboardNameResult = useMachineStore((state) => state.setMotherboardNameResult);
+  const setMachineModelResult = useMachineStore((state) => state.setMachineModelResult);
   const setPathResult = usePathStore((state) => state.setPathResult);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -105,6 +106,11 @@ export function SseProvider({ children }: SseProviderProps) {
           setMotherboardNameResult(parsedResult as MotherboardNameResult);
         }
         
+        // Handle Machine Model result
+        if (parsedResult.productName !== undefined || parsedResult.boardName !== undefined || parsedResult.manufacturer !== undefined) {
+          setMachineModelResult(parsedResult as MachineModelResult);
+        }
+        
         // Handle Path result
         if (parsedResult.path && Array.isArray(parsedResult.folders)) {
           setPathResult(parsedResult as PathResult);
@@ -113,7 +119,7 @@ export function SseProvider({ children }: SseProviderProps) {
         console.warn('Failed to parse result:', error);
       }
     }
-  }, [addSseMessage, setDotnetSdks, setDotnetRuntimes, setWhichDotNetPath, setDotnetInfo, setHostnameResult, setPlatformResult, setIpAddressResult, setSystemInfoResult, setVirtualizationResult, setMotherboardNameResult, setPathResult]);
+  }, [addSseMessage, setDotnetSdks, setDotnetRuntimes, setWhichDotNetPath, setDotnetInfo, setHostnameResult, setPlatformResult, setIpAddressResult, setSystemInfoResult, setVirtualizationResult, setMotherboardNameResult, setMachineModelResult, setPathResult]);
 
   const startSseStream = useCallback((createEventSource: () => EventSource) => {
     if (isLoading) {

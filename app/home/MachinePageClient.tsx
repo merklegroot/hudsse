@@ -43,7 +43,18 @@ export function MachinePageControl() {
   const infoItems = [
     { label: 'Machine Name', value: machineState?.hostname || '' },
     { label: 'Local IP Address', value: machineState?.ipAddress || '' },
-    { label: 'Machine Model', value: machineState?.systemInfo?.productName || '' },
+    { 
+      label: 'Machine Model', 
+      value: machineState?.systemInfo?.productName || '', 
+      showRefreshButton: true,
+      onRefresh: () => {
+        // Create EventSource for machine model endpoint
+        const createEventSource = () => new EventSource('/api/sse/machine/model');
+        
+        // Start the SSE stream
+        startSseStream(createEventSource);
+      }
+    },
     { label: 'CPU Model', value: machineState?.cpuModel || '' },
     { label: 'Distro Flavor', value: machineState?.distroFlavor || '' },
     { label: 'Kernel Version', value: machineState?.kernelVersion || '' },
@@ -98,6 +109,8 @@ export function MachinePageControl() {
                         key={index}
                         label={item.label}
                         value={item.value || 'Loading...'}
+                        showRefreshButton={item.showRefreshButton}
+                        onRefresh={item.onRefresh}
                       />
                     ))}
                   </div>
