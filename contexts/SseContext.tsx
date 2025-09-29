@@ -6,7 +6,7 @@ import { useMessageStore } from '../store/messageStore';
 import { useDotNetStore } from '../store/dotnetStore';
 import { useMachineStore } from '../store/machineStore';
 import { usePathStore } from '../store/pathStore';
-import { SseMessage, ListSdksResult, ListRuntimesResult, WhichDotNetResult, DotNetInfoResult, HostnameResult, PlatformResult, IpAddressResult, KernelVersionResult, CpuModelResult, DistroFlavorResult, SystemInfoResult, VirtualizationResult, PathResult, MotherboardNameResult } from '../models/SseMessage';
+import { SseMessage, ListSdksResult, ListRuntimesResult, WhichDotNetResult, DotNetInfoResult, HostnameResult, PlatformResult, IpAddressResult, KernelVersionResult, CpuModelResult, DistroFlavorResult, VirtualizationResult, PathResult, MotherboardNameResult, MachineModelResult } from '../models/SseMessage';
 
 interface SseContextType {
   startSseStream: (createEventSource: () => EventSource) => EventSource;
@@ -93,11 +93,6 @@ export function SseProvider({ children }: SseProviderProps) {
         // Handle Distro Flavor result
         if (parsedResult.distroFlavor && typeof parsedResult.distroFlavor === 'string') {
           setDistroFlavorResult(parsedResult as DistroFlavorResult);
-        }
-        
-        // Handle System Info result
-        if (parsedResult.productName !== null || parsedResult.boardName !== null) {
-          setSystemInfoResult(parsedResult as SystemInfoResult);
         }
         
         // Handle Virtualization result

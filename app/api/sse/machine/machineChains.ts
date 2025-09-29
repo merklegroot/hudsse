@@ -107,22 +107,6 @@ const distroFlavorChain = currentPlatform === platformType.windows
     ? distroFlavorChainWindows 
     : distroFlavorChainLinux;
 
-const systemInfoChainLinux: commandArgsChainProp = {
-    commandAndArgs: { command: './scripts/read_system_info.sh', args: [] },
-    parser: parseSystemInfo,
-    onSuccess: 'System information retrieved successfully'
-};
-
-const systemInfoChainWindows: commandArgsChainProp = {
-    commandAndArgs: { command: 'powershell.exe', args: ['-ExecutionPolicy', 'Bypass', '-File', './scripts/read_system_info.ps1'] },
-    parser: parseSystemInfo,
-    onSuccess: 'System information retrieved successfully'
-};
-
-const systemInfoChain = currentPlatform === platformType.windows 
-    ? systemInfoChainWindows 
-    : systemInfoChainLinux;
-
 const detectVirtualizationChain: flexibleChainProp = {
     workflow: async (props: flexibleSseHandlerProps) => {
         const detectedVirtualization = virtualizationUtil.getVirtualizationFromEnv();
@@ -176,7 +160,6 @@ export const machineChains = {
     kernelVersionChain,
     cpuModelChain,
     distroFlavorChain,
-    systemInfoChain,
     detectVirtualizationChain,
     machineModelChain,
     motherboardNameChain

@@ -109,17 +109,6 @@ export interface MotherboardNameResult {
     motherboardName: string | null;
 }
 
-export interface SystemInfoResult {
-    hostname: string | null;
-    ipAddress: string | null;
-    kernelVersion: string | null;
-    cpuModel: string | null;
-    baseDistro: string | null;
-    desktopEnvironment: string | null;
-    productName: string | null;
-    boardName: string | null;
-}
-
 export interface PathResult {
     path: string;
     folders: string[];
