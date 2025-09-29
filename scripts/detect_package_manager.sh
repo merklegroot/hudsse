@@ -1,87 +1,82 @@
 #!/bin/bash
 
-# Script to detect package manager on Linux systems
+# Script to detect system-level package managers on Linux systems
+# Focuses on package managers that operate at the system level (like APT, DNF, YUM, etc.)
+# Supports multiple concurrent package managers
 
-# Function to detect package manager
-detect_package_manager() {
-    local package_manager=""
+# Function to detect system-level package managers
+detect_package_managers() {
+    local package_managers=()
     
     # Check for APT (Debian/Ubuntu)
     if command -v apt >/dev/null 2>&1; then
-        package_manager="APT"
-    # Check for DNF (Fedora/RHEL 8+)
-    elif command -v dnf >/dev/null 2>&1; then
-        package_manager="DNF"
-    # Check for YUM (RHEL/CentOS 7 and older)
-    elif command -v yum >/dev/null 2>&1; then
-        package_manager="YUM"
-    # Check for Zypper (openSUSE/SLES)
-    elif command -v zypper >/dev/null 2>&1; then
-        package_manager="Zypper"
-    # Check for Pacman (Arch Linux)
-    elif command -v pacman >/dev/null 2>&1; then
-        package_manager="Pacman"
-    # Check for Portage (Gentoo)
-    elif command -v emerge >/dev/null 2>&1; then
-        package_manager="Portage"
-    # Check for Nix (NixOS)
-    elif command -v nix-env >/dev/null 2>&1; then
-        package_manager="Nix"
-    # Check for Snap (Universal packages)
-    elif command -v snap >/dev/null 2>&1; then
-        package_manager="Snap"
-    # Check for Flatpak (Universal packages)
-    elif command -v flatpak >/dev/null 2>&1; then
-        package_manager="Flatpak"
-    # Check for Homebrew (Linux)
-    elif command -v brew >/dev/null 2>&1; then
-        package_manager="Homebrew"
-    # Check for AppImage (Universal packages)
-    elif ls /usr/local/bin/*.AppImage >/dev/null 2>&1 || ls ~/.local/bin/*.AppImage >/dev/null 2>&1; then
-        package_manager="AppImage"
-    # Check for Conda (Python package manager)
-    elif command -v conda >/dev/null 2>&1; then
-        package_manager="Conda"
-    # Check for Pip (Python package manager)
-    elif command -v pip >/dev/null 2>&1 || command -v pip3 >/dev/null 2>&1; then
-        package_manager="Pip"
-    # Check for NPM (Node.js package manager)
-    elif command -v npm >/dev/null 2>&1; then
-        package_manager="NPM"
-    # Check for Cargo (Rust package manager)
-    elif command -v cargo >/dev/null 2>&1; then
-        package_manager="Cargo"
-    # Check for Go modules
-    elif command -v go >/dev/null 2>&1; then
-        package_manager="Go Modules"
-    # Check for Composer (PHP package manager)
-    elif command -v composer >/dev/null 2>&1; then
-        package_manager="Composer"
-    # Check for Gem (Ruby package manager)
-    elif command -v gem >/dev/null 2>&1; then
-        package_manager="Gem"
-    # Check for NuGet (.NET package manager)
-    elif command -v nuget >/dev/null 2>&1 || command -v dotnet >/dev/null 2>&1; then
-        package_manager="NuGet"
-    # Check for Maven (Java package manager)
-    elif command -v mvn >/dev/null 2>&1; then
-        package_manager="Maven"
-    # Check for Gradle (Java package manager)
-    elif command -v gradle >/dev/null 2>&1; then
-        package_manager="Gradle"
-    # Check for Podman (Container package manager)
-    elif command -v podman >/dev/null 2>&1; then
-        package_manager="Podman"
-    # Check for Docker (Container package manager)
-    elif command -v docker >/dev/null 2>&1; then
-        package_manager="Docker"
-    else
-        package_manager="Unknown"
+        package_managers+=("APT")
     fi
     
-    echo "$package_manager"
+    # Check for DNF (Fedora/RHEL 8+)
+    if command -v dnf >/dev/null 2>&1; then
+        package_managers+=("DNF")
+    fi
+    
+    # Check for YUM (RHEL/CentOS 7 and older)
+    if command -v yum >/dev/null 2>&1; then
+        package_managers+=("YUM")
+    fi
+    
+    # Check for Zypper (openSUSE/SLES)
+    if command -v zypper >/dev/null 2>&1; then
+        package_managers+=("Zypper")
+    fi
+    
+    # Check for Pacman (Arch Linux)
+    if command -v pacman >/dev/null 2>&1; then
+        package_managers+=("Pacman")
+    fi
+    
+    # Check for Portage (Gentoo)
+    if command -v emerge >/dev/null 2>&1; then
+        package_managers+=("Portage")
+    fi
+    
+    # Check for Nix (NixOS)
+    if command -v nix-env >/dev/null 2>&1; then
+        package_managers+=("Nix")
+    fi
+    
+    # Check for Homebrew (Linux)
+    if command -v brew >/dev/null 2>&1; then
+        package_managers+=("Homebrew")
+    fi
+    
+    # Check for APK (Alpine Linux)
+    if command -v apk >/dev/null 2>&1; then
+        package_managers+=("APK")
+    fi
+    
+    # Check for XBPS (Void Linux)
+    if command -v xbps-install >/dev/null 2>&1; then
+        package_managers+=("XBPS")
+    fi
+    
+    # Check for Pkg (FreeBSD)
+    if command -v pkg >/dev/null 2>&1; then
+        package_managers+=("Pkg")
+    fi
+    
+    # Check for Ports (FreeBSD)
+    if command -v ports >/dev/null 2>&1 || [ -d "/usr/ports" ]; then
+        package_managers+=("Ports")
+    fi
+    
+    # If no package managers found, return Unknown
+    if [ ${#package_managers[@]} -eq 0 ]; then
+        echo "Unknown"
+    else
+        # Join array elements with comma and space
+        printf '%s, ' "${package_managers[@]}" | sed 's/, $//'
+    fi
 }
 
 # Main execution
-package_manager=$(detect_package_manager)
-echo "$package_manager"
+package_managers=$(detect_package_managers)
+echo "$package_managers"
