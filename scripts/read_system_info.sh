@@ -37,32 +37,32 @@ read_file_safely() {
     echo "--------------------------------"
 }
 
-# Get CPU model
-echo ""
-echo "CPU Model:"
-echo "lscpu | grep 'Model name' | cut -d':' -f2 | xargs"
-lscpu | grep "Model name" | cut -d':' -f2 | xargs
-echo "--------------------------------"
+# # Get CPU model
+# echo ""
+# echo "CPU Model:"
+# echo "lscpu | grep 'Model name' | cut -d':' -f2 | xargs"
+# lscpu | grep "Model name" | cut -d':' -f2 | xargs
+# echo "--------------------------------"
 
-# Get base distro
-echo ""
-echo "Base Distro:"
-echo "cat /etc/os-release | grep 'PRETTY_NAME' | cut -d'=' -f2 | tr -d '\"'"
-cat /etc/os-release | grep "PRETTY_NAME" | cut -d'=' -f2 | tr -d '"'
-echo "--------------------------------"
+# # Get base distro
+# echo ""
+# echo "Base Distro:"
+# echo "cat /etc/os-release | grep 'PRETTY_NAME' | cut -d'=' -f2 | tr -d '\"'"
+# cat /etc/os-release | grep "PRETTY_NAME" | cut -d'=' -f2 | tr -d '"'
+# echo "--------------------------------"
 
-# Get desktop environment
-echo ""
-echo "Desktop Environment:"
-echo "echo \$XDG_CURRENT_DESKTOP"
-echo $XDG_CURRENT_DESKTOP
-echo "--------------------------------"
+# # Get desktop environment
+# echo ""
+# echo "Desktop Environment:"
+# echo "echo \$XDG_CURRENT_DESKTOP"
+# echo $XDG_CURRENT_DESKTOP
+# echo "--------------------------------"
 
-# Read /sys/class/dmi/id/product_name (system product name)
-read_file_safely "/sys/class/dmi/id/product_name" "System Product Name"
+# # Read /sys/class/dmi/id/product_name (system product name)
+# read_file_safely "/sys/class/dmi/id/product_name" "System Product Name"
 
-# Read /sys/class/dmi/id/board_name (motherboard name)
-read_file_safely "/sys/class/dmi/id/board_name" "Motherboard Name"
+# # Read /sys/class/dmi/id/board_name (motherboard name)
+# read_file_safely "/sys/class/dmi/id/board_name" "Motherboard Name"
 
 echo ""
 echo "System information reading completed."

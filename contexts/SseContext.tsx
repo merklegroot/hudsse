@@ -6,7 +6,7 @@ import { useMessageStore } from '../store/messageStore';
 import { useDotNetStore } from '../store/dotnetStore';
 import { useMachineStore } from '../store/machineStore';
 import { usePathStore } from '../store/pathStore';
-import { SseMessage, ListSdksResult, ListRuntimesResult, WhichDotNetResult, DotNetInfoResult, HostnameResult, PlatformResult, IpAddressResult, KernelVersionResult, CpuModelResult, DistroFlavorResult, SystemInfoResult, VirtualizationResult, PathResult } from '../models/SseMessage';
+import { SseMessage, ListSdksResult, ListRuntimesResult, WhichDotNetResult, DotNetInfoResult, HostnameResult, PlatformResult, IpAddressResult, KernelVersionResult, CpuModelResult, DistroFlavorResult, SystemInfoResult, VirtualizationResult, PathResult, MotherboardNameResult } from '../models/SseMessage';
 
 interface SseContextType {
   startSseStream: (createEventSource: () => EventSource) => EventSource;
@@ -33,6 +33,7 @@ export function SseProvider({ children }: SseProviderProps) {
   const setDistroFlavorResult = useMachineStore((state) => state.setDistroFlavorResult);
   const setSystemInfoResult = useMachineStore((state) => state.setSystemInfoResult);
   const setVirtualizationResult = useMachineStore((state) => state.setVirtualizationResult);
+  const setMotherboardNameResult = useMachineStore((state) => state.setMotherboardNameResult);
   const setPathResult = usePathStore((state) => state.setPathResult);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -95,13 +96,18 @@ export function SseProvider({ children }: SseProviderProps) {
         }
         
         // Handle System Info result
-        if (parsedResult.productName !== undefined || parsedResult.boardName !== undefined) {
+        if (parsedResult.productName !== null || parsedResult.boardName !== null) {
           setSystemInfoResult(parsedResult as SystemInfoResult);
         }
         
         // Handle Virtualization result
         if (parsedResult.virtualization !== undefined && typeof parsedResult.virtualization === 'number') {
           setVirtualizationResult(parsedResult as VirtualizationResult);
+        }
+        
+        // Handle Motherboard Name result
+        if (parsedResult.motherboardName !== undefined) {
+          setMotherboardNameResult(parsedResult as MotherboardNameResult);
         }
         
         // Handle Path result
@@ -112,7 +118,7 @@ export function SseProvider({ children }: SseProviderProps) {
         console.warn('Failed to parse result:', error);
       }
     }
-  }, [addSseMessage, setDotnetSdks, setDotnetRuntimes, setWhichDotNetPath, setDotnetInfo, setHostnameResult, setPlatformResult, setIpAddressResult, setSystemInfoResult, setVirtualizationResult, setPathResult]);
+  }, [addSseMessage, setDotnetSdks, setDotnetRuntimes, setWhichDotNetPath, setDotnetInfo, setHostnameResult, setPlatformResult, setIpAddressResult, setSystemInfoResult, setVirtualizationResult, setMotherboardNameResult, setPathResult]);
 
   const startSseStream = useCallback((createEventSource: () => EventSource) => {
     if (isLoading) {

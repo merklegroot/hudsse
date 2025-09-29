@@ -105,6 +105,10 @@ export interface MachineModelResult {
     manufacturer: string | null;
 }
 
+export interface MotherboardNameResult {
+    motherboardName: string | null;
+}
+
 export interface SystemInfoResult {
     hostname: string | null;
     ipAddress: string | null;

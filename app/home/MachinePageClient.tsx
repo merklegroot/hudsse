@@ -47,7 +47,7 @@ export function MachinePageControl() {
     { label: 'CPU Model', value: machineState?.cpuModel || '' },
     { label: 'Distro Flavor', value: machineState?.distroFlavor || '' },
     { label: 'Kernel Version', value: machineState?.kernelVersion || '' },
-    { label: 'Motherboard', value: machineState?.systemInfo?.boardName || '' },
+    { label: 'Motherboard', value: machineState?.motherboardName || '' },
   ];
 
   const virtualization = machineState?.virtualization !== null && machineState?.virtualization !== undefined 

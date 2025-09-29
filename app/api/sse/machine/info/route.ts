@@ -8,6 +8,8 @@ export const GET = sseFactory.createChainedSseCommandsHandler([
   machineChains.kernelVersionChain,
   machineChains.cpuModelChain,
   machineChains.distroFlavorChain,
+  machineChains.machineModelChain,
+  machineChains.motherboardNameChain,
   machineChains.systemInfoChain,
   machineChains.detectVirtualizationChain
 ]);

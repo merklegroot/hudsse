@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { HostnameResult, PlatformResult, IpAddressResult, KernelVersionResult, CpuModelResult, DistroFlavorResult, SystemInfoResult, VirtualizationResult } from '../models/SseMessage';
+import { HostnameResult, PlatformResult, IpAddressResult, KernelVersionResult, CpuModelResult, DistroFlavorResult, SystemInfoResult, VirtualizationResult, MotherboardNameResult } from '../models/SseMessage';
 
 interface MachineState {
   hostname: string | null;
@@ -10,6 +10,7 @@ interface MachineState {
   distroFlavor: string | null;
   systemInfo: SystemInfoResult | null;
   virtualization: number | null;
+  motherboardName: string | null;
   hasTriedDetectingHostname: boolean;
   hasTriedDetectingPlatform: boolean;
   hasTriedDetectingIpAddress: boolean;
@@ -18,6 +19,7 @@ interface MachineState {
   hasTriedDetectingDistroFlavor: boolean;
   hasTriedDetectingSystemInfo: boolean;
   hasTriedDetectingVirtualization: boolean;
+  hasTriedDetectingMotherboardName: boolean;
 }
 
 interface MachineStore {
@@ -31,6 +33,7 @@ interface MachineStore {
   setDistroFlavor: (distroFlavor: string | null) => void;
   setSystemInfo: (systemInfo: SystemInfoResult | null) => void;
   setVirtualization: (virtualization: number | null) => void;
+  setMotherboardName: (motherboardName: string | null) => void;
   setHostnameResult: (result: HostnameResult | null) => void;
   setPlatformResult: (result: PlatformResult | null) => void;
   setIpAddressResult: (result: IpAddressResult | null) => void;
@@ -39,6 +42,7 @@ interface MachineStore {
   setDistroFlavorResult: (result: DistroFlavorResult | null) => void;
   setSystemInfoResult: (result: SystemInfoResult | null) => void;
   setVirtualizationResult: (result: VirtualizationResult | null) => void;
+  setMotherboardNameResult: (result: MotherboardNameResult | null) => void;
   setMachineState: (state: MachineState | null) => void;
   setHasTriedDetectingHostname: (hasTried: boolean) => void;
   setHasTriedDetectingPlatform: (hasTried: boolean) => void;
@@ -48,6 +52,7 @@ interface MachineStore {
   setHasTriedDetectingDistroFlavor: (hasTried: boolean) => void;
   setHasTriedDetectingSystemInfo: (hasTried: boolean) => void;
   setHasTriedDetectingVirtualization: (hasTried: boolean) => void;
+  setHasTriedDetectingMotherboardName: (hasTried: boolean) => void;
 }
 
 const createInitialMachineState = (): Pick<MachineStore, 'machineState'> => ({
@@ -110,18 +115,33 @@ const setVirtualizationToState = (virtualization: number | null) => (state: Mach
   } : null
 });
 
+const setMotherboardNameToState = (motherboardName: string | null) => (state: MachineStore) => ({
+  machineState: state.machineState ? {
+    ...state.machineState,
+    motherboardName: motherboardName
+  } : null
+});
+
 const setHostnameResultToState = (result: HostnameResult | null) => (state: MachineStore) => ({
   machineState: result ? {
     hostname: result.hostname,
     platform: state.machineState?.platform || null,
     ipAddress: state.machineState?.ipAddress || null,
+    kernelVersion: state.machineState?.kernelVersion || null,
+    cpuModel: state.machineState?.cpuModel || null,
+    distroFlavor: state.machineState?.distroFlavor || null,
     systemInfo: state.machineState?.systemInfo || null,
     virtualization: state.machineState?.virtualization || null,
+    motherboardName: state.machineState?.motherboardName || null,
     hasTriedDetectingHostname: true,
     hasTriedDetectingPlatform: state.machineState?.hasTriedDetectingPlatform || false,
     hasTriedDetectingIpAddress: state.machineState?.hasTriedDetectingIpAddress || false,
+    hasTriedDetectingKernelVersion: state.machineState?.hasTriedDetectingKernelVersion || false,
+    hasTriedDetectingCpuModel: state.machineState?.hasTriedDetectingCpuModel || false,
+    hasTriedDetectingDistroFlavor: state.machineState?.hasTriedDetectingDistroFlavor || false,
     hasTriedDetectingSystemInfo: state.machineState?.hasTriedDetectingSystemInfo || false,
-    hasTriedDetectingVirtualization: state.machineState?.hasTriedDetectingVirtualization || false
+    hasTriedDetectingVirtualization: state.machineState?.hasTriedDetectingVirtualization || false,
+    hasTriedDetectingMotherboardName: state.machineState?.hasTriedDetectingMotherboardName || false
   } : state.machineState
 });
 
@@ -130,13 +150,21 @@ const setPlatformResultToState = (result: PlatformResult | null) => (state: Mach
     hostname: state.machineState?.hostname || null,
     platform: result.platform,
     ipAddress: state.machineState?.ipAddress || null,
+    kernelVersion: state.machineState?.kernelVersion || null,
+    cpuModel: state.machineState?.cpuModel || null,
+    distroFlavor: state.machineState?.distroFlavor || null,
     systemInfo: state.machineState?.systemInfo || null,
     virtualization: state.machineState?.virtualization || null,
+    motherboardName: state.machineState?.motherboardName || null,
     hasTriedDetectingHostname: state.machineState?.hasTriedDetectingHostname || false,
     hasTriedDetectingPlatform: true,
     hasTriedDetectingIpAddress: state.machineState?.hasTriedDetectingIpAddress || false,
+    hasTriedDetectingKernelVersion: state.machineState?.hasTriedDetectingKernelVersion || false,
+    hasTriedDetectingCpuModel: state.machineState?.hasTriedDetectingCpuModel || false,
+    hasTriedDetectingDistroFlavor: state.machineState?.hasTriedDetectingDistroFlavor || false,
     hasTriedDetectingSystemInfo: state.machineState?.hasTriedDetectingSystemInfo || false,
-    hasTriedDetectingVirtualization: state.machineState?.hasTriedDetectingVirtualization || false
+    hasTriedDetectingVirtualization: state.machineState?.hasTriedDetectingVirtualization || false,
+    hasTriedDetectingMotherboardName: state.machineState?.hasTriedDetectingMotherboardName || false
   } : state.machineState
 });
 
@@ -146,14 +174,20 @@ const setIpAddressResultToState = (result: IpAddressResult | null) => (state: Ma
     platform: state.machineState?.platform || null,
     ipAddress: result.ipAddress,
     kernelVersion: state.machineState?.kernelVersion || null,
+    cpuModel: state.machineState?.cpuModel || null,
+    distroFlavor: state.machineState?.distroFlavor || null,
     systemInfo: state.machineState?.systemInfo || null,
     virtualization: state.machineState?.virtualization || null,
+    motherboardName: state.machineState?.motherboardName || null,
     hasTriedDetectingHostname: state.machineState?.hasTriedDetectingHostname || false,
     hasTriedDetectingPlatform: state.machineState?.hasTriedDetectingPlatform || false,
     hasTriedDetectingIpAddress: true,
     hasTriedDetectingKernelVersion: state.machineState?.hasTriedDetectingKernelVersion || false,
+    hasTriedDetectingCpuModel: state.machineState?.hasTriedDetectingCpuModel || false,
+    hasTriedDetectingDistroFlavor: state.machineState?.hasTriedDetectingDistroFlavor || false,
     hasTriedDetectingSystemInfo: state.machineState?.hasTriedDetectingSystemInfo || false,
-    hasTriedDetectingVirtualization: state.machineState?.hasTriedDetectingVirtualization || false
+    hasTriedDetectingVirtualization: state.machineState?.hasTriedDetectingVirtualization || false,
+    hasTriedDetectingMotherboardName: state.machineState?.hasTriedDetectingMotherboardName || false
   } : state.machineState
 });
 
@@ -164,15 +198,19 @@ const setKernelVersionResultToState = (result: KernelVersionResult | null) => (s
     ipAddress: state.machineState?.ipAddress || null,
     kernelVersion: result.kernelVersion,
     cpuModel: state.machineState?.cpuModel || null,
+    distroFlavor: state.machineState?.distroFlavor || null,
     systemInfo: state.machineState?.systemInfo || null,
     virtualization: state.machineState?.virtualization || null,
+    motherboardName: state.machineState?.motherboardName || null,
     hasTriedDetectingHostname: state.machineState?.hasTriedDetectingHostname || false,
     hasTriedDetectingPlatform: state.machineState?.hasTriedDetectingPlatform || false,
     hasTriedDetectingIpAddress: state.machineState?.hasTriedDetectingIpAddress || false,
     hasTriedDetectingKernelVersion: true,
     hasTriedDetectingCpuModel: state.machineState?.hasTriedDetectingCpuModel || false,
+    hasTriedDetectingDistroFlavor: state.machineState?.hasTriedDetectingDistroFlavor || false,
     hasTriedDetectingSystemInfo: state.machineState?.hasTriedDetectingSystemInfo || false,
-    hasTriedDetectingVirtualization: state.machineState?.hasTriedDetectingVirtualization || false
+    hasTriedDetectingVirtualization: state.machineState?.hasTriedDetectingVirtualization || false,
+    hasTriedDetectingMotherboardName: state.machineState?.hasTriedDetectingMotherboardName || false
   } : state.machineState
 });
 
@@ -186,6 +224,7 @@ const setCpuModelResultToState = (result: CpuModelResult | null) => (state: Mach
     distroFlavor: state.machineState?.distroFlavor || null,
     systemInfo: state.machineState?.systemInfo || null,
     virtualization: state.machineState?.virtualization || null,
+    motherboardName: state.machineState?.motherboardName || null,
     hasTriedDetectingHostname: state.machineState?.hasTriedDetectingHostname || false,
     hasTriedDetectingPlatform: state.machineState?.hasTriedDetectingPlatform || false,
     hasTriedDetectingIpAddress: state.machineState?.hasTriedDetectingIpAddress || false,
@@ -193,7 +232,8 @@ const setCpuModelResultToState = (result: CpuModelResult | null) => (state: Mach
     hasTriedDetectingCpuModel: true,
     hasTriedDetectingDistroFlavor: state.machineState?.hasTriedDetectingDistroFlavor || false,
     hasTriedDetectingSystemInfo: state.machineState?.hasTriedDetectingSystemInfo || false,
-    hasTriedDetectingVirtualization: state.machineState?.hasTriedDetectingVirtualization || false
+    hasTriedDetectingVirtualization: state.machineState?.hasTriedDetectingVirtualization || false,
+    hasTriedDetectingMotherboardName: state.machineState?.hasTriedDetectingMotherboardName || false
   } : state.machineState
 });
 
@@ -207,6 +247,7 @@ const setDistroFlavorResultToState = (result: DistroFlavorResult | null) => (sta
     distroFlavor: result.distroFlavor,
     systemInfo: state.machineState?.systemInfo || null,
     virtualization: state.machineState?.virtualization || null,
+    motherboardName: state.machineState?.motherboardName || null,
     hasTriedDetectingHostname: state.machineState?.hasTriedDetectingHostname || false,
     hasTriedDetectingPlatform: state.machineState?.hasTriedDetectingPlatform || false,
     hasTriedDetectingIpAddress: state.machineState?.hasTriedDetectingIpAddress || false,
@@ -214,7 +255,8 @@ const setDistroFlavorResultToState = (result: DistroFlavorResult | null) => (sta
     hasTriedDetectingCpuModel: state.machineState?.hasTriedDetectingCpuModel || false,
     hasTriedDetectingDistroFlavor: true,
     hasTriedDetectingSystemInfo: state.machineState?.hasTriedDetectingSystemInfo || false,
-    hasTriedDetectingVirtualization: state.machineState?.hasTriedDetectingVirtualization || false
+    hasTriedDetectingVirtualization: state.machineState?.hasTriedDetectingVirtualization || false,
+    hasTriedDetectingMotherboardName: state.machineState?.hasTriedDetectingMotherboardName || false
   } : state.machineState
 });
 
@@ -228,6 +270,7 @@ const setSystemInfoResultToState = (result: SystemInfoResult | null) => (state: 
     distroFlavor: state.machineState?.distroFlavor || null,
     systemInfo: result,
     virtualization: state.machineState?.virtualization || null,
+    motherboardName: state.machineState?.motherboardName || null,
     hasTriedDetectingHostname: state.machineState?.hasTriedDetectingHostname || false,
     hasTriedDetectingPlatform: state.machineState?.hasTriedDetectingPlatform || false,
     hasTriedDetectingIpAddress: state.machineState?.hasTriedDetectingIpAddress || false,
@@ -235,7 +278,8 @@ const setSystemInfoResultToState = (result: SystemInfoResult | null) => (state: 
     hasTriedDetectingCpuModel: state.machineState?.hasTriedDetectingCpuModel || false,
     hasTriedDetectingDistroFlavor: state.machineState?.hasTriedDetectingDistroFlavor || false,
     hasTriedDetectingSystemInfo: true,
-    hasTriedDetectingVirtualization: state.machineState?.hasTriedDetectingVirtualization || false
+    hasTriedDetectingVirtualization: state.machineState?.hasTriedDetectingVirtualization || false,
+    hasTriedDetectingMotherboardName: state.machineState?.hasTriedDetectingMotherboardName || false
   } : state.machineState
 });
 
@@ -249,6 +293,7 @@ const setVirtualizationResultToState = (result: VirtualizationResult | null) => 
     distroFlavor: state.machineState?.distroFlavor || null,
     systemInfo: state.machineState?.systemInfo || null,
     virtualization: result.virtualization,
+    motherboardName: state.machineState?.motherboardName || null,
     hasTriedDetectingHostname: state.machineState?.hasTriedDetectingHostname || false,
     hasTriedDetectingPlatform: state.machineState?.hasTriedDetectingPlatform || false,
     hasTriedDetectingIpAddress: state.machineState?.hasTriedDetectingIpAddress || false,
@@ -256,7 +301,31 @@ const setVirtualizationResultToState = (result: VirtualizationResult | null) => 
     hasTriedDetectingCpuModel: state.machineState?.hasTriedDetectingCpuModel || false,
     hasTriedDetectingDistroFlavor: state.machineState?.hasTriedDetectingDistroFlavor || false,
     hasTriedDetectingSystemInfo: state.machineState?.hasTriedDetectingSystemInfo || false,
-    hasTriedDetectingVirtualization: true
+    hasTriedDetectingVirtualization: true,
+    hasTriedDetectingMotherboardName: state.machineState?.hasTriedDetectingMotherboardName || false
+  } : state.machineState
+});
+
+const setMotherboardNameResultToState = (result: MotherboardNameResult | null) => (state: MachineStore) => ({
+  machineState: result ? {
+    hostname: state.machineState?.hostname || null,
+    platform: state.machineState?.platform || null,
+    ipAddress: state.machineState?.ipAddress || null,
+    kernelVersion: state.machineState?.kernelVersion || null,
+    cpuModel: state.machineState?.cpuModel || null,
+    distroFlavor: state.machineState?.distroFlavor || null,
+    systemInfo: state.machineState?.systemInfo || null,
+    virtualization: state.machineState?.virtualization || null,
+    motherboardName: result.motherboardName,
+    hasTriedDetectingHostname: state.machineState?.hasTriedDetectingHostname || false,
+    hasTriedDetectingPlatform: state.machineState?.hasTriedDetectingPlatform || false,
+    hasTriedDetectingIpAddress: state.machineState?.hasTriedDetectingIpAddress || false,
+    hasTriedDetectingKernelVersion: state.machineState?.hasTriedDetectingKernelVersion || false,
+    hasTriedDetectingCpuModel: state.machineState?.hasTriedDetectingCpuModel || false,
+    hasTriedDetectingDistroFlavor: state.machineState?.hasTriedDetectingDistroFlavor || false,
+    hasTriedDetectingSystemInfo: state.machineState?.hasTriedDetectingSystemInfo || false,
+    hasTriedDetectingVirtualization: state.machineState?.hasTriedDetectingVirtualization || false,
+    hasTriedDetectingMotherboardName: true
   } : state.machineState
 });
 
@@ -320,6 +389,13 @@ const setHasTriedDetectingVirtualizationToState = (hasTried: boolean) => (state:
   } : null
 });
 
+const setHasTriedDetectingMotherboardNameToState = (hasTried: boolean) => (state: MachineStore) => ({
+  machineState: state.machineState ? {
+    ...state.machineState,
+    hasTriedDetectingMotherboardName: hasTried
+  } : null
+});
+
 const createMachineActions = (set: (fn: (state: MachineStore) => Partial<MachineStore>) => void) => ({
   setHostname: (hostname: string | null) => set((state) => setHostnameToState(hostname)(state)),
   setPlatform: (platform: string | null) => set((state) => setPlatformToState(platform)(state)),
@@ -329,6 +405,7 @@ const createMachineActions = (set: (fn: (state: MachineStore) => Partial<Machine
   setDistroFlavor: (distroFlavor: string | null) => set((state) => setDistroFlavorToState(distroFlavor)(state)),
   setSystemInfo: (systemInfo: SystemInfoResult | null) => set((state) => setSystemInfoToState(systemInfo)(state)),
   setVirtualization: (virtualization: number | null) => set((state) => setVirtualizationToState(virtualization)(state)),
+  setMotherboardName: (motherboardName: string | null) => set((state) => setMotherboardNameToState(motherboardName)(state)),
   setHostnameResult: (result: HostnameResult | null) => set((state) => setHostnameResultToState(result)(state)),
   setPlatformResult: (result: PlatformResult | null) => set((state) => setPlatformResultToState(result)(state)),
   setIpAddressResult: (result: IpAddressResult | null) => set((state) => setIpAddressResultToState(result)(state)),
@@ -337,6 +414,7 @@ const createMachineActions = (set: (fn: (state: MachineStore) => Partial<Machine
   setDistroFlavorResult: (result: DistroFlavorResult | null) => set((state) => setDistroFlavorResultToState(result)(state)),
   setSystemInfoResult: (result: SystemInfoResult | null) => set((state) => setSystemInfoResultToState(result)(state)),
   setVirtualizationResult: (result: VirtualizationResult | null) => set((state) => setVirtualizationResultToState(result)(state)),
+  setMotherboardNameResult: (result: MotherboardNameResult | null) => set((state) => setMotherboardNameResultToState(result)(state)),
   setMachineState: (state: MachineState | null) => set(() => setMachineStateToState(state)),
   setHasTriedDetectingHostname: (hasTried: boolean) => set((state) => setHasTriedDetectingHostnameToState(hasTried)(state)),
   setHasTriedDetectingPlatform: (hasTried: boolean) => set((state) => setHasTriedDetectingPlatformToState(hasTried)(state)),
@@ -345,7 +423,8 @@ const createMachineActions = (set: (fn: (state: MachineStore) => Partial<Machine
   setHasTriedDetectingCpuModel: (hasTried: boolean) => set((state) => setHasTriedDetectingCpuModelToState(hasTried)(state)),
   setHasTriedDetectingDistroFlavor: (hasTried: boolean) => set((state) => setHasTriedDetectingDistroFlavorToState(hasTried)(state)),
   setHasTriedDetectingSystemInfo: (hasTried: boolean) => set((state) => setHasTriedDetectingSystemInfoToState(hasTried)(state)),
-  setHasTriedDetectingVirtualization: (hasTried: boolean) => set((state) => setHasTriedDetectingVirtualizationToState(hasTried)(state))
+  setHasTriedDetectingVirtualization: (hasTried: boolean) => set((state) => setHasTriedDetectingVirtualizationToState(hasTried)(state)),
+  setHasTriedDetectingMotherboardName: (hasTried: boolean) => set((state) => setHasTriedDetectingMotherboardNameToState(hasTried)(state))
 });
 
 export const useMachineStore = create<MachineStore>((set) => ({
