@@ -31,6 +31,7 @@ export default function Navigation() {
           </Link>
           <ul className="flex flex-wrap gap-4 lg:gap-6">
             <NavLink href="/home" label="Machine" />
+            <NavLink href="/package" label="Package Management" />
             <NavLink href="/dotnet" label=".NET" />
             <NavLink href="/files" label="Files" />
             <NavLink href="/path" label="Path" />

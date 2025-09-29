@@ -43,55 +43,6 @@ export function MachinePageControl() {
     ? virtualizationUtil.getVirtualizationFriendlyName(machineState.virtualization as any)
     : '';
 
-  // Map package managers to their corresponding package formats
-  const mapPackageManagerToFormat = (packageManager: string): string => {
-    switch (packageManager.trim().toUpperCase()) {
-      case 'APT':
-        return 'DEB';
-      case 'DNF':
-      case 'YUM':
-        return 'RPM';
-      case 'PACMAN':
-        return 'TAR.XZ';
-      case 'PORTAGE':
-        return 'EBUILD';
-      case 'NIX':
-        return 'NIX';
-      case 'HOMEBREW':
-        return 'BOTTLE';
-      case 'APK':
-        return 'APK';
-      case 'XBPS':
-        return 'XBPS';
-      case 'PKG':
-        return 'PKG';
-      case 'PORTS':
-        return 'PORTS';
-      case 'DISM':
-        return 'MSI';
-      case 'WINGET':
-        return 'APPX';
-      case 'ONEGET':
-        return 'NUGET';
-      case 'ZYPPER':
-        return 'RPM';
-      default:
-        return 'Unknown';
-    }
-  };
-
-  // Parse package formats from package manager string
-  const parsePackageFormats = (packageManager: string | null | undefined): string[] => {
-    if (!packageManager || packageManager === 'Unknown' || packageManager.trim() === '') {
-      return ['Unknown'];
-    }
-    
-    const managerList = packageManager.split(',').map(manager => manager.trim());
-    const formatList = managerList.map(manager => mapPackageManagerToFormat(manager));
-    return formatList.length > 0 ? formatList : ['Unknown'];
-  };
-
-  const packageFormats = parsePackageFormats(machineState?.packageManager);
 
   // Data items matching hudapp structure, using machineStore data where available
   const infoItems: Array<{
@@ -119,11 +70,6 @@ export function MachinePageControl() {
     { label: 'Distro Flavor', value: machineState?.distroFlavor || '' },
     { label: 'Kernel Version', value: machineState?.kernelVersion || '' },
     { label: 'Motherboard', value: machineState?.motherboardName || '' },
-    { label: 'Package Manager', value: machineState?.packageManager || '' },
-    { 
-      label: 'Package Formats', 
-      value: packageFormats.length === 1 ? packageFormats[0] : packageFormats.join(', ')
-    },
   ];
 
   return (
