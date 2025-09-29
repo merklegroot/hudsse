@@ -1,4 +1,5 @@
 import RefreshButton from './RefreshButton';
+import React from 'react';
 
 interface SystemDetailFieldProps {
   label: string;
@@ -6,6 +7,7 @@ interface SystemDetailFieldProps {
   className?: string;
   showRefreshButton?: boolean;
   onRefresh?: () => void;
+  icon?: React.ReactNode;
 }
 
 export default function SystemDetailField({ 
@@ -13,7 +15,8 @@ export default function SystemDetailField({
   value, 
   className = "", 
   showRefreshButton = false, 
-  onRefresh 
+  onRefresh,
+  icon
 }: SystemDetailFieldProps) {
   return (
     <div className={`p-4 bg-gray-50 rounded-lg ${className}`}>
@@ -23,7 +26,10 @@ export default function SystemDetailField({
           <RefreshButton onRefresh={onRefresh} />
         )}
       </div>
-      <p className="text-lg font-semibold text-gray-900">{value}</p>
+      <div className="flex items-center gap-2">
+        {icon && <div className="flex-shrink-0">{icon}</div>}
+        <p className="text-lg font-semibold text-gray-900">{value}</p>
+      </div>
     </div>
   );
 }
