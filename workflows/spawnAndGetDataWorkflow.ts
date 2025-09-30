@@ -80,7 +80,7 @@ async function executeWithFallback(options: SpawnOptions): Promise<SpawnResult> 
     
     // Method 2: Use login shell to get fresh user environment (without password)
     () => execute({
-      command: 'bash',
+      command: 'sh',
       args: ['-l', '-c', `${command} ${args.join(' ')}`],
       timeout,
       dataCallback: dataCallback // Use the data callback for fallback methods

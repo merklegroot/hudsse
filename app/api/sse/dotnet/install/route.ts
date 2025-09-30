@@ -145,7 +145,7 @@ async function executeDotnetInstall(props: flexibleSseHandlerProps, scriptPath: 
 
         props.sendMessage({ type: 'command', contents: `Executing: bash ${scriptPath} ${args.join(' ')}` });
         const result = await spawnAndGetDataWorkflow.executeWithFallback({
-            command: 'bash',
+            command: 'sh',
             args: [scriptPath, ...args],
             timeout: 10 * 60 * 1000,
             dataCallback: (data: string) => {

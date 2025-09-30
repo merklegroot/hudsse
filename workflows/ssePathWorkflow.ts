@@ -12,7 +12,7 @@ async function executePath(props: flexibleSseHandlerProps): Promise<SpawnResultW
     }
 
     const result = await spawnAndGetDataWorkflow.execute({
-        command: 'bash',
+        command: 'sh',
         args: ['-l', '-c', 'echo $PATH']
     });
 
