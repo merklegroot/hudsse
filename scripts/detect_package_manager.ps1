@@ -7,12 +7,12 @@ function Detect-PackageManagers {
     $packageManagers = @()
     
     # Check for DISM (Deployment Image Servicing and Management)
-    if (Get-Command dism -ErrorAction SilentlyContinue) {
+    if (Get-Command dism.exe -ErrorAction SilentlyContinue) {
         $packageManagers += "DISM"
     }
     
     # Check for Winget (Windows Package Manager)
-    if (Get-Command winget -ErrorAction SilentlyContinue) {
+    if (Get-Command winget.exe -ErrorAction SilentlyContinue) {
         $packageManagers += "Winget"
     }
     
