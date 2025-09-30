@@ -25,6 +25,27 @@
     "paths": {
       "@/*": [
         "./*"
+      ],
+      "@/components/*": [
+        "./components/*"
+      ],
+      "@/store/*": [
+        "./store/*"
+      ],
+      "@/models/*": [
+        "./models/*"
+      ],
+      "@/hooks/*": [
+        "./hooks/*"
+      ],
+      "@/utils/*": [
+        "./utils/*"
+      ],
+      "@/workflows/*": [
+        "./workflows/*"
+      ],
+      "@/contexts/*": [
+        "./contexts/*"
       ]
     }
   },

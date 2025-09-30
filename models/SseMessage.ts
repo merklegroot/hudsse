@@ -118,6 +118,17 @@ export interface PathResult {
     folders: string[];
 }
 
+export interface SystemInfoResult {
+    hostname: string | null;
+    ipAddress: string | null;
+    kernelVersion: string | null;
+    cpuModel: string | null;
+    baseDistro: string | null;
+    desktopEnvironment: string | null;
+    productName: string | null;
+    boardName: string | null;
+}
+
 export interface SseMessage {
     type: SseMessageType;
     contents: string;
