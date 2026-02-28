@@ -6,7 +6,7 @@ let mainWindow;
 let nextProcess;
 
 const isDev = process.env.NODE_ENV === 'development' || !app.isPackaged;
-const port = process.env.PORT || 3002;
+const port = process.env.PORT || 3000;
 const nextUrl = `http://localhost:${port}`;
 
 function createWindow() {

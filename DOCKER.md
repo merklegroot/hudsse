@@ -58,10 +58,10 @@ docker build -f Dockerfile.dev -t hudsse-app-dev .
 ### Run the container
 ```bash
 # Production
-docker run -p 3002:3002 hudsse-app
+docker run -p 3000:3000 hudsse-app
 
 # Development
-docker run -p 3002:3002 -v $(pwd):/app -v /app/node_modules hudsse-app-dev
+docker run -p 3000:3000 -v $(pwd):/app -v /app/node_modules hudsse-app-dev
 ```
 
 ## Accessing the Application
@@ -75,12 +75,12 @@ Once the container is running, you can access the application at:
 If port 3005 is already in use, you can change the port mapping in the docker-compose.yml file:
 ```yaml
 ports:
-  - "3006:3002"  # Maps host port 3006 to container port 3002
+  - "3006:3000"  # Maps host port 3006 to container port 3000
 ```
 
 ### Container Won't Start
 1. Check the logs: `docker-compose logs`
-2. Ensure no other service is using port 3002
+2. Ensure no other service is using port 3000
 3. Try rebuilding: `docker-compose up --build --force-recreate`
 
 ### Development Hot Reload Not Working

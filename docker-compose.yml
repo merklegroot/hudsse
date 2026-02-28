@@ -4,10 +4,10 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "3005:3002"
+      - "3005:3000"
     environment:
       - NODE_ENV=production
-      - PORT=3002
+      - PORT=3000
       - HOSTNAME=0.0.0.0
     restart: unless-stopped
     container_name: hudsse-app

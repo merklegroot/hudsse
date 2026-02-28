@@ -17,7 +17,7 @@ APP_NAME="hudsse-app"
 CONTAINER_NAME="hudsse-app"
 NETWORK_NAME="hudsse_hudsse-network"
 HOST_PORT="3005"
-CONTAINER_PORT="3002"
+CONTAINER_PORT="3000"
 COMPOSE_FILE="docker-compose.yml"
 DEV_COMPOSE_FILE="docker-compose.dev.yml"
 

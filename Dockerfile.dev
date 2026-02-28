@@ -19,7 +19,7 @@ COPY . .
 RUN chmod +x scripts/*.sh
 
 # Expose port
-EXPOSE 3002
+EXPOSE 3000
 
 # Start development server
 CMD ["npm", "run", "dev"]
