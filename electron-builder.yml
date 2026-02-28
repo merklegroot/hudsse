@@ -1,0 +1,45 @@
+appId: com.hudsse.app
+productName: Hudsse
+copyright: Copyright © 2024
+
+directories:
+  buildResources: build
+  output: dist
+
+files:
+  - '.next/standalone/**/*'
+  - '.next/static/**/*'
+  - 'electron/**/*'
+  - 'package.json'
+
+extraFiles:
+  - from: 'scripts'
+    to: 'scripts'
+    filter:
+      - '**/*'
+
+win:
+  target:
+    - target: nsis
+      arch:
+        - x64
+
+linux:
+  target:
+    - target: AppImage
+      arch:
+        - x64
+    - target: deb
+      arch:
+        - x64
+
+mac:
+  target:
+    - target: dmg
+      arch:
+        - x64
+        - arm64
+
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
