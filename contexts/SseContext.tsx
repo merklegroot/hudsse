@@ -6,7 +6,7 @@ import { useMessageStore } from '../store/messageStore';
 import { useDotNetStore } from '../store/dotnetStore';
 import { useMachineStore } from '../store/machineStore';
 import { usePathStore } from '../store/pathStore';
-import { SseMessage, ListSdksResult, ListRuntimesResult, WhichDotNetResult, DotNetInfoResult, HostnameResult, PlatformResult, IpAddressResult, KernelVersionResult, CpuModelResult, DistroFlavorResult, VirtualizationResult, PathResult, MotherboardNameResult, MachineModelResult, PackageManagerResult } from '../models/SseMessage';
+import { SseMessage, ListSdksResult, ListRuntimesResult, WhichDotNetResult, DotNetInfoResult, HostnameResult, PlatformResult, IpAddressResult, KernelVersionResult, CpuInfoResult, DistroFlavorResult, VirtualizationResult, PathResult, MotherboardNameResult, MachineModelResult, PackageManagerResult } from '../models/SseMessage';
 
 interface SseContextType {
   startSseStream: (createEventSource: () => EventSource) => EventSource;
@@ -29,7 +29,7 @@ export function SseProvider({ children }: SseProviderProps) {
   const setPlatformResult = useMachineStore((state) => state.setPlatformResult);
   const setIpAddressResult = useMachineStore((state) => state.setIpAddressResult);
   const setKernelVersionResult = useMachineStore((state) => state.setKernelVersionResult);
-  const setCpuModelResult = useMachineStore((state) => state.setCpuModelResult);
+  const setCpuInfoResult = useMachineStore((state) => state.setCpuInfoResult);
   const setDistroFlavorResult = useMachineStore((state) => state.setDistroFlavorResult);
   const setSystemInfoResult = useMachineStore((state) => state.setMachineModelResult);
   const setVirtualizationResult = useMachineStore((state) => state.setVirtualizationResult);
@@ -86,9 +86,9 @@ export function SseProvider({ children }: SseProviderProps) {
           setKernelVersionResult(parsedResult as KernelVersionResult);
         }
         
-        // Handle CPU Model result
+        // Handle CPU Info result
         if (parsedResult.cpuModel && typeof parsedResult.cpuModel === 'string') {
-          setCpuModelResult(parsedResult as CpuModelResult);
+          setCpuInfoResult(parsedResult as CpuInfoResult);
         }
         
         // Handle Distro Flavor result
@@ -124,7 +124,7 @@ export function SseProvider({ children }: SseProviderProps) {
         console.warn('Failed to parse result:', error);
       }
     }
-  }, [addSseMessage, setDotnetSdks, setDotnetRuntimes, setWhichDotNetPath, setDotnetInfo, setHostnameResult, setPlatformResult, setIpAddressResult, setSystemInfoResult, setVirtualizationResult, setMotherboardNameResult, setPackageManagerResult, setPathResult]);
+  }, [addSseMessage, setDotnetSdks, setDotnetRuntimes, setWhichDotNetPath, setDotnetInfo, setHostnameResult, setPlatformResult, setIpAddressResult, setKernelVersionResult, setCpuInfoResult, setDistroFlavorResult, setSystemInfoResult, setVirtualizationResult, setMotherboardNameResult, setPackageManagerResult, setPathResult]);
 
   const startSseStream = useCallback((createEventSource: () => EventSource) => {
     if (isLoading) {

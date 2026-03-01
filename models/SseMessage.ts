@@ -83,9 +83,17 @@ export interface KernelVersionResult {
     kernelVersion: string;
 }
 
-export interface CpuModelResult {
+export interface CpuInfoResult {
     cpuModel: string;
     cpuCores?: number;
+    architecture?: string;
+    cpuMhz?: number;
+    threadsPerCore?: number;
+    coresPerSocket?: number;
+    sockets?: number;
+    virtualization?: string;
+    cpuFlags?: string;
+    vendor?: string;
 }
 
 export interface DistroFlavorResult {

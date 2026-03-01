@@ -30,6 +30,11 @@ export function CpuPageClient() {
     }
   }, [machineState?.hasTriedDetectingCpuModel, isLoading, startSseStream]);
 
+  const refreshCpuInfo = () => {
+    const createEventSource = () => new EventSource('/api/sse/cpu/info');
+    startSseStream(createEventSource);
+  };
+
   // CPU information items
   const cpuInfoItems: Array<{
     label: string;
@@ -39,16 +44,16 @@ export function CpuPageClient() {
     icon?: React.ReactNode;
   }> = [
     { 
+      label: 'Vendor', 
+      value: machineState?.cpuVendor || 'Loading...',
+      showRefreshButton: true,
+      onRefresh: refreshCpuInfo
+    },
+    { 
       label: 'CPU Model', 
       value: machineState?.cpuModel || 'Loading...',
       showRefreshButton: true,
-      onRefresh: () => {
-        // Create EventSource for CPU info endpoint
-        const createEventSource = () => new EventSource('/api/sse/cpu/info');
-        
-        // Start the SSE stream
-        startSseStream(createEventSource);
-      }
+      onRefresh: refreshCpuInfo
     },
     { 
       label: 'CPU Cores', 
@@ -56,13 +61,51 @@ export function CpuPageClient() {
         ? machineState.cpuCores.toString() 
         : 'Loading...',
       showRefreshButton: true,
-      onRefresh: () => {
-        // Create EventSource for CPU info endpoint
-        const createEventSource = () => new EventSource('/api/sse/cpu/info');
-        
-        // Start the SSE stream
-        startSseStream(createEventSource);
-      }
+      onRefresh: refreshCpuInfo
+    },
+    { 
+      label: 'Architecture', 
+      value: machineState?.cpuArchitecture || 'Loading...',
+      showRefreshButton: true,
+      onRefresh: refreshCpuInfo
+    },
+    { 
+      label: 'CPU Frequency', 
+      value: machineState?.cpuMhz !== null && machineState?.cpuMhz !== undefined 
+        ? `${machineState.cpuMhz} MHz`
+        : 'Loading...',
+      showRefreshButton: true,
+      onRefresh: refreshCpuInfo
+    },
+    { 
+      label: 'Threads per Core', 
+      value: machineState?.cpuThreadsPerCore !== null && machineState?.cpuThreadsPerCore !== undefined 
+        ? machineState.cpuThreadsPerCore.toString() 
+        : 'Loading...',
+      showRefreshButton: true,
+      onRefresh: refreshCpuInfo
+    },
+    { 
+      label: 'Cores per Socket', 
+      value: machineState?.cpuCoresPerSocket !== null && machineState?.cpuCoresPerSocket !== undefined 
+        ? machineState.cpuCoresPerSocket.toString() 
+        : 'Loading...',
+      showRefreshButton: true,
+      onRefresh: refreshCpuInfo
+    },
+    { 
+      label: 'Sockets', 
+      value: machineState?.cpuSockets !== null && machineState?.cpuSockets !== undefined 
+        ? machineState.cpuSockets.toString() 
+        : 'Loading...',
+      showRefreshButton: true,
+      onRefresh: refreshCpuInfo
+    },
+    { 
+      label: 'Virtualization', 
+      value: machineState?.cpuVirtualization || 'Loading...',
+      showRefreshButton: true,
+      onRefresh: refreshCpuInfo
     },
   ];
 

@@ -6,7 +6,7 @@ import { platform } from 'os';
 import { parseHostname } from '@/workflows/parseHostname';
 import { parseIpAddress } from '@/workflows/parseIpAddress';
 import { parseKernelVersion } from '@/workflows/parseKernelVersion';
-import { parseCpuModel } from '@/workflows/parseCpuModel';
+import { parseCpuInfo } from '@/workflows/parseCpuInfo';
 import { parseDistroFlavor } from '@/workflows/parseDistroFlavor';
 import { parseMachineModel } from '@/workflows/parseMachineModel';
 import { parseMotherboardName } from '@/workflows/parseMotherboardName';
@@ -76,21 +76,21 @@ const kernelVersionChain = currentPlatform === platformType.windows
     ? kernelVersionChainWindows 
     : kernelVersionChainLinux;
 
-const cpuModelChainLinux: commandArgsChainProp = {
+const cpuInfoChainLinux: commandArgsChainProp = {
     commandAndArgs: { command: 'sh', args: ['-c', 'lscpu'] },
-    parser: parseCpuModel,
-    onSuccess: 'CPU model retrieved successfully'
+    parser: parseCpuInfo,
+    onSuccess: 'CPU info retrieved successfully'
 };
 
-const cpuModelChainWindows: commandArgsChainProp = {
-    commandAndArgs: { command: 'powershell.exe', args: ['-ExecutionPolicy', 'Bypass', '-Command', '$proc = Get-WmiObject -Class Win32_Processor; Write-Output "Model name: $($proc.Name)"; Write-Output "CPU(s): $($proc.NumberOfLogicalProcessors)"'] },
-    parser: parseCpuModel,
-    onSuccess: 'CPU model retrieved successfully'
+const cpuInfoChainWindows: commandArgsChainProp = {
+    commandAndArgs: { command: 'powershell.exe', args: ['-ExecutionPolicy', 'Bypass', '-Command', '$proc = Get-WmiObject -Class Win32_Processor | Select-Object -First 1; $arch = switch($proc.Architecture) { 0 {"x86"} 1 {"MIPS"} 2 {"Alpha"} 3 {"PowerPC"} 5 {"ARM"} 6 {"ia64"} 9 {"x86_64"} default {"Unknown"}}; $vendor = $proc.Manufacturer; if($vendor -like "*AMD*") { $vendor = "AMD" } elseif($vendor -like "*Intel*") { $vendor = "Intel" }; Write-Output "Vendor ID: $vendor"; Write-Output "Model name: $($proc.Name)"; Write-Output "CPU(s): $($proc.NumberOfLogicalProcessors)"; Write-Output "Architecture: $arch"; Write-Output "CPU MHz: $([math]::Round($proc.MaxClockSpeed))"; $threadsPerCore = if($proc.NumberOfCores -gt 0) { [math]::Round($proc.NumberOfLogicalProcessors / $proc.NumberOfCores) } else { 1 }; Write-Output "Thread(s) per core: $threadsPerCore"; Write-Output "Core(s) per socket: $($proc.NumberOfCores)"; Write-Output "Socket(s): 1"; $virt = if($proc.VirtualizationFirmwareEnabled) { "Enabled" } else { "Disabled" }; Write-Output "Virtualization: $virt"'] },
+    parser: parseCpuInfo,
+    onSuccess: 'CPU info retrieved successfully'
 };
 
-const cpuModelChain = currentPlatform === platformType.windows 
-    ? cpuModelChainWindows 
-    : cpuModelChainLinux;
+const cpuInfoChain = currentPlatform === platformType.windows 
+    ? cpuInfoChainWindows 
+    : cpuInfoChainLinux;
 
 const distroFlavorChainLinux: commandArgsChainProp = {
     commandAndArgs: { command: './scripts/detect_distro_flavor.sh', args: [] },
@@ -175,7 +175,7 @@ export const machineChains = {
     hostnameChain,
     ipAddressChain,
     kernelVersionChain,
-    cpuModelChain,
+    cpuInfoChain,
     distroFlavorChain,
     detectVirtualizationChain,
     machineModelChain,

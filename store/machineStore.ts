@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { HostnameResult, PlatformResult, IpAddressResult, KernelVersionResult, CpuModelResult, DistroFlavorResult, VirtualizationResult, MotherboardNameResult, MachineModelResult, PackageManagerResult } from '../models/SseMessage';
+import { HostnameResult, PlatformResult, IpAddressResult, KernelVersionResult, CpuInfoResult, DistroFlavorResult, VirtualizationResult, MotherboardNameResult, MachineModelResult, PackageManagerResult } from '../models/SseMessage';
 
 interface MachineState {
   hostname: string | null;
@@ -8,6 +8,14 @@ interface MachineState {
   kernelVersion: string | null;
   cpuModel: string | null;
   cpuCores: number | null;
+  cpuArchitecture: string | null;
+  cpuMhz: number | null;
+  cpuThreadsPerCore: number | null;
+  cpuCoresPerSocket: number | null;
+  cpuSockets: number | null;
+  cpuVirtualization: string | null;
+  cpuFlags: string | null;
+  cpuVendor: string | null;
   distroFlavor: string | null;
   systemInfo: MachineModelResult | null;
   virtualization: number | null;
@@ -42,7 +50,7 @@ interface MachineStore {
   setPlatformResult: (result: PlatformResult | null) => void;
   setIpAddressResult: (result: IpAddressResult | null) => void;
   setKernelVersionResult: (result: KernelVersionResult | null) => void;
-  setCpuModelResult: (result: CpuModelResult | null) => void;
+  setCpuInfoResult: (result: CpuInfoResult | null) => void;
   setDistroFlavorResult: (result: DistroFlavorResult | null) => void;
   setSystemInfoResult: (result: MachineModelResult | null) => void;
   setVirtualizationResult: (result: VirtualizationResult | null) => void;
@@ -74,6 +82,14 @@ const createCompleteMachineState = (existingState: MachineState | null, updates:
   kernelVersion: existingState?.kernelVersion || null,
   cpuModel: existingState?.cpuModel || null,
   cpuCores: existingState?.cpuCores || null,
+  cpuArchitecture: existingState?.cpuArchitecture || null,
+  cpuMhz: existingState?.cpuMhz || null,
+  cpuThreadsPerCore: existingState?.cpuThreadsPerCore || null,
+  cpuCoresPerSocket: existingState?.cpuCoresPerSocket || null,
+  cpuSockets: existingState?.cpuSockets || null,
+  cpuVirtualization: existingState?.cpuVirtualization || null,
+  cpuFlags: existingState?.cpuFlags || null,
+  cpuVendor: existingState?.cpuVendor || null,
   distroFlavor: existingState?.distroFlavor || null,
   systemInfo: existingState?.systemInfo || null,
   virtualization: existingState?.virtualization || null,
@@ -190,10 +206,18 @@ const setKernelVersionResultToState = (result: KernelVersionResult | null) => (s
   }) : state.machineState
 });
 
-const setCpuModelResultToState = (result: CpuModelResult | null) => (state: MachineStore) => ({
+const setCpuInfoResultToState = (result: CpuInfoResult | null) => (state: MachineStore) => ({
   machineState: result ? createCompleteMachineState(state.machineState, {
     cpuModel: result.cpuModel,
     cpuCores: result.cpuCores !== undefined ? result.cpuCores : null,
+    cpuArchitecture: result.architecture !== undefined ? result.architecture : null,
+    cpuMhz: result.cpuMhz !== undefined ? result.cpuMhz : null,
+    cpuThreadsPerCore: result.threadsPerCore !== undefined ? result.threadsPerCore : null,
+    cpuCoresPerSocket: result.coresPerSocket !== undefined ? result.coresPerSocket : null,
+    cpuSockets: result.sockets !== undefined ? result.sockets : null,
+    cpuVirtualization: result.virtualization !== undefined ? result.virtualization : null,
+    cpuFlags: result.cpuFlags !== undefined ? result.cpuFlags : null,
+    cpuVendor: result.vendor !== undefined ? result.vendor : null,
     hasTriedDetectingCpuModel: true
   }) : state.machineState
 });
@@ -213,6 +237,14 @@ const setSystemInfoResultToState = (result: MachineModelResult | null) => (state
     kernelVersion: state.machineState?.kernelVersion || null,
     cpuModel: state.machineState?.cpuModel || null,
     cpuCores: state.machineState?.cpuCores || null,
+    cpuArchitecture: state.machineState?.cpuArchitecture || null,
+    cpuMhz: state.machineState?.cpuMhz || null,
+    cpuThreadsPerCore: state.machineState?.cpuThreadsPerCore || null,
+    cpuCoresPerSocket: state.machineState?.cpuCoresPerSocket || null,
+    cpuSockets: state.machineState?.cpuSockets || null,
+    cpuVirtualization: state.machineState?.cpuVirtualization || null,
+    cpuFlags: state.machineState?.cpuFlags || null,
+    cpuVendor: state.machineState?.cpuVendor || null,
     distroFlavor: state.machineState?.distroFlavor || null,
     systemInfo: result,
     virtualization: state.machineState?.virtualization || null,
@@ -357,7 +389,7 @@ const createMachineActions = (set: (fn: (state: MachineStore) => Partial<Machine
   setPlatformResult: (result: PlatformResult | null) => set((state) => setPlatformResultToState(result)(state)),
   setIpAddressResult: (result: IpAddressResult | null) => set((state) => setIpAddressResultToState(result)(state)),
   setKernelVersionResult: (result: KernelVersionResult | null) => set((state) => setKernelVersionResultToState(result)(state)),
-  setCpuModelResult: (result: CpuModelResult | null) => set((state) => setCpuModelResultToState(result)(state)),
+  setCpuInfoResult: (result: CpuInfoResult | null) => set((state) => setCpuInfoResultToState(result)(state)),
   setDistroFlavorResult: (result: DistroFlavorResult | null) => set((state) => setDistroFlavorResultToState(result)(state)),
   setSystemInfoResult: (result: MachineModelResult | null) => set((state) => setSystemInfoResultToState(result)(state)),
   setVirtualizationResult: (result: VirtualizationResult | null) => set((state) => setVirtualizationResultToState(result)(state)),

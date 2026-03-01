@@ -3,5 +3,5 @@ import { machineChains } from '../../machine/machineChains';
 
 export const GET = sseFactory.createChainedSseCommandsHandler([
   machineChains.detectPlatformChain,
-  machineChains.cpuModelChain,
+  machineChains.cpuInfoChain,
 ]);
