@@ -119,6 +119,24 @@ export interface DistroFlavorResult {
     distroFlavor: string;
 }
 
+export interface GpuResult {
+    index: number;
+    name: string;
+    bus: string;
+    revision: string;
+    driver: string;
+    memoryTotal?: string;
+    memoryUsed?: string;
+    memoryFree?: string;
+    utilization?: number;
+    temperature?: number;
+}
+
+export interface GpuInfoResult {
+    gpus: GpuResult[];
+    openGLRenderer?: string;
+}
+
 export interface PlatformResult {
     platform: string;
 }
