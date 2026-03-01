@@ -7,6 +7,7 @@ interface MachineState {
   ipAddress: string | null;
   kernelVersion: string | null;
   cpuModel: string | null;
+  cpuCores: number | null;
   distroFlavor: string | null;
   systemInfo: MachineModelResult | null;
   virtualization: number | null;
@@ -72,6 +73,7 @@ const createCompleteMachineState = (existingState: MachineState | null, updates:
   ipAddress: existingState?.ipAddress || null,
   kernelVersion: existingState?.kernelVersion || null,
   cpuModel: existingState?.cpuModel || null,
+  cpuCores: existingState?.cpuCores || null,
   distroFlavor: existingState?.distroFlavor || null,
   systemInfo: existingState?.systemInfo || null,
   virtualization: existingState?.virtualization || null,
@@ -191,6 +193,7 @@ const setKernelVersionResultToState = (result: KernelVersionResult | null) => (s
 const setCpuModelResultToState = (result: CpuModelResult | null) => (state: MachineStore) => ({
   machineState: result ? createCompleteMachineState(state.machineState, {
     cpuModel: result.cpuModel,
+    cpuCores: result.cpuCores !== undefined ? result.cpuCores : null,
     hasTriedDetectingCpuModel: true
   }) : state.machineState
 });
@@ -209,6 +212,7 @@ const setSystemInfoResultToState = (result: MachineModelResult | null) => (state
     ipAddress: state.machineState?.ipAddress || null,
     kernelVersion: state.machineState?.kernelVersion || null,
     cpuModel: state.machineState?.cpuModel || null,
+    cpuCores: state.machineState?.cpuCores || null,
     distroFlavor: state.machineState?.distroFlavor || null,
     systemInfo: result,
     virtualization: state.machineState?.virtualization || null,

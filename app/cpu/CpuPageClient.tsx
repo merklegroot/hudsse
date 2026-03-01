@@ -50,6 +50,20 @@ export function CpuPageClient() {
         startSseStream(createEventSource);
       }
     },
+    { 
+      label: 'CPU Cores', 
+      value: machineState?.cpuCores !== null && machineState?.cpuCores !== undefined 
+        ? machineState.cpuCores.toString() 
+        : 'Loading...',
+      showRefreshButton: true,
+      onRefresh: () => {
+        // Create EventSource for CPU info endpoint
+        const createEventSource = () => new EventSource('/api/sse/cpu/info');
+        
+        // Start the SSE stream
+        startSseStream(createEventSource);
+      }
+    },
   ];
 
   return (

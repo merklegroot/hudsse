@@ -77,13 +77,13 @@ const kernelVersionChain = currentPlatform === platformType.windows
     : kernelVersionChainLinux;
 
 const cpuModelChainLinux: commandArgsChainProp = {
-    commandAndArgs: { command: 'sh', args: ['-c', "lscpu | grep 'Model name' | cut -d':' -f2 | xargs"] },
+    commandAndArgs: { command: 'sh', args: ['-c', 'lscpu'] },
     parser: parseCpuModel,
     onSuccess: 'CPU model retrieved successfully'
 };
 
 const cpuModelChainWindows: commandArgsChainProp = {
-    commandAndArgs: { command: 'powershell.exe', args: ['-ExecutionPolicy', 'Bypass', '-Command', 'Get-WmiObject -Class Win32_Processor | Select-Object -ExpandProperty Name'] },
+    commandAndArgs: { command: 'powershell.exe', args: ['-ExecutionPolicy', 'Bypass', '-Command', '$proc = Get-WmiObject -Class Win32_Processor; Write-Output "Model name: $($proc.Name)"; Write-Output "CPU(s): $($proc.NumberOfLogicalProcessors)"'] },
     parser: parseCpuModel,
     onSuccess: 'CPU model retrieved successfully'
 };

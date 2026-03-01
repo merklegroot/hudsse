@@ -85,6 +85,7 @@ export interface KernelVersionResult {
 
 export interface CpuModelResult {
     cpuModel: string;
+    cpuCores?: number;
 }
 
 export interface DistroFlavorResult {
