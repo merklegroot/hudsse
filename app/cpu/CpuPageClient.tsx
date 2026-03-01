@@ -6,6 +6,7 @@ import { useSse } from '@/contexts/SseContext';
 import SystemDetailField from '@/components/SystemDetailField';
 import SseCpuInfoButton from '@/components/SseCpuInfoButton';
 import { CPUFeaturesDisplay } from '@/components/CPUFeaturesDisplay';
+import CPUIcon, { getVendorIcon } from '@/components/Icons/CPUIcon';
 
 export function CpuPageClient() {
   const machineState = useMachineStore((state) => state.machineState);
@@ -48,13 +49,15 @@ export function CpuPageClient() {
       label: 'Vendor', 
       value: machineState?.cpuVendor || 'Loading...',
       showRefreshButton: true,
-      onRefresh: refreshCpuInfo
+      onRefresh: refreshCpuInfo,
+      icon: getVendorIcon(machineState?.cpuVendor, "w-6 h-6")
     },
     { 
       label: 'CPU Model', 
       value: machineState?.cpuModel || 'Loading...',
       showRefreshButton: true,
-      onRefresh: refreshCpuInfo
+      onRefresh: refreshCpuInfo,
+      icon: <CPUIcon cpuModel={machineState?.cpuModel || undefined} cpuVendor={machineState?.cpuVendor || undefined} className="w-6 h-6" />
     },
     { 
       label: 'CPU Cores', 
