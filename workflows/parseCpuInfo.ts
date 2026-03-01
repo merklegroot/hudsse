@@ -1,5 +1,36 @@
 import { CpuInfoResult } from '../models/SseMessage';
 
+function parseCacheSize(cacheValue: string): number | undefined {
+  // lscpu shows cache as "256 KiB (8 instances)" or "4 MiB (8 instances)"
+  // Extract just the size part before the parentheses
+  const trimmed = cacheValue.trim();
+  const sizePart = trimmed.split('(')[0].trim().toUpperCase();
+  
+  const match = sizePart.match(/^(\d+(?:\.\d+)?)\s*(K|M|G|KI?B|MI?B|GI?B)?$/);
+  
+  if (!match) {
+    return undefined;
+  }
+  
+  const size = parseFloat(match[1]);
+  const unit = match[2] || 'K';
+  
+  // Convert to KB
+  if (unit.startsWith('K') || unit === 'K') {
+    return Math.round(size);
+  }
+  
+  if (unit.startsWith('M') || unit === 'M') {
+    return Math.round(size * 1024);
+  }
+  
+  if (unit.startsWith('G') || unit === 'G') {
+    return Math.round(size * 1024 * 1024);
+  }
+  
+  return undefined;
+}
+
 function parseVendor(vendorId: string): string {
   const upperVendorId = vendorId.toUpperCase();
   
@@ -67,6 +98,10 @@ export function parseCpuInfo(output: string): CpuInfoResult {
     let virtualization: string | undefined = undefined;
     let cpuFlags: string | undefined = undefined;
     let vendor: string | undefined = undefined;
+    let l1dCache: number | undefined = undefined;
+    let l1iCache: number | undefined = undefined;
+    let l2Cache: number | undefined = undefined;
+    let l3Cache: number | undefined = undefined;
     
     for (const line of lines) {
       const colonIndex = line.indexOf(':');
@@ -131,6 +166,36 @@ export function parseCpuInfo(output: string): CpuInfoResult {
       if (upperKey === 'FLAGS') {
         cpuFlags = value;
       }
+
+      // Parse cache sizes (lscpu shows them as "L1d cache: 256 KiB (8 instances)")
+      // Handle variations: "L1d cache", "L1D cache", "L1d cache:", etc.
+      if (upperKey.includes('L1D') && upperKey.includes('CACHE')) {
+        const cacheSize = parseCacheSize(value);
+        if (cacheSize !== undefined) {
+          l1dCache = cacheSize;
+        }
+      }
+
+      if (upperKey.includes('L1I') && upperKey.includes('CACHE')) {
+        const cacheSize = parseCacheSize(value);
+        if (cacheSize !== undefined) {
+          l1iCache = cacheSize;
+        }
+      }
+
+      if (upperKey.includes('L2') && upperKey.includes('CACHE') && !upperKey.includes('L1')) {
+        const cacheSize = parseCacheSize(value);
+        if (cacheSize !== undefined) {
+          l2Cache = cacheSize;
+        }
+      }
+
+      if (upperKey.includes('L3') && upperKey.includes('CACHE')) {
+        const cacheSize = parseCacheSize(value);
+        if (cacheSize !== undefined) {
+          l3Cache = cacheSize;
+        }
+      }
     }
     
     if (!cpuModel) {
@@ -147,7 +212,11 @@ export function parseCpuInfo(output: string): CpuInfoResult {
       sockets,
       virtualization,
       cpuFlags,
-      vendor
+      vendor,
+      l1dCache,
+      l1iCache,
+      l2Cache,
+      l3Cache
     };
     
     // Parse CPU feature flags if available

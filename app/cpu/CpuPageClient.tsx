@@ -111,7 +111,49 @@ export function CpuPageClient() {
       showRefreshButton: true,
       onRefresh: refreshCpuInfo
     },
+    { 
+      label: 'L1d Cache', 
+      value: machineState?.cpuL1dCache !== null && machineState?.cpuL1dCache !== undefined 
+        ? formatCacheSize(machineState.cpuL1dCache)
+        : 'Loading...',
+      showRefreshButton: true,
+      onRefresh: refreshCpuInfo
+    },
+    { 
+      label: 'L1i Cache', 
+      value: machineState?.cpuL1iCache !== null && machineState?.cpuL1iCache !== undefined 
+        ? formatCacheSize(machineState.cpuL1iCache)
+        : 'Loading...',
+      showRefreshButton: true,
+      onRefresh: refreshCpuInfo
+    },
+    { 
+      label: 'L2 Cache', 
+      value: machineState?.cpuL2Cache !== null && machineState?.cpuL2Cache !== undefined 
+        ? formatCacheSize(machineState.cpuL2Cache)
+        : 'Loading...',
+      showRefreshButton: true,
+      onRefresh: refreshCpuInfo
+    },
+    { 
+      label: 'L3 Cache', 
+      value: machineState?.cpuL3Cache !== null && machineState?.cpuL3Cache !== undefined 
+        ? formatCacheSize(machineState.cpuL3Cache)
+        : 'Loading...',
+      showRefreshButton: true,
+      onRefresh: refreshCpuInfo
+    },
   ];
+
+  function formatCacheSize(kb: number): string {
+    if (kb < 1024) {
+      return `${kb} KB`;
+    }
+    if (kb < 1024 * 1024) {
+      return `${(kb / 1024).toFixed(1)} MB`;
+    }
+    return `${(kb / (1024 * 1024)).toFixed(1)} GB`;
+  }
 
   return (
     <div className="h-full flex flex-col">

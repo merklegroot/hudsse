@@ -108,6 +108,11 @@ export interface CpuInfoResult {
     aes?: boolean;
     sha?: boolean;
     neon?: boolean;
+    // Cache sizes (in KB)
+    l1dCache?: number;
+    l1iCache?: number;
+    l2Cache?: number;
+    l3Cache?: number;
 }
 
 export interface DistroFlavorResult {

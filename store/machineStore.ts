@@ -29,6 +29,10 @@ interface MachineState {
   cpuAes: boolean | null;
   cpuSha: boolean | null;
   cpuNeon: boolean | null;
+  cpuL1dCache: number | null;
+  cpuL1iCache: number | null;
+  cpuL2Cache: number | null;
+  cpuL3Cache: number | null;
   distroFlavor: string | null;
   systemInfo: MachineModelResult | null;
   virtualization: number | null;
@@ -116,6 +120,10 @@ const createCompleteMachineState = (existingState: MachineState | null, updates:
   cpuAes: existingState?.cpuAes || null,
   cpuSha: existingState?.cpuSha || null,
   cpuNeon: existingState?.cpuNeon || null,
+  cpuL1dCache: existingState?.cpuL1dCache || null,
+  cpuL1iCache: existingState?.cpuL1iCache || null,
+  cpuL2Cache: existingState?.cpuL2Cache || null,
+  cpuL3Cache: existingState?.cpuL3Cache || null,
   distroFlavor: existingState?.distroFlavor || null,
   systemInfo: existingState?.systemInfo || null,
   virtualization: existingState?.virtualization || null,
@@ -257,6 +265,10 @@ const setCpuInfoResultToState = (result: CpuInfoResult | null) => (state: Machin
     cpuAes: result.aes !== undefined ? result.aes : null,
     cpuSha: result.sha !== undefined ? result.sha : null,
     cpuNeon: result.neon !== undefined ? result.neon : null,
+    cpuL1dCache: result.l1dCache !== undefined ? result.l1dCache : null,
+    cpuL1iCache: result.l1iCache !== undefined ? result.l1iCache : null,
+    cpuL2Cache: result.l2Cache !== undefined ? result.l2Cache : null,
+    cpuL3Cache: result.l3Cache !== undefined ? result.l3Cache : null,
     hasTriedDetectingCpuModel: true
   }) : state.machineState
 });
@@ -297,6 +309,10 @@ const setSystemInfoResultToState = (result: MachineModelResult | null) => (state
     cpuAes: state.machineState?.cpuAes || null,
     cpuSha: state.machineState?.cpuSha || null,
     cpuNeon: state.machineState?.cpuNeon || null,
+    cpuL1dCache: state.machineState?.cpuL1dCache || null,
+    cpuL1iCache: state.machineState?.cpuL1iCache || null,
+    cpuL2Cache: state.machineState?.cpuL2Cache || null,
+    cpuL3Cache: state.machineState?.cpuL3Cache || null,
     distroFlavor: state.machineState?.distroFlavor || null,
     systemInfo: result,
     virtualization: state.machineState?.virtualization || null,
