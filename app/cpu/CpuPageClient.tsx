@@ -5,6 +5,7 @@ import { useMachineStore } from '@/store/machineStore';
 import { useSse } from '@/contexts/SseContext';
 import SystemDetailField from '@/components/SystemDetailField';
 import SseCpuInfoButton from '@/components/SseCpuInfoButton';
+import { CPUFeaturesDisplay } from '@/components/CPUFeaturesDisplay';
 
 export function CpuPageClient() {
   const machineState = useMachineStore((state) => state.machineState);
@@ -136,6 +137,22 @@ export function CpuPageClient() {
                 ))}
               </div>
             </div>
+            
+            <CPUFeaturesDisplay
+              sse={machineState?.cpuSse}
+              sse2={machineState?.cpuSse2}
+              sse3={machineState?.cpuSse3}
+              ssse3={machineState?.cpuSsse3}
+              sse4_1={machineState?.cpuSse4_1}
+              sse4_2={machineState?.cpuSse4_2}
+              avx={machineState?.cpuAvx}
+              avx2={machineState?.cpuAvx2}
+              avx512={machineState?.cpuAvx512}
+              fma={machineState?.cpuFma}
+              aes={machineState?.cpuAes}
+              sha={machineState?.cpuSha}
+              neon={machineState?.cpuNeon}
+            />
           </div>
         </div>
       </div>

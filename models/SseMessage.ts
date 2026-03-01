@@ -94,6 +94,20 @@ export interface CpuInfoResult {
     virtualization?: string;
     cpuFlags?: string;
     vendor?: string;
+    // CPU Feature Flags
+    sse?: boolean;
+    sse2?: boolean;
+    sse3?: boolean;
+    ssse3?: boolean;
+    sse4_1?: boolean;
+    sse4_2?: boolean;
+    avx?: boolean;
+    avx2?: boolean;
+    avx512?: boolean;
+    fma?: boolean;
+    aes?: boolean;
+    sha?: boolean;
+    neon?: boolean;
 }
 
 export interface DistroFlavorResult {

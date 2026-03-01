@@ -16,6 +16,19 @@ interface MachineState {
   cpuVirtualization: string | null;
   cpuFlags: string | null;
   cpuVendor: string | null;
+  cpuSse: boolean | null;
+  cpuSse2: boolean | null;
+  cpuSse3: boolean | null;
+  cpuSsse3: boolean | null;
+  cpuSse4_1: boolean | null;
+  cpuSse4_2: boolean | null;
+  cpuAvx: boolean | null;
+  cpuAvx2: boolean | null;
+  cpuAvx512: boolean | null;
+  cpuFma: boolean | null;
+  cpuAes: boolean | null;
+  cpuSha: boolean | null;
+  cpuNeon: boolean | null;
   distroFlavor: string | null;
   systemInfo: MachineModelResult | null;
   virtualization: number | null;
@@ -90,6 +103,19 @@ const createCompleteMachineState = (existingState: MachineState | null, updates:
   cpuVirtualization: existingState?.cpuVirtualization || null,
   cpuFlags: existingState?.cpuFlags || null,
   cpuVendor: existingState?.cpuVendor || null,
+  cpuSse: existingState?.cpuSse || null,
+  cpuSse2: existingState?.cpuSse2 || null,
+  cpuSse3: existingState?.cpuSse3 || null,
+  cpuSsse3: existingState?.cpuSsse3 || null,
+  cpuSse4_1: existingState?.cpuSse4_1 || null,
+  cpuSse4_2: existingState?.cpuSse4_2 || null,
+  cpuAvx: existingState?.cpuAvx || null,
+  cpuAvx2: existingState?.cpuAvx2 || null,
+  cpuAvx512: existingState?.cpuAvx512 || null,
+  cpuFma: existingState?.cpuFma || null,
+  cpuAes: existingState?.cpuAes || null,
+  cpuSha: existingState?.cpuSha || null,
+  cpuNeon: existingState?.cpuNeon || null,
   distroFlavor: existingState?.distroFlavor || null,
   systemInfo: existingState?.systemInfo || null,
   virtualization: existingState?.virtualization || null,
@@ -218,6 +244,19 @@ const setCpuInfoResultToState = (result: CpuInfoResult | null) => (state: Machin
     cpuVirtualization: result.virtualization !== undefined ? result.virtualization : null,
     cpuFlags: result.cpuFlags !== undefined ? result.cpuFlags : null,
     cpuVendor: result.vendor !== undefined ? result.vendor : null,
+    cpuSse: result.sse !== undefined ? result.sse : null,
+    cpuSse2: result.sse2 !== undefined ? result.sse2 : null,
+    cpuSse3: result.sse3 !== undefined ? result.sse3 : null,
+    cpuSsse3: result.ssse3 !== undefined ? result.ssse3 : null,
+    cpuSse4_1: result.sse4_1 !== undefined ? result.sse4_1 : null,
+    cpuSse4_2: result.sse4_2 !== undefined ? result.sse4_2 : null,
+    cpuAvx: result.avx !== undefined ? result.avx : null,
+    cpuAvx2: result.avx2 !== undefined ? result.avx2 : null,
+    cpuAvx512: result.avx512 !== undefined ? result.avx512 : null,
+    cpuFma: result.fma !== undefined ? result.fma : null,
+    cpuAes: result.aes !== undefined ? result.aes : null,
+    cpuSha: result.sha !== undefined ? result.sha : null,
+    cpuNeon: result.neon !== undefined ? result.neon : null,
     hasTriedDetectingCpuModel: true
   }) : state.machineState
 });
@@ -245,6 +284,19 @@ const setSystemInfoResultToState = (result: MachineModelResult | null) => (state
     cpuVirtualization: state.machineState?.cpuVirtualization || null,
     cpuFlags: state.machineState?.cpuFlags || null,
     cpuVendor: state.machineState?.cpuVendor || null,
+    cpuSse: state.machineState?.cpuSse || null,
+    cpuSse2: state.machineState?.cpuSse2 || null,
+    cpuSse3: state.machineState?.cpuSse3 || null,
+    cpuSsse3: state.machineState?.cpuSsse3 || null,
+    cpuSse4_1: state.machineState?.cpuSse4_1 || null,
+    cpuSse4_2: state.machineState?.cpuSse4_2 || null,
+    cpuAvx: state.machineState?.cpuAvx || null,
+    cpuAvx2: state.machineState?.cpuAvx2 || null,
+    cpuAvx512: state.machineState?.cpuAvx512 || null,
+    cpuFma: state.machineState?.cpuFma || null,
+    cpuAes: state.machineState?.cpuAes || null,
+    cpuSha: state.machineState?.cpuSha || null,
+    cpuNeon: state.machineState?.cpuNeon || null,
     distroFlavor: state.machineState?.distroFlavor || null,
     systemInfo: result,
     virtualization: state.machineState?.virtualization || null,

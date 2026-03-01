@@ -18,6 +18,27 @@ function parseVendor(vendorId: string): string {
   return vendorId;
 }
 
+function parseCpuFeatures(flags: string): Partial<CpuInfoResult> {
+  const upperFlags = flags.toUpperCase();
+  const flagArray = upperFlags.split(/\s+/);
+  
+  return {
+    sse: flagArray.includes('SSE'),
+    sse2: flagArray.includes('SSE2'),
+    sse3: flagArray.includes('SSE3'),
+    ssse3: flagArray.includes('SSSE3'),
+    sse4_1: flagArray.includes('SSE4_1') || flagArray.includes('SSE4.1'),
+    sse4_2: flagArray.includes('SSE4_2') || flagArray.includes('SSE4.2'),
+    avx: flagArray.includes('AVX'),
+    avx2: flagArray.includes('AVX2'),
+    avx512: flagArray.includes('AVX512F') || flagArray.includes('AVX512'),
+    fma: flagArray.includes('FMA'),
+    aes: flagArray.includes('AES'),
+    sha: flagArray.includes('SHA_NI') || flagArray.includes('SHA-NI'),
+    neon: flagArray.includes('NEON')
+  };
+}
+
 export function parseCpuInfo(output: string): CpuInfoResult {
   const trimmedOutput = output.trim();
   
@@ -116,7 +137,7 @@ export function parseCpuInfo(output: string): CpuInfoResult {
       throw new Error('CPU model name not found in lscpu output');
     }
     
-    return {
+    const baseResult: CpuInfoResult = {
       cpuModel,
       cpuCores,
       architecture,
@@ -128,6 +149,17 @@ export function parseCpuInfo(output: string): CpuInfoResult {
       cpuFlags,
       vendor
     };
+    
+    // Parse CPU feature flags if available
+    if (cpuFlags) {
+      const features = parseCpuFeatures(cpuFlags);
+      return {
+        ...baseResult,
+        ...features
+      };
+    }
+    
+    return baseResult;
   } else {
     // Windows PowerShell output - just the processor name
     return {
