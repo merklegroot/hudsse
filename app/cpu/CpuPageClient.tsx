@@ -7,6 +7,7 @@ import SystemDetailField from '@/components/SystemDetailField';
 import SseCpuInfoButton from '@/components/SseCpuInfoButton';
 import { CPUFeaturesDisplay } from '@/components/CPUFeaturesDisplay';
 import CPUIcon, { getVendorIcon } from '@/components/Icons/CPUIcon';
+import { FaBolt } from 'react-icons/fa';
 
 export function CpuPageClient() {
   const machineState = useMachineStore((state) => state.machineState);
@@ -79,7 +80,8 @@ export function CpuPageClient() {
         ? `${machineState.cpuMhz} MHz`
         : 'Loading...',
       showRefreshButton: true,
-      onRefresh: refreshCpuInfo
+      onRefresh: refreshCpuInfo,
+      icon: <FaBolt className="w-6 h-6 text-yellow-500" />
     },
     { 
       label: 'Threads per Core', 
