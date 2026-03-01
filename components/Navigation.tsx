@@ -33,6 +33,7 @@ export default function Navigation() {
             <NavLink href="/home" label="Machine" />
             <NavLink href="/cpu" label="CPU" />
             <NavLink href="/gpu" label="GPU" />
+            <NavLink href="/disk" label="Disk" />
             <NavLink href="/package" label="Package Management" />
             <NavLink href="/dotnet" label=".NET" />
             <NavLink href="/files" label="Files" />

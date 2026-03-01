@@ -7,7 +7,8 @@ import { useDotNetStore } from '../store/dotnetStore';
 import { useMachineStore } from '../store/machineStore';
 import { usePathStore } from '../store/pathStore';
 import { useGpuStore } from '../store/gpuStore';
-import { SseMessage, ListSdksResult, ListRuntimesResult, WhichDotNetResult, DotNetInfoResult, HostnameResult, PlatformResult, IpAddressResult, KernelVersionResult, CpuInfoResult, DistroFlavorResult, VirtualizationResult, PathResult, MotherboardNameResult, MachineModelResult, PackageManagerResult, GpuInfoResult } from '../models/SseMessage';
+import { useDiskStore } from '../store/diskStore';
+import { SseMessage, ListSdksResult, ListRuntimesResult, WhichDotNetResult, DotNetInfoResult, HostnameResult, PlatformResult, IpAddressResult, KernelVersionResult, CpuInfoResult, DistroFlavorResult, VirtualizationResult, PathResult, MotherboardNameResult, MachineModelResult, PackageManagerResult, GpuInfoResult, DiskInfoResult } from '../models/SseMessage';
 
 interface SseContextType {
   startSseStream: (createEventSource: () => EventSource) => EventSource;
@@ -38,6 +39,7 @@ export function SseProvider({ children }: SseProviderProps) {
   const setPackageManagerResult = useMachineStore((state) => state.setPackageManagerResult);
   const setPathResult = usePathStore((state) => state.setPathResult);
   const setGpuInfoResult = useGpuStore((state) => state.setGpuInfoResult);
+  const setDiskInfoResult = useDiskStore((state) => state.setDiskInfoResult);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSseMessage = useCallback((message: SseMessage) => {
@@ -127,11 +129,16 @@ export function SseProvider({ children }: SseProviderProps) {
         if (parsedResult.gpus && Array.isArray(parsedResult.gpus)) {
           setGpuInfoResult(parsedResult as GpuInfoResult);
         }
+        
+        // Handle Disk Info result
+        if (parsedResult.disks && Array.isArray(parsedResult.disks)) {
+          setDiskInfoResult(parsedResult as DiskInfoResult);
+        }
       } catch (error) {
         console.warn('Failed to parse result:', error);
       }
     }
-  }, [addSseMessage, setDotnetSdks, setDotnetRuntimes, setWhichDotNetPath, setDotnetInfo, setHostnameResult, setPlatformResult, setIpAddressResult, setKernelVersionResult, setCpuInfoResult, setDistroFlavorResult, setSystemInfoResult, setVirtualizationResult, setMotherboardNameResult, setPackageManagerResult, setPathResult, setGpuInfoResult]);
+  }, [addSseMessage, setDotnetSdks, setDotnetRuntimes, setWhichDotNetPath, setDotnetInfo, setHostnameResult, setPlatformResult, setIpAddressResult, setKernelVersionResult, setCpuInfoResult, setDistroFlavorResult, setSystemInfoResult, setVirtualizationResult, setMotherboardNameResult, setPackageManagerResult, setPathResult, setGpuInfoResult, setDiskInfoResult]);
 
   const startSseStream = useCallback((createEventSource: () => EventSource) => {
     if (isLoading) {

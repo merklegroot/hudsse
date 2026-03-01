@@ -137,6 +137,27 @@ export interface GpuInfoResult {
     openGLRenderer?: string;
 }
 
+export interface DiskInfo {
+    mount: string;
+    total: string;
+    used: string;
+    available: string;
+    usedPercent: number;
+    filesystem: string;
+}
+
+export interface PhysicalDisk {
+    device: string;
+    size: string;
+    model: string;
+    type: string;
+}
+
+export interface DiskInfoResult {
+    disks: DiskInfo[];
+    physicalDisks: PhysicalDisk[];
+}
+
 export interface PlatformResult {
     platform: string;
 }
