@@ -211,6 +211,30 @@ export interface SystemInfoResult {
     boardName: string | null;
 }
 
+export interface ProfileFile {
+    path: string;
+    description: string;
+    exists: boolean;
+    isMainProfile?: boolean;
+}
+
+export interface ProfileInfo {
+    platform: string;
+    platformType: string;
+    distroInfo?: string;
+    distroFamily?: string;
+    profileFiles?: ProfileFile[];
+    profileInstructions: {
+        title: string;
+        description: string;
+        methods: {
+            name: string;
+            description: string;
+            steps: string[];
+        }[];
+    };
+}
+
 export interface SseMessage {
     type: SseMessageType;
     contents: string;

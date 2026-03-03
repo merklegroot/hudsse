@@ -39,6 +39,7 @@ export default function Navigation() {
             <NavLink href="/dotnet" label=".NET" />
             <NavLink href="/files" label="Files" />
             <NavLink href="/path" label="Path" />
+            <NavLink href="/profile" label="User Profile" />
           </ul>
         </div>
       </div>
