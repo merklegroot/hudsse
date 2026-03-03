@@ -158,6 +158,21 @@ export interface DiskInfoResult {
     physicalDisks: PhysicalDisk[];
 }
 
+export interface TopProcess {
+    pid: string;
+    name: string;
+    memoryUsage: string;
+    memoryPercent: number;
+    memoryAbsolute: string;
+}
+
+export interface MemoryInfoResult {
+    totalRAM: string;
+    freeRAM: string;
+    usedRAM: string;
+    topProcesses: TopProcess[];
+}
+
 export interface PlatformResult {
     platform: string;
 }

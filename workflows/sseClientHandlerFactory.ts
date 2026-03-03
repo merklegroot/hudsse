@@ -2,6 +2,12 @@ import { SseMessage } from "@/models/SseMessage";
 
 function handleSseError(error: Event) {
     console.error('SSE error:', error);
+    console.error('SSE error type:', error.type);
+    console.error('SSE error target:', error.target);
+    if (error.target instanceof EventSource) {
+        console.error('SSE readyState:', error.target.readyState);
+        console.error('SSE url:', error.target.url);
+    }
     return { shouldClose: true };
 }
 
