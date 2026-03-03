@@ -1,14 +1,14 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useMachineStore } from '@/store/machineStore';
+import { usePackageStore } from '@/store/packageStore';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useSse } from '@/contexts/SseContext';
 import { MachineStateViewer } from '@/components/MachineStateViewer';
 import SystemDetailField from '@/components/SystemDetailField';
 
 export function PackagePageClient() {
-  const machineState = useMachineStore((state) => state.machineState);
+  const packageState = usePackageStore((state) => state.packageState);
   const isMobile = useIsMobile();
   const { startSseStream, isLoading } = useSse();
   const [ isFirst, setIsFirst ] = useState<boolean>(true);
@@ -21,7 +21,7 @@ export function PackagePageClient() {
     setIsFirst(false);
 
     // Check if we haven't tried detecting package manager yet
-    const hasTriedDetectingPackageManager = machineState?.hasTriedDetectingPackageManager ?? false;
+    const hasTriedDetectingPackageManager = packageState?.hasTriedDetectingPackageManager ?? false;
     
     if (!hasTriedDetectingPackageManager && !isLoading) {
       // Create EventSource for package info endpoint
@@ -30,57 +30,7 @@ export function PackagePageClient() {
       // Start the SSE stream
       startSseStream(createEventSource);
     }
-  }, [machineState?.hasTriedDetectingPackageManager, isLoading, startSseStream]);
-
-  // Map package managers to their corresponding package formats
-  const mapPackageManagerToFormat = (packageManager: string): string => {
-    switch (packageManager.trim().toUpperCase()) {
-      case 'APT':
-        return 'DEB';
-      case 'DNF':
-      case 'YUM':
-        return 'RPM';
-      case 'PACMAN':
-        return 'TAR.XZ';
-      case 'PORTAGE':
-        return 'EBUILD';
-      case 'NIX':
-        return 'NIX';
-      case 'HOMEBREW':
-        return 'BOTTLE';
-      case 'APK':
-        return 'APK';
-      case 'XBPS':
-        return 'XBPS';
-      case 'PKG':
-        return 'PKG';
-      case 'PORTS':
-        return 'PORTS';
-      case 'DISM':
-        return 'MSI';
-      case 'WINGET':
-        return 'APPX';
-      case 'ONEGET':
-        return 'NUGET';
-      case 'ZYPPER':
-        return 'RPM';
-      default:
-        return 'Unknown';
-    }
-  };
-
-  // Parse package formats from package manager string
-  const parsePackageFormats = (packageManager: string | null | undefined): string[] => {
-    if (!packageManager || packageManager === 'Unknown' || packageManager.trim() === '') {
-      return ['Unknown'];
-    }
-    
-    const managerList = packageManager.split(',').map(manager => manager.trim());
-    const formatList = managerList.map(manager => mapPackageManagerToFormat(manager));
-    return formatList.length > 0 ? formatList : ['Unknown'];
-  };
-
-  const packageFormats = parsePackageFormats(machineState?.packageManager);
+  }, [packageState?.hasTriedDetectingPackageManager, isLoading, startSseStream]);
 
   // Package-related data items
   const packageItems: Array<{
@@ -89,10 +39,14 @@ export function PackagePageClient() {
     showRefreshButton?: boolean;
     onRefresh?: () => void;
   }> = [
-    { label: 'Package Manager', value: machineState?.packageManager || '' },
+    { label: 'Package Manager', value: packageState?.packageManager || '' },
     { 
       label: 'Package Formats', 
-      value: packageFormats.length === 1 ? packageFormats[0] : packageFormats.join(', ')
+      value: packageState?.packageFormats && packageState.packageFormats.length > 0
+        ? (packageState.packageFormats.length === 1 
+            ? packageState.packageFormats[0] 
+            : packageState.packageFormats.join(', '))
+        : 'Loading...'
     },
   ];
 
