@@ -13,6 +13,13 @@ import { OsTypeControl } from './controls/OsTypeControl';
 import { platformType } from '@/utils/platformUtil';
 import { virtualizationUtil, VirtualizationType } from '@/utils/virtualizationUtil';
 import VirtualizationIcon from '@/components/VirtualizationIcon';
+import MachineIcon from '@/components/Icons/MachineIcon';
+import CPUIcon from '@/components/Icons/CPUIcon';
+import KernelIcon from '@/components/Icons/KernelIcon';
+import HostnameIcon from '@/components/Icons/HostnameIcon';
+import IPAddressIcon from '@/components/Icons/IPAddressIcon';
+import DistroIcon from '@/components/Icons/DistroIcon';
+import MotherboardIcon from '@/components/Icons/MotherboardIcon';
 
 export function MachinePageControl() {
   const machineState = useMachineStore((state) => state.machineState);
@@ -52,8 +59,16 @@ export function MachinePageControl() {
     onRefresh?: () => void;
     icon?: React.ReactNode;
   }> = [
-    { label: 'Machine Name', value: machineState?.hostname || '' },
-    { label: 'Local IP Address', value: machineState?.ipAddress || '' },
+    { 
+      label: 'Machine Name', 
+      value: machineState?.hostname || '',
+      icon: <HostnameIcon hostname={machineState?.hostname} />
+    },
+    { 
+      label: 'Local IP Address', 
+      value: machineState?.ipAddress || '',
+      icon: <IPAddressIcon ipAddress={machineState?.ipAddress} />
+    },
     { 
       label: 'Machine Model', 
       value: machineState?.systemInfo?.productName || '', 
@@ -64,12 +79,29 @@ export function MachinePageControl() {
         
         // Start the SSE stream
         startSseStream(createEventSource);
-      }
+      },
+      icon: <MachineIcon machineModel={machineState?.systemInfo?.productName || ''} />
     },
-    { label: 'CPU Model', value: machineState?.cpuModel || '' },
-    { label: 'Distro Flavor', value: machineState?.distroFlavor || '' },
-    { label: 'Kernel Version', value: machineState?.kernelVersion || '' },
-    { label: 'Motherboard', value: machineState?.motherboardName || '' },
+    { 
+      label: 'CPU Model', 
+      value: machineState?.cpuModel || '',
+      icon: <CPUIcon cpuInfo={machineState?.cpuModel} />
+    },
+    { 
+      label: 'Distro Flavor', 
+      value: machineState?.distroFlavor || '',
+      icon: <DistroIcon distroFlavor={machineState?.distroFlavor} />
+    },
+    { 
+      label: 'Kernel Version', 
+      value: machineState?.kernelVersion || '',
+      icon: <KernelIcon kernelVersion={machineState?.kernelVersion || ''} />
+    },
+    { 
+      label: 'Motherboard', 
+      value: machineState?.motherboardName || '',
+      icon: <MotherboardIcon motherboardName={machineState?.motherboardName} />
+    },
   ];
 
   return (
