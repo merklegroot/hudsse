@@ -13,24 +13,24 @@ export function PackagePageClient() {
   const { startSseStream, isLoading } = useSse();
   const [ isFirst, setIsFirst ] = useState<boolean>(true);
 
-  // Automatically fetch machine info when the page loads if it hasn't been fetched yet
+  // Automatically fetch package info when the page loads if it hasn't been fetched yet
   useEffect(() => {
     if (!isFirst)
       return;
 
     setIsFirst(false);
 
-    // Check if we haven't tried detecting system info yet
-    const hasTriedDetectingSystemInfo = machineState?.hasTriedDetectingSystemInfo ?? false;
+    // Check if we haven't tried detecting package manager yet
+    const hasTriedDetectingPackageManager = machineState?.hasTriedDetectingPackageManager ?? false;
     
-    if (!hasTriedDetectingSystemInfo && !isLoading) {
-      // Create EventSource for machine info endpoint
-      const createEventSource = () => new EventSource('/api/sse/machine/info');
+    if (!hasTriedDetectingPackageManager && !isLoading) {
+      // Create EventSource for package info endpoint
+      const createEventSource = () => new EventSource('/api/sse/package/info');
       
       // Start the SSE stream
       startSseStream(createEventSource);
     }
-  }, [machineState?.hasTriedDetectingSystemInfo, isLoading, startSseStream]);
+  }, [machineState?.hasTriedDetectingPackageManager, isLoading, startSseStream]);
 
   // Map package managers to their corresponding package formats
   const mapPackageManagerToFormat = (packageManager: string): string => {
