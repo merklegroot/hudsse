@@ -195,6 +195,15 @@ export interface PackageManagerResult {
     packageManager: string | null;
 }
 
+export interface PackageRepository {
+    packageManager: string;
+    repository: string;
+}
+
+export interface PackageRepositoryResult {
+    repositories: PackageRepository[];
+}
+
 export interface PathResult {
     path: string;
     folders: string[];

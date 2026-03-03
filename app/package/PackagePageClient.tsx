@@ -32,6 +32,17 @@ export function PackagePageClient() {
     }
   }, [packageState?.hasTriedDetectingPackageManager, isLoading, startSseStream]);
 
+  // Fetch repositories after package manager is detected
+  useEffect(() => {
+    const hasTriedDetectingRepositories = packageState?.hasTriedDetectingRepositories ?? false;
+    const hasPackageManager = packageState?.packageManager && packageState.packageManager !== 'Unknown';
+    
+    if (hasPackageManager && !hasTriedDetectingRepositories && !isLoading) {
+      const createEventSource = () => new EventSource('/api/sse/package/repositories');
+      startSseStream(createEventSource);
+    }
+  }, [packageState?.packageManager, packageState?.hasTriedDetectingRepositories, isLoading, startSseStream]);
+
   // Package-related data items
   const packageItems: Array<{
     label: string;
@@ -58,7 +69,7 @@ export function PackagePageClient() {
       <div className="flex-1 overflow-y-auto">
         <div className="p-6">
           <div className="max-w-7xl mx-auto">
-            <div className="bg-white rounded-lg shadow-md p-6">
+            <div className="bg-white rounded-lg shadow-md p-6 mb-6">
               <h2 className="text-2xl font-semibold text-gray-800 mb-4">Package Information</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {packageItems.map((item, index) => (
@@ -71,6 +82,30 @@ export function PackagePageClient() {
                   />
                 ))}
               </div>
+            </div>
+
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <h2 className="text-2xl font-semibold text-gray-800 mb-4">Package Repositories</h2>
+              {packageState?.repositories && packageState.repositories.length > 0 ? (
+                <div className="space-y-3">
+                  {packageState.repositories.map((repo, index) => (
+                    <div key={index} className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="font-semibold text-gray-700">{repo.packageManager}</span>
+                          </div>
+                          <p className="text-sm text-gray-600 break-words">{repo.repository}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-gray-600">
+                  {packageState?.hasTriedDetectingRepositories ? 'No repositories found' : 'Loading repositories...'}
+                </p>
+              )}
             </div>
           </div>
           
